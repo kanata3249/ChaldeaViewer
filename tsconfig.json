@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "target": "es2015",
+    "module": "es2015",
+    "moduleResolution": "node",
+
+    "baseUrl": "./src/",
+    "outDir": "./dist/",
+
+    "jsx":"react",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+
+    "typeRoots": ["node_modules/@types"]
+  },
+  "exclude": ["node_modules"]
+}
