@@ -6,11 +6,15 @@ import useMediaQuery from '@material-ui/core/useMediaQuery'
 import { AppBar, Menu, MenuItem, Toolbar, IconButton, Typography, Link } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 
+import { InventoryTable } from './../components/InventoryTable'
+
+import { Inventory, validateInventory } from './../../fgo/inventory'
+
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
     toolbar: theme.mixins.toolbar,
     contents: {
-      maxWidth: 1000
+      maxHeight: "calc(100vh - 64px - 32px)"
     },
     notice: {
       marginLeft: 10,
@@ -25,6 +29,17 @@ export const TopPage: FC = () => {
     return useMediaQuery(theme.breakpoints.up('xl'));
   }
 
+  const [ inventoryTableKey, setInventoryTableKey ] = useState(0)
+
+  const updateInventoryTable = () => {
+    setInventoryTableKey(inventoryTableKey + 1)
+  }
+
+  const inventory: Inventory = validateInventory(JSON.parse(localStorage.getItem("inventory")))
+  const handleInventoryChanged = (itemId: number, value: number) => {
+    inventory[itemId] = value
+    localStorage.setItem("inventory", JSON.stringify(inventory))
+  }
 
   return (
     <>
@@ -41,6 +56,7 @@ export const TopPage: FC = () => {
         </AppBar>
       </div>
       <div className={classes.contents}>
+        <InventoryTable key={inventoryTableKey} onChange={handleInventoryChanged} inventory={inventory} />
       </div>
       <div className={classes.notice}>
       </div>
