@@ -4,9 +4,11 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from '@material-ui/core'
 
 import { Inventory, InventoryStatus, ItemStatus, materialNames, calcInventoryStatus } from './../../fgo/inventory'
+import { Servants,  } from './../../fgo/servants'
 
 type Prop = {
   inventory: Inventory
+  servants: Servants
   onChange(id: number, value: number): void
 }
 
@@ -41,6 +43,7 @@ const columns : TableColumnInfo[] = [
 
 const getTableData = (inventoryTableData: InventoryTableData, columnIndex: number) => {
   const key = columns[columnIndex].key
+  const sum = (key: string) => Object.values<number>(inventoryTableData.item[key]).reduce((acc, value) => acc + value)
 
   switch (key) {
     case 'id':
@@ -50,9 +53,11 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
     case 'summoned':
     case 'used':
     case 'reserved':
+      return sum(key)
     case 'remain':
+      return Math.max(sum('required') - sum('used') - inventoryTableData.item.stock, 0)
     case 'remainSummoned':
-          return Object.values(inventoryTableData.item[key]).reduce((acc, value) => acc + value)
+      return Math.max(sum('summoned') - sum('used') - inventoryTableData.item.stock, 0)
     default:
       return inventoryTableData.item[key]
   }
@@ -76,8 +81,8 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-const calcInventoryTableData = (inventory: Inventory): InventoryTableData[] => {
-  const inventoryStatus = calcInventoryStatus(inventory)
+const calcInventoryTableData = (inventory: Inventory, servants: Servants): InventoryTableData[] => {
+  const inventoryStatus = calcInventoryStatus(inventory, servants)
   return Object.keys(inventory).map((itemId) => (
     { id: Number.parseInt(itemId), name: materialNames[itemId], item: inventoryStatus[itemId] } 
   ))
@@ -86,9 +91,11 @@ const calcInventoryTableData = (inventory: Inventory): InventoryTableData[] => {
 export const InventoryTable: FC<Prop> = (props) => {
   const classes = useStyles()
 
-  const [ inventoryTableData, setInventoryTableData ] = useState(calcInventoryTableData(props.inventory))
+  const [ inventoryTableData, setInventoryTableData ] = useState(calcInventoryTableData(props.inventory, props.servants))
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
+
+  console.log(inventoryTableData)
 
   const handleClickColumn = (column: number) => {
     let newSortOrder = -sortOrder
@@ -140,7 +147,7 @@ export const InventoryTable: FC<Prop> = (props) => {
                     <TextField value={getTableData(inventoryTableData[rowIndex], columnIndex)} size="small"
                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {handleStockChanged(rowIndex, Number.parseInt(e.target.value))}}
                                onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
-                               type="number" InputProps={{ disableUnderline: true }} inputProps={{style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
+                               type="number" InputProps={{ disableUnderline: true }} inputProps={{ min: 0, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
                     : getTableData(inventoryTableData[rowIndex], columnIndex)
                   }
                 </TableCell>

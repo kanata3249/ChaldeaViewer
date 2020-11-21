@@ -1,3 +1,5 @@
+import { Servants, Servant } from './servants'
+
 export type Inventory = {
   [itemId: number]: number
 }
@@ -14,14 +16,19 @@ export type ItemStatus = {
   summoned: ItemPerUsage
   reserved: ItemPerUsage
   used: ItemPerUsage
-  remain: ItemPerUsage
-  remainSummoned: ItemPerUsage
   free: number
   stock: number
 }
 
 export type InventoryStatus = {
   [itemId: number]: ItemStatus
+}
+
+type ItemCounts = {
+  required: ItemPerUsage
+  summoned: ItemPerUsage
+  used: ItemPerUsage
+  reserved: ItemPerUsage
 }
 
 export const materialNames: {
@@ -124,15 +131,21 @@ const emptyItemUsage = {
   dress: 0,
   sound: 0
 }
+
 const emptyItemStatus = {
   required: emptyItemUsage,
   summoned: emptyItemUsage,
   reserved: emptyItemUsage,
   used: emptyItemUsage,
-  remain: emptyItemUsage,
-  remainSummoned: emptyItemUsage,
   free: 0,
   stock: 0
+}
+
+const itemCountsTemplate = {
+  required: emptyItemUsage,
+  summoned: emptyItemUsage,
+  used: emptyItemUsage,
+  reserved: emptyItemUsage
 }
 
 const itemId2msItemId = {
@@ -180,10 +193,84 @@ export const validateInventory = (inventory: Inventory): Inventory =>
   }, {})
 }
 
-export const calcInventoryStatus = (inventory: Inventory): InventoryStatus =>
+export const calcInventoryStatus = (inventory: Inventory, servants: Servants): InventoryStatus =>
 {
-  return Object.keys(inventory).reduce((acc, itemId) => {
-    acc[itemId] = { ...JSON.parse(JSON.stringify(emptyItemStatus)), stock: inventory[itemId] }
+  const totalItemCounts = servants.reduce((acc, servant) => {
+    Object.entries(itemsForServant(servant)).forEach(([itemId, itemCounts]) => {
+      acc[itemId] = acc[itemId] || JSON.parse(JSON.stringify(itemCountsTemplate))
+      Object.entries(itemCounts).forEach(([type, countsPerType]) => {
+        Object.entries(countsPerType).forEach(([usage, count]) => {
+          acc[itemId][type][usage] += count
+        })
+      })
+    })
     return acc
   }, {})
+  return Object.entries<ItemCounts>(totalItemCounts).reduce((acc, [itemId, counts]) => {
+    acc[itemId] = {
+      required: counts.required,
+      summoned: counts.summoned,
+      reserved: counts.reserved,
+      used: counts.used,
+      free: inventory[itemId] - Object.values<number>(counts.reserved).reduce((acc, value) => acc + value),
+      stock: inventory[itemId]
+    }
+    return acc
+  }, {})
+}
+
+const itemsForServant = (servant: Servant) => {
+  const isSummoned = servant.npLevel > 0
+  const currentAscensionLevel = servant.ascension
+  const reservedAscensionLevel = servant.maxAscension
+  const currentSkillLevel = servant.skillLevel
+  const reservedSkillLevel = servant.maxSkillLevel
+
+  const ascensionItems = servant.servantInfo.ascension
+  const skillItems = servant.servantInfo.skill
+
+  const servantItemCounts = {}
+
+  ascensionItems.forEach((items, ascensionLevel) => {
+    Object.entries(items).forEach(([itemId, count]) => {
+      const counts = servantItemCounts[itemId] || JSON.parse(JSON.stringify(itemCountsTemplate))
+
+      servantItemCounts[itemId] = counts
+      counts.required.ascension += count
+      if (isSummoned) {
+        counts.summoned.ascension += count
+        if (currentAscensionLevel > ascensionLevel) {
+          counts.used.ascension += count
+        } else {
+          if (reservedAscensionLevel > ascensionLevel) {
+            counts.reserved.ascension += count
+          }
+        }
+      }
+    })
+  })
+
+  const skillNos = [0, 1, 2]
+  skillNos.forEach((skillNo) => {
+    skillItems.forEach((items, skillLevel) => {
+      Object.entries(items).forEach(([itemId, count]) => {
+        const counts = servantItemCounts[itemId] || JSON.parse(JSON.stringify(itemCountsTemplate))
+
+        servantItemCounts[itemId] = counts
+        counts.required.skill += count
+        if (isSummoned) {
+          counts.summoned.skill += count
+          if (currentSkillLevel[skillNo] > skillLevel + 1) {
+            counts.used.skill += count
+          } else {
+            if (reservedSkillLevel[skillNo] > skillLevel + 1) {
+              counts.reserved.skill += count
+            }
+          }
+        }
+      })
+    })
+  })
+
+  return servantItemCounts
 }

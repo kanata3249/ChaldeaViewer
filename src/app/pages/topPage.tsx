@@ -80,7 +80,7 @@ export const TopPage: FC = () => {
         </AppBar>
       </div>
       <div className={classes.contents}>
-        {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} />}
+        {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} servants={servants} />}
         {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} />}
       </div>
       <div className={classes.notice}>
