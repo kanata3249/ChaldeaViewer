@@ -182,7 +182,7 @@ export const exportMSInventory = (inventory: Inventory): string =>
     Object.keys(materialNames).reduce((acc, itemId) => {
       acc[itemId2msItemId[itemId] || itemId] = inventory[itemId]
       return acc
-    }, {}))
+    }, {"900":0}))
 }
 
 export const validateInventory = (inventory: Inventory): Inventory =>

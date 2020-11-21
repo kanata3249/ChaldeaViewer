@@ -8,8 +8,9 @@ import MenuIcon from '@material-ui/icons/Menu'
 
 import { InventoryTable } from './../components/InventoryTable'
 import { ServantTable } from './../components/ServantTable'
+import { MSExchangeDialog } from './../components/MSExchangeDialog'
 
-import { Inventory, validateInventory } from './../../fgo/inventory'
+import { Inventory, validateInventory, importMSInventory, exportMSInventory } from './../../fgo/inventory'
 import { Servants, validateServants, importMSServants, exportMSServants } from './../../fgo/servants'
 
 const useStyles = makeStyles((theme: Theme) => 
@@ -19,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1
     },
     contents: {
-      maxHeight: "calc(100vh - 64px - 32px)"
+      height: "calc(100vh - 64px)"
     },
     notice: {
       marginLeft: 10,
@@ -34,9 +35,11 @@ export const TopPage: FC = () => {
     return useMediaQuery(theme.breakpoints.up('xl'));
   }
 
+  const [ anchorEl, setAnchorEl ] = useState<null | HTMLElement>(null)
   const [ inventoryTableKey, setInventoryTableKey ] = useState(0)
   const [ servantTableKey, setServantTableKey ] = useState(0)
   const [ selectedInfo, setSelectedInfo ] = useState(localStorage.getItem("selectedInfo") || "Inventory")
+  const [ openMSExchangeDialog, setOpenMSExchangeDialog ] = useState(false)
 
   const updateInventoryTable = () => {
     setInventoryTableKey(inventoryTableKey + 1)
@@ -61,14 +64,46 @@ export const TopPage: FC = () => {
     localStorage.setItem("servants", JSON.stringify(servants))
   }
 
+  const handleImportExport = () => {
+    setOpenMSExchangeDialog(true)
+    closeMenu()
+  }
+  const handleCloseMSExchangeDialog = () => {
+    setOpenMSExchangeDialog(false)
+  }
+  const handleImportServants = (json: string) => {
+    localStorage.setItem("servants", JSON.stringify(importMSServants(json)))
+    updateServantTable()
+  }
+  const handleExportServants = () => {
+    return exportMSServants(servants)
+  }
+  const handleImportInventory = (json: string) => {
+    localStorage.setItem("inventory", JSON.stringify(importMSInventory(json)))
+    updateInventoryTable()
+  }
+  const handleExportInventory = () => {
+    return exportMSInventory(inventory)
+  }
+
+  const handleMenuClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(e.currentTarget)
+  }
+  const closeMenu = () => {
+    setAnchorEl(null)
+  }
+
   return (
     <>
       <div className={classes.toolbar}>
         <AppBar>
           <Toolbar>
-            <IconButton edge="start" aria-label="menu" aria-controls="main-menu">
+            <IconButton edge="start" aria-label="menu" aria-controls="main-menu" onClick={handleMenuClick}>
               <MenuIcon />
             </IconButton>
+            <Menu id="main-menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
+              <MenuItem onClick={handleImportExport}>インポート/エクスポート</MenuItem>
+            </Menu>
             <Typography variant="h6" className={classes.title}>
               Chaldea Data Viewer
             </Typography>
@@ -82,8 +117,10 @@ export const TopPage: FC = () => {
       <div className={classes.contents}>
         {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} servants={servants} />}
         {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} />}
-      </div>
-      <div className={classes.notice}>
+        {openMSExchangeDialog && <MSExchangeDialog open={openMSExchangeDialog} onClose={handleCloseMSExchangeDialog}
+                                    onImportServants={handleImportServants} onExportServants={handleExportServants}
+                                    onImportInventory={handleImportInventory} onExportInventory={handleExportInventory}
+                                 />}
       </div>
     </>
   )
