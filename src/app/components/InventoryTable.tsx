@@ -4,12 +4,11 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from '@material-ui/core'
 
 import { Inventory, InventoryStatus, ItemStatus, materialNames, calcInventoryStatus } from './../../fgo/inventory'
-import { Servants,  } from './../../fgo/servants'
 
 type Prop = {
   inventory: Inventory
-  servants: Servants
-  onChange(id: number, value: number): void
+  onChange(inventory: Inventory): void
+  getInventoryStatus(): InventoryStatus
 }
 
 type TableColumnInfo = {
@@ -81,9 +80,8 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-const calcInventoryTableData = (inventory: Inventory, servants: Servants): InventoryTableData[] => {
-  const inventoryStatus = calcInventoryStatus(inventory, servants)
-  return Object.keys(inventory).map((itemId) => (
+const calcInventoryTableData = (inventoryStatus: InventoryStatus): InventoryTableData[] => {
+  return Object.keys(inventoryStatus).map((itemId) => (
     { id: Number.parseInt(itemId), name: materialNames[itemId], item: inventoryStatus[itemId] } 
   ))
 }
@@ -91,11 +89,9 @@ const calcInventoryTableData = (inventory: Inventory, servants: Servants): Inven
 export const InventoryTable: FC<Prop> = (props) => {
   const classes = useStyles()
 
-  const [ inventoryTableData, setInventoryTableData ] = useState(calcInventoryTableData(props.inventory, props.servants))
+  const [ inventoryTableData, setInventoryTableData ] = useState(calcInventoryTableData(props.getInventoryStatus()))
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
-
-  console.log(inventoryTableData)
 
   const handleClickColumn = (column: number) => {
     let newSortOrder = -sortOrder
@@ -122,7 +118,8 @@ export const InventoryTable: FC<Prop> = (props) => {
       inventoryTableData[rowIndex].item.stock = value
 
       setInventoryTableData(JSON.parse(JSON.stringify(inventoryTableData)))
-      props.onChange(inventoryTableData[rowIndex].id, value)
+      props.inventory[inventoryTableData[rowIndex].id] = value
+      props.onChange(props.inventory)
     }
   }
 

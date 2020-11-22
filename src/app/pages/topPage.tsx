@@ -10,7 +10,7 @@ import { InventoryTable } from './../components/InventoryTable'
 import { ServantTable } from './../components/ServantTable'
 import { MSExchangeDialog } from './../components/MSExchangeDialog'
 
-import { Inventory, validateInventory, importMSInventory, exportMSInventory } from './../../fgo/inventory'
+import { Inventory, InventoryStatus, validateInventory, importMSInventory, exportMSInventory, calcInventoryStatus } from './../../fgo/inventory'
 import { Servants, validateServants, importMSServants, exportMSServants } from './../../fgo/servants'
 
 const useStyles = makeStyles((theme: Theme) => 
@@ -54,15 +54,18 @@ export const TopPage: FC = () => {
   }
 
   const inventory: Inventory = validateInventory(JSON.parse(localStorage.getItem("inventory")))
-  const handleInventoryChanged = (itemId: number, value: number) => {
-    inventory[itemId] = value
+  const handleInventoryChanged = (inventory: Inventory) => {
     localStorage.setItem("inventory", JSON.stringify(inventory))
   }
 
   const servants: Servants = validateServants(JSON.parse(localStorage.getItem("servants")))
   const handleServantChanged = (servants) => {
     localStorage.setItem("servants", JSON.stringify(servants))
+    inventoryStatus = calcInventoryStatus(inventory, servants)
   }
+
+  let inventoryStatus: InventoryStatus = calcInventoryStatus(inventory, servants)
+  const getInventoryStatus = () => inventoryStatus
 
   const handleImportExport = () => {
     setOpenMSExchangeDialog(true)
@@ -72,15 +75,24 @@ export const TopPage: FC = () => {
     setOpenMSExchangeDialog(false)
   }
   const handleImportServants = (json: string) => {
-    localStorage.setItem("servants", JSON.stringify(importMSServants(json)))
-    updateServantTable()
+    try {
+      handleServantChanged(importMSServants(json))
+      updateInventoryTable()
+      updateServantTable()
+    } catch(e) {
+      alert("読み込みに失敗しました")
+    }
   }
   const handleExportServants = () => {
     return exportMSServants(servants)
   }
   const handleImportInventory = (json: string) => {
-    localStorage.setItem("inventory", JSON.stringify(importMSInventory(json)))
-    updateInventoryTable()
+    try {
+      handleInventoryChanged(importMSInventory(json))
+      updateInventoryTable()
+    } catch(e) {
+      alert("読み込みに失敗しました")
+    }
   }
   const handleExportInventory = () => {
     return exportMSInventory(inventory)
@@ -115,7 +127,7 @@ export const TopPage: FC = () => {
         </AppBar>
       </div>
       <div className={classes.contents}>
-        {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} servants={servants} />}
+        {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} getInventoryStatus={getInventoryStatus} />}
         {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} />}
         {openMSExchangeDialog && <MSExchangeDialog open={openMSExchangeDialog} onClose={handleCloseMSExchangeDialog}
                                     onImportServants={handleImportServants} onExportServants={handleExportServants}
