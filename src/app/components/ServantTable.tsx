@@ -2,10 +2,12 @@ import React, { FC, useState, useEffect, useRef } from 'react'
 import ReactDOM from 'react-dom'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from '@material-ui/core'
+import { Grid, Button, TextField } from '@material-ui/core'
 import { VariableSizeGrid } from 'react-window'
 
 import { Servants, Servant, servantNames, servantClassNames, attributeNames } from '../../fgo/servants'
+
+import { FilterDialog, FilterDefinition, FilterValues } from './FilterDialog'
 
 type Prop = {
   servants: Servants
@@ -96,7 +98,7 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
     case 'skillLevel':
     case 'maxSkillLevel':
       if (sort)
-        row.servant[key].reduce((acc, level) => acc * level)
+        return row.servant[key].reduce((acc, level) => acc * level)
       return `${row.servant[key][0]}/${row.servant[key][1]}/${row.servant[key][2]}`
     case 'class':
       if (sort)
@@ -148,10 +150,98 @@ const setTableData = (servantTableData: ServantTableData, columnIndex: number, v
   }
 }
 
+const filterDefinition: FilterDefinition[] = [
+  {
+    name: "クラス", key: "class", type: "check",
+    buttons: [
+      { label: "セイバー", key: "剣" },
+      { label: "アーチャー", key: "弓" },
+      { label: "ランサー", key: "槍" },
+      { label: "ライダー", key: "騎" },
+      { label: "キャスター", key: "術" },
+      { label: "アサシン", key: "殺" },
+      { label: "バーサーカー", key: "狂" },
+      { label: "ルーラー", key: "裁" },
+      { label: "アヴェンジャー", key: "讐" },
+      { label: "アルターエゴ", key: "分" },
+      { label: "ムーンキャンサー", key: "月" },
+      { label: "フォーリナー", key: "降" },
+      { label: 'シールダー', key: "盾" },
+    ]
+  },
+  {
+    name: "レアリティ", key: "rare", type: "check",
+    buttons: [
+      { label: "★5", key: "5" },
+      { label: "★4", key: "4" },
+      { label: "★3", key: "3" },
+      { label: "★2", key: "2" },
+      { label: "★1", key: "1" },
+      { label: "★0", key: "0" },
+    ]
+  },
+  {
+    name: "性別", key: "gender", type: "check",
+    buttons: [
+      { label: "女", key: '女' },
+      { label: "男", key: '男' },
+      { label: "その他", key: '-' },
+    ]
+  },
+  {
+    name: "天地人", key: "attributes", type: "check",
+    buttons: [
+      { label: "天", key: "0" },
+      { label: "地", key: "1" },
+      { label: "人", key: "2" },
+      { label: "星", key: "3" },
+      { label: "獣", key: "4" },
+    ]
+  },
+  {
+    name: "宝具タイプ", key: "npType", type: "check",
+    buttons: [
+      { label: "B 全体", key: "B 全体" },
+      { label: "A 全体", key: "A 全体" },
+      { label: "Q 全体", key: "Q 全体" },
+      { label: "B 単体", key: "B 単体" },
+      { label: "A 単体", key: "A 単体" },
+      { label: "Q 単体", key: "Q 単体" },
+      { label: "B サポート", key: "B サポート" },
+      { label: "A サポート", key: "A サポート" },
+      { label: "Q サポート", key: "Q サポート" },
+    ]
+  },
+  {
+    name: "宝具レベル", key: "npLevel", type: "check",
+    buttons: [
+      { label: "未召喚", key: "0" },
+      { label: "1", key: "1" },
+      { label: "2", key: "2" },
+      { label: "3", key: "3" },
+      { label: "4", key: "4" },
+      { label: "5", key: "5" },
+    ]
+  }
+]
+const defaultFilterValues: FilterValues = Object.values(filterDefinition).reduce((acc, group) => {
+  acc[group.key] = group.buttons.reduce((acc, button) => {
+      acc[button.key] = true
+      return acc
+    },{})
+    return acc
+  },{})
+
+console.log(defaultFilterValues)
+
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
     container: {
       height: "100%"
+    },
+    controller: {
+      height: 48,
+      paddingRight: 8
     },
     head: {
       padding: 4,
@@ -179,16 +269,36 @@ const calcServantTableData = (servants: Servants): ServantTableData[] => {
   ))
 }
 
-export const ServantTable: FC<Prop> = (props) => {
-  const classes = useStyles()
-  const myRef = useRef<HTMLDivElement>()
-  const headerRef = useRef<VariableSizeGrid>()
-  const [ sortBy, setSortBy ] = useState(0)
-  const [ sortOrder, setSortOrder ] = useState(1)
-  const [ tableSize, setTableSize ] = useState([1000, 800])
-  const servantTableData = calcServantTableData(props.servants).sort((a, b) => {
-    const aValue = getTableData(a, sortBy, true)
-    const bValue = getTableData(b, sortBy, true)
+const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterValues, sortColumn: number, sortOrder: number) => {
+  return sesrvantTableData.filter((row) => {
+    return Object.entries(filters).every(([groupKey, groupValues]) => {
+      switch(groupKey) {
+        case "class":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (servantClassNames[row.servant.servantInfo.class] == filterKey)
+          })
+        case "rare":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (row.servant.servantInfo.rare == Number.parseInt(filterKey))
+          })
+        case "gender":
+        case "attributes":
+        case "npType":
+            return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (row.servant.servantInfo[groupKey] == filterKey)
+          })
+        case "npLevel":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (row.servant[groupKey] == Number.parseInt(filterKey))
+          })
+        default:
+          return false
+      }
+    })
+  }).sort((a, b) => {
+    const aValue = getTableData(a, sortColumn, true)
+    const bValue = getTableData(b, sortColumn, true)
+
     if (aValue == bValue)
       return 0
     if (bValue > aValue)
@@ -196,19 +306,31 @@ export const ServantTable: FC<Prop> = (props) => {
     else
       return sortOrder
   })
+}
+
+export const ServantTable: FC<Prop> = (props) => {
+  const classes = useStyles()
+  const myRef = useRef<HTMLDivElement>()
+  const headerRef = useRef<VariableSizeGrid>()
+  const [ sortBy, setSortBy ] = useState(0)
+  const [ sortOrder, setSortOrder ] = useState(1)
+  const [ filterValues, setFilterValues ] = useState<FilterValues>(defaultFilterValues)
+  const [ openFilterDialog, setOpenFilterDialog ] = useState(false)
+  const [ tableSize, setTableSize ] = useState([1000, 800])
+  const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, sortBy, sortOrder)
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
-      const width = entries[0].contentRect.width;
-      const height = entries[0].contentRect.height;
+      const width = entries[0].contentRect.width
+      const height = entries[0].contentRect.height - 48
       setTableSize([width, height])
     })
 
-    myRef.current && resizeObserver.observe(myRef.current.parentElement);
+    myRef.current && resizeObserver.observe(myRef.current.parentElement)
 
     return (): void => {
       resizeObserver.disconnect();
-    };
+    }
   }, [])
 
   const handleClickColumn = (column: number) => {
@@ -221,13 +343,22 @@ export const ServantTable: FC<Prop> = (props) => {
   }
 
   const handleLostFocus = (rowIndex: number, columnIndex: number, e: React.FocusEvent<HTMLInputElement>) => {
-    const row = servantTableData[rowIndex]
+    const row = tableData[rowIndex]
     if (getTableData(row, columnIndex) != e.target.value) {
       setTableData(row, columnIndex, e.target.value)
       e.target.value = getTableData(row, columnIndex)
       props.servants[row.index] = row.servant
       props.onChange(props.servants)
     }
+  }
+
+  const handleClickFilter = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setOpenFilterDialog(true)
+  }
+
+  const handleCloseFilter = (newFilterValues: FilterValues) => {
+    setFilterValues(newFilterValues)
+    setOpenFilterDialog(false)
   }
 
   const headerCell = ({columnIndex, rowIndex, style }) => {
@@ -242,7 +373,7 @@ export const ServantTable: FC<Prop> = (props) => {
 
   const cell = ({columnIndex, rowIndex, style }) => {
     const column = columns[columnIndex]
-    const cellData = getTableData(servantTableData[rowIndex], columnIndex)
+    const cellData = getTableData(tableData[rowIndex], columnIndex)
     const [matchWord, charMain, charSub] = ((typeof(cellData) == 'string') && cellData.match(/^([^\s]+\s+[^\s]+)\s+(.*)$/)) || [ "", cellData, ""]
 
     return (
@@ -268,6 +399,11 @@ export const ServantTable: FC<Prop> = (props) => {
 
   return (
     <div className={classes.container} ref={myRef}>
+      <Grid container className={classes.controller} justify="flex-end" alignItems="center" >
+        <Grid item>
+          <Button onClick={handleClickFilter} variant="contained" >フィルタ</Button>
+        </Grid>
+      </Grid>
       <VariableSizeGrid width={tableSize[0]} height={30} ref={headerRef}
         columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
         rowCount={1} rowHeight={() => (30)} style={{overflowX: "hidden", overflowY: "scroll"}}>
@@ -275,9 +411,10 @@ export const ServantTable: FC<Prop> = (props) => {
       </VariableSizeGrid>
       <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 30} scrollOffset={0}
         columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
-        rowCount={servantTableData.length} rowHeight={() => (30)} onScroll={({scrollLeft}) => {headerRef.current.scrollTo({scrollLeft: scrollLeft, scrollTop: 0})}} >
+        rowCount={tableData.length} rowHeight={() => (30)} onScroll={({scrollLeft}) => {headerRef.current.scrollTo({scrollLeft: scrollLeft, scrollTop: 0})}} >
         {cell}
       </VariableSizeGrid>
+      <FilterDialog open={openFilterDialog} values={filterValues} defaultValues={defaultFilterValues} filterDefinition={filterDefinition} onClose={handleCloseFilter} />
     </div>
   )
 }
