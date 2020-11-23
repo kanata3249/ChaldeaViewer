@@ -77,16 +77,17 @@ const filterDefinition: FilterDefinition[] = [
 const defaultFilterValues: FilterValues = {
   "display": {
     "items": true,
-    "essentials": false,
-    "gems": false,
+    "essentials": true,
+    "gems": true,
   }
 }
 
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
     controller: {
+      width: "100%",
       height: 48,
-      paddingRight: 8
+      marginRight: 8
     },
     container: {
       maxHeight: "calc(100vh - 64px - 48px)"    // find another way to limit heght.
@@ -182,9 +183,23 @@ export const InventoryTable: FC<Prop> = (props) => {
     setOpenFilterDialog(false)
   }
 
+  const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const lines: string[] = []
+
+    lines.push(columns.reduce((acc, column) => (acc + "\t" + column.label),""))
+    tableData.forEach((data) => {
+      lines.push(columns.reduce((acc, column, columnIndex) => (acc + "\t" + getTableData(data, columnIndex)),""))
+    })
+
+    navigator.clipboard?.writeText(lines.reduce((acc, line) => (acc + line.slice(1) + '\n'),""))
+  }
+
   return (
     <div>
-      <Grid container className={classes.controller} justify="flex-end" alignItems="center" >
+      <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
+        <Grid item>
+          <Button onClick={handleClickClipboard} variant="outlined" >クリップボードにコピー</Button>
+        </Grid>
         <Grid item>
           <Button onClick={handleClickFilter} variant="contained" >フィルタ</Button>
         </Grid>

@@ -240,6 +240,7 @@ const useStyles = makeStyles((theme: Theme) =>
       height: "100%"
     },
     controller: {
+      width: "100%",
       height: 48,
       paddingRight: 8
     },
@@ -361,6 +362,17 @@ export const ServantTable: FC<Prop> = (props) => {
     setOpenFilterDialog(false)
   }
 
+  const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const lines: string[] = []
+
+    lines.push(columns.reduce((acc, column) => (acc + "\t" + column.label),""))
+    tableData.forEach((data) => {
+      lines.push(columns.reduce((acc, column, columnIndex) => (acc + "\t\"" + getTableData(data, columnIndex)) + "\"",""))
+    })
+
+    navigator.clipboard?.writeText(lines.reduce((acc, line) => (acc + line.slice(1) + '\n'),""))
+  }
+
   const headerCell = ({columnIndex, rowIndex, style }) => {
     const column = columns[columnIndex]
 
@@ -399,7 +411,10 @@ export const ServantTable: FC<Prop> = (props) => {
 
   return (
     <div className={classes.container} ref={myRef}>
-      <Grid container className={classes.controller} justify="flex-end" alignItems="center" >
+      <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
+        <Grid item>
+          <Button onClick={handleClickClipboard} variant="outlined" >クリップボードにコピー</Button>
+        </Grid>
         <Grid item>
           <Button onClick={handleClickFilter} variant="contained" >フィルタ</Button>
         </Grid>
