@@ -10,8 +10,9 @@ import { InventoryTable } from './../components/InventoryTable'
 import { ServantTable } from './../components/ServantTable'
 import { MSExchangeDialog } from './../components/MSExchangeDialog'
 
-import { Inventory, InventoryStatus, validateInventory, importMSInventory, exportMSInventory, calcInventoryStatus } from './../../fgo/inventory'
-import { Servants, validateServants, importMSServants, exportMSServants } from './../../fgo/servants'
+import { Inventory, InventoryStatus, importMSInventory, exportMSInventory, calcInventoryStatus } from './../../fgo/inventory'
+import { Servants, importMSServants, exportMSServants } from './../../fgo/servants'
+import { createBackup, restoreBackup, saveSelectedInfo, loadSelectedInfo, saveServants, loadServants, saveInventory, loadInventory } from '../storage'
 
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
@@ -38,7 +39,7 @@ export const TopPage: FC = () => {
   const [ anchorEl, setAnchorEl ] = useState<null | HTMLElement>(null)
   const [ inventoryTableKey, setInventoryTableKey ] = useState(0)
   const [ servantTableKey, setServantTableKey ] = useState(0)
-  const [ selectedInfo, setSelectedInfo ] = useState(localStorage.getItem("selectedInfo") || "Inventory")
+  const [ selectedInfo, setSelectedInfo ] = useState(loadSelectedInfo())
   const [ openMSExchangeDialog, setOpenMSExchangeDialog ] = useState(false)
 
   const updateInventoryTable = () => {
@@ -50,17 +51,17 @@ export const TopPage: FC = () => {
 
   const handleSelectedInfoChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedInfo(e.target.value)
-    localStorage.setItem("selectedInfo", e.target.value)
+    saveSelectedInfo(e.target.value)
   }
 
-  const inventory: Inventory = validateInventory(JSON.parse(localStorage.getItem("inventory")))
+  const inventory: Inventory = loadInventory()
   const handleInventoryChanged = (inventory: Inventory) => {
-    localStorage.setItem("inventory", JSON.stringify(inventory))
+    saveInventory(inventory)
   }
 
-  const servants: Servants = validateServants(JSON.parse(localStorage.getItem("servants")))
+  const servants: Servants = loadServants()
   const handleServantChanged = (servants) => {
-    localStorage.setItem("servants", JSON.stringify(servants))
+    saveServants(servants)
     inventoryStatus = calcInventoryStatus(inventory, servants)
   }
 
@@ -98,6 +99,43 @@ export const TopPage: FC = () => {
     return exportMSInventory(inventory)
   }
 
+  const handleBackup = () => {
+    const backup = createBackup()
+    const jsonURL = window.URL.createObjectURL(new Blob([backup], { type: 'text/json' }))
+    const link = document.createElement('a')
+    document.body.appendChild(link)
+    link.href = jsonURL
+    link.setAttribute('download', 'chalde_backup.json')
+    link.click()
+    document.body.removeChild(link)
+
+    closeMenu()
+  }
+
+  const handleRestore = () => {
+    interface HTMLElementEvent<T extends HTMLElement> extends Event {
+      target: T
+    }
+
+    const fileSelector = document.createElement('input')
+    fileSelector.setAttribute('type', 'file')
+    fileSelector.setAttribute('accept', 'text/json')
+    fileSelector.addEventListener("change", (inputEvent: HTMLElementEvent<HTMLInputElement>) => {
+      const reader = new FileReader()
+
+      reader.addEventListener("load", (evt) => {
+        if (restoreBackup(reader.result as string)) {
+          updateInventoryTable()
+          updateServantTable()
+        }
+      })
+      reader.readAsText(inputEvent.target.files[0])
+    })
+    fileSelector.click()
+  
+    closeMenu()
+  }
+
   const handleMenuClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(e.currentTarget)
   }
@@ -115,6 +153,8 @@ export const TopPage: FC = () => {
             </IconButton>
             <Menu id="main-menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
               <MenuItem onClick={handleImportExport}>インポート/エクスポート</MenuItem>
+              <MenuItem onClick={handleBackup}>データバックアップ</MenuItem>
+              <MenuItem onClick={handleRestore}>データリストア</MenuItem>
             </Menu>
             <Typography variant="h6" className={classes.title}>
               Chaldea Data Viewer

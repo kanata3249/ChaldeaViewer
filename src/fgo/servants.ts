@@ -1,3 +1,5 @@
+import { ServantItemCounts } from './inventory'
+
 export type ServantInfo = {
   id: number
   class: number
@@ -24,6 +26,7 @@ export type Servant = {
   attackMod: number
 
   servantInfo: ServantInfo
+  itemCounts: ServantItemCounts
 }
 
 export type Servants = Servant[]
@@ -81,7 +84,8 @@ const generateCleanServants = () => {
       ascension: 0, maxAscension: 4,
       skillLevel: [1, 1, 1], maxSkillLevel: [10, 10, 10],
       npLevel: 0, level: 1, hpMod: 0, attackMod: 0,
-      servantInfo: servant
+      servantInfo: servant,
+      itemCounts: {}
     }
   ))
 }
@@ -128,11 +132,13 @@ export const exportMSServants = (servants: Servants): string =>
 
 export const validateServants = (servants: Servants): Servants =>
 {
-  if (servants == null) {
-    return generateCleanServants()
+  const result = generateCleanServants()
+  if (servants) {
+    result.forEach((servant, index) => {
+      const servantIndex = servants.findIndex((item) => (item.id == servant.id))
+      if (servantIndex >= 0)
+        result[index] = { ...servants[servantIndex], servantInfo: servantData[servant.id] } 
+    })
   }
-  return servants.map((servant) => (
-   { ...servant, servantInfo: servantData[servant.id] } 
-  ))
-  return servants
+  return result
 }

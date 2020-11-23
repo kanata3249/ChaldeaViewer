@@ -31,6 +31,10 @@ type ItemCounts = {
   reserved: ItemPerUsage
 }
 
+export type ServantItemCounts = {
+  [itemId: number]: ItemCounts
+}
+
 export const materialNames: {
   [itemId: number]: string
 } = {
@@ -196,7 +200,8 @@ export const validateInventory = (inventory: Inventory): Inventory =>
 export const calcInventoryStatus = (inventory: Inventory, servants: Servants): InventoryStatus =>
 {
   const totalItemCounts = servants.reduce((acc, servant) => {
-    Object.entries(itemsForServant(servant)).forEach(([itemId, itemCounts]) => {
+    servant.itemCounts = itemsForServant(servant)
+    Object.entries(servant.itemCounts).forEach(([itemId, itemCounts]) => {
       acc[itemId] = acc[itemId] || JSON.parse(JSON.stringify(itemCountsTemplate))
       Object.entries(itemCounts).forEach(([type, countsPerType]) => {
         Object.entries(countsPerType).forEach(([usage, count]) => {
