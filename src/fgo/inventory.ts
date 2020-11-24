@@ -201,6 +201,7 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants): I
 {
   const totalItemCounts = servants.reduce((acc, servant) => {
     servant.itemCounts = itemsForServant(servant)
+    servant.totalItemsForMax = { ...emptyItemUsage }
     Object.entries(servant.itemCounts).forEach(([itemId, itemCounts]) => {
       acc[itemId] = acc[itemId] || JSON.parse(JSON.stringify(itemCountsTemplate))
       Object.entries(itemCounts).forEach(([type, countsPerType]) => {
@@ -211,7 +212,7 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants): I
     })
     return acc
   }, {})
-  return Object.entries<ItemCounts>(totalItemCounts).reduce((acc, [itemId, counts]) => {
+  const inventoryStatus = Object.entries<ItemCounts>(totalItemCounts).reduce((acc, [itemId, counts]) => {
     acc[itemId] = {
       required: counts.required,
       summoned: counts.summoned,
@@ -222,6 +223,28 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants): I
     }
     return acc
   }, {})
+
+  servants.forEach((servant) => {
+    if (servant.ascension < 4 || servant.skillLevel[0] < 9 || servant.skillLevel[1] < 9 || servant.skillLevel[2] < 9) {
+      Object.entries(servant.itemCounts).forEach(([itemId, counts]) => {
+        if (itemId == "800")
+          return
+
+        const ascension = counts.required.ascension - counts.used.ascension
+                        - (counts.reserved.ascension - Math.max(0, (counts.reserved.ascension - inventoryStatus[itemId].stock)))
+        if (ascension) {
+          servant.totalItemsForMax.ascension += Math.max(0, ascension - Math.max(inventoryStatus[itemId].free, 0))
+        }
+
+        const skill = counts.required.skill - counts.used.skill - (counts.reserved.skill - Math.max(0, (counts.reserved.skill - inventoryStatus[itemId].stock)))
+        if (skill) {
+          servant.totalItemsForMax.skill += Math.max(0, skill - Math.max(inventoryStatus[itemId].free, 0))
+        }
+      })
+    }
+  })
+
+  return inventoryStatus
 }
 
 const itemsForServant = (servant: Servant) => {

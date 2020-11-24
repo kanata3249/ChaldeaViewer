@@ -7,7 +7,7 @@ export const createBackup = () => {
     version: 1,
     servants: loadServants()
                 .filter((servant) => servant.npLevel > 0)
-                .map((servant) => ({ ...servant, servantInfo: {}, itemCounts: {} })),
+                .map((servant) => ({ ...servant, servantInfo: {}, itemCounts: {}, totalItemsForMax: {} })),
     inventory: Object.entries(loadInventory()).reduce((acc, [id, count]) => {
                 acc[materialNames[id]] = count
                 return acc

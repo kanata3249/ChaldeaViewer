@@ -1,4 +1,4 @@
-import { ServantItemCounts } from './inventory'
+import { ServantItemCounts, ItemPerUsage } from './inventory'
 
 export type ServantInfo = {
   id: number
@@ -27,6 +27,7 @@ export type Servant = {
 
   servantInfo: ServantInfo
   itemCounts: ServantItemCounts
+  totalItemsForMax: ItemPerUsage
 }
 
 export type Servants = Servant[]
@@ -85,7 +86,8 @@ const generateCleanServants = () => {
       skillLevel: [1, 1, 1], maxSkillLevel: [10, 10, 10],
       npLevel: 0, level: 1, hpMod: 0, attackMod: 0,
       servantInfo: servant,
-      itemCounts: {}
+      itemCounts: {},
+      totalItemsForMax: { ascension: 0, skill: 0, dress: 0, sound: 0 }
     }
   ))
 }
