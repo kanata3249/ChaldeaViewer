@@ -3,7 +3,7 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Button, Grid } from '@material-ui/core'
 
-import { Inventory, InventoryStatus, ItemStatus, materialNames } from './../../fgo/inventory'
+import { Inventory, InventoryStatus, ItemStatus, itemNames } from './../../fgo/inventory'
 
 import { FilterDialog, FilterDefinition, FilterValues } from './FilterDialog'
 
@@ -107,7 +107,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const calcInventoryTableData = (inventoryStatus: InventoryStatus): InventoryTableData[] => {
   return Object.keys(inventoryStatus).map((itemId) => (
-    { id: Number.parseInt(itemId), name: materialNames[itemId], item: inventoryStatus[itemId] } 
+    { id: Number.parseInt(itemId), name: itemNames[itemId], item: inventoryStatus[itemId] } 
   ))
 }
 

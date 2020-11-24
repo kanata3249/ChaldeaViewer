@@ -1,4 +1,4 @@
-import { Inventory, validateInventory, materialNames } from './../fgo/inventory'
+import { Inventory, validateInventory, itemNames } from './../fgo/inventory'
 import { Servants, validateServants } from './../fgo/servants'
 
 
@@ -9,7 +9,7 @@ export const createBackup = () => {
                 .filter((servant) => servant.npLevel > 0)
                 .map((servant) => ({ ...servant, servantInfo: {}, itemCounts: {}, totalItemsForMax: {} })),
     inventory: Object.entries(loadInventory()).reduce((acc, [id, count]) => {
-                acc[materialNames[id]] = count
+                acc[itemNames[id]] = count
                 return acc
                },{})
   }
@@ -23,7 +23,7 @@ export const restoreBackup = (backupData: string) => {
     case 1:
       if (backup.servants && backup.inventory) {
         saveServants(validateServants(backup.servants))
-        saveInventory(validateInventory(Object.entries(materialNames).reduce((acc, [itemId, name]) => {
+        saveInventory(validateInventory(Object.entries(itemNames).reduce((acc, [itemId, name]) => {
           acc[itemId] = backup.inventory[name]
           return acc
         }, {})))
