@@ -6,12 +6,15 @@ import { Grid, Button, TextField } from '@material-ui/core'
 import { VariableSizeGrid } from 'react-window'
 
 import { Servants, Servant, servantNames, servantClassNames, attributeNames } from '../../fgo/servants'
+import { InventoryStatus } from '../../fgo/inventory'
 
 import { FilterDialog, FilterDefinition, FilterValues } from './FilterDialog'
+import { ServantItemsDialog } from './ServantItemsDialog'
 
 type Prop = {
   servants: Servants
   onChange(servants: Servants): void
+  getInventoryStatus(): InventoryStatus
 }
 
 type TableColumnInfo = {
@@ -19,11 +22,12 @@ type TableColumnInfo = {
   key: string
   align: "left" | "right" | "center"
   width: number
-  formatter?: (value: number) => string
   span?: number
   editable?: boolean
   type?: "number" | "string"
   max?: number
+  button?: boolean
+  buttonLabel?: string
 }
 
 type ServantTableData = {
@@ -86,6 +90,8 @@ const columns : TableColumnInfo[] = [
   { label: 'Atk+', key: 'attackMod', align: "center", width: 80, editable: true, type: "number", max: 2000},
   { label: 'HP+', key: 'hpMod', align: "center", width: 80, editable: true, type: "number", max: 2000},
   { label: '育成中', key: 'leveling', align: "center", width: 60},
+  { label: '残素材数', key: 'items', align: "center", width: 80 },
+  { label: '素材確認', key: 'checkItems', align: "center", width: 80, button: true, buttonLabel: "素材" }
 ]
 
 const getTableData = (servantTableData: ServantTableData, columnIndex: number, sort?: boolean) => {
@@ -120,7 +126,14 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
               || row.servant.skillLevel[1] < row.servant.maxSkillLevel[1] || row.servant.skillLevel[2] < row.servant.maxSkillLevel[2]))
         return "育成中"
       return ""
-      break
+    case 'items':
+      if (row.servant.ascension < 4 || row.servant.skillLevel[0] < 9 || row.servant.skillLevel[1] < 9 || row.servant.skillLevel[2] < 9) {
+        return Object.values(row.servant.totalItemsForMax).reduce((acc, value) => acc + value)
+      } else {
+        return ""
+      }
+    case 'checkItems':
+      return ""
     default:
       return row.servant[key]
   }
@@ -232,8 +245,6 @@ const defaultFilterValues: FilterValues = Object.values(filterDefinition).reduce
     return acc
   },{})
 
-console.log(defaultFilterValues)
-
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
     container: {
@@ -317,6 +328,7 @@ export const ServantTable: FC<Prop> = (props) => {
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(defaultFilterValues)
   const [ openFilterDialog, setOpenFilterDialog ] = useState(false)
+  const [ servantsForItemDialog, setServantsForItemDialog ] = useState(null)
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, sortBy, sortOrder)
 
@@ -383,6 +395,14 @@ export const ServantTable: FC<Prop> = (props) => {
     )
   }
 
+  const handleClickButton = (rowIndex, columnIndex) => {
+    setServantsForItemDialog(tableData[rowIndex].servant)
+  }
+
+  const handleCloseServantItemsDialog = () => {
+    setServantsForItemDialog(null)
+  }
+
   const cell = ({columnIndex, rowIndex, style }) => {
     const column = columns[columnIndex]
     const cellData = getTableData(tableData[rowIndex], columnIndex)
@@ -402,6 +422,8 @@ export const ServantTable: FC<Prop> = (props) => {
                     onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
                     type={column.type} InputProps={{ disableUnderline: true }}
                     inputProps={{ style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
+        : column.button ?
+          <Button size="small" onClick={() => handleClickButton(rowIndex, columnIndex)} variant="outlined" >{column.buttonLabel}</Button>
         : charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>
                 : cellData
         }
@@ -430,6 +452,7 @@ export const ServantTable: FC<Prop> = (props) => {
         {cell}
       </VariableSizeGrid>
       <FilterDialog open={openFilterDialog} values={filterValues} defaultValues={defaultFilterValues} filterDefinition={filterDefinition} onClose={handleCloseFilter} />
+      <ServantItemsDialog open={servantsForItemDialog ? true : false} onClose={handleCloseServantItemsDialog} servant={servantsForItemDialog} inventoryStatus={props.getInventoryStatus()}/>
     </div>
   )
 }

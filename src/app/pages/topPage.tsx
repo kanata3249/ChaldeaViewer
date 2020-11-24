@@ -168,7 +168,7 @@ export const TopPage: FC = () => {
       </div>
       <div className={classes.contents}>
         {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} getInventoryStatus={getInventoryStatus} />}
-        {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} />}
+        {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
         {openMSExchangeDialog && <MSExchangeDialog open={openMSExchangeDialog} onClose={handleCloseMSExchangeDialog}
                                     onImportServants={handleImportServants} onExportServants={handleExportServants}
                                     onImportInventory={handleImportInventory} onExportInventory={handleExportInventory}
