@@ -1,5 +1,4 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import ReactDOM from 'react-dom'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 
 import { Grid, Button, TextField } from '@material-ui/core'
@@ -8,8 +7,8 @@ import { VariableSizeGrid } from 'react-window'
 import { Servants, Servant, servantNames, servantClassNames, attributeNames } from '../../fgo/servants'
 import { InventoryStatus } from '../../fgo/inventory'
 
-import { FilterDialog, FilterDefinition, FilterValues } from './FilterDialog'
-import { ServantItemsDialog } from './ServantItemsDialog'
+import { DialogProviderContext } from './DialogProvider'
+import { FilterDefinition, FilterValues } from './FilterDialog'
 
 type Prop = {
   servants: Servants
@@ -327,8 +326,6 @@ export const ServantTable: FC<Prop> = (props) => {
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(defaultFilterValues)
-  const [ openFilterDialog, setOpenFilterDialog ] = useState(false)
-  const [ servantsForItemDialog, setServantsForItemDialog ] = useState(null)
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, sortBy, sortOrder)
 
@@ -365,13 +362,8 @@ export const ServantTable: FC<Prop> = (props) => {
     }
   }
 
-  const handleClickFilter = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setOpenFilterDialog(true)
-  }
-
   const handleCloseFilter = (newFilterValues: FilterValues) => {
     setFilterValues(newFilterValues)
-    setOpenFilterDialog(false)
   }
 
   const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -395,14 +387,6 @@ export const ServantTable: FC<Prop> = (props) => {
     )
   }
 
-  const handleClickButton = (rowIndex, columnIndex) => {
-    setServantsForItemDialog(tableData[rowIndex].servant)
-  }
-
-  const handleCloseServantItemsDialog = () => {
-    setServantsForItemDialog(null)
-  }
-
   const cell = ({columnIndex, rowIndex, style }) => {
     const column = columns[columnIndex]
     const cellData = getTableData(tableData[rowIndex], columnIndex)
@@ -423,7 +407,11 @@ export const ServantTable: FC<Prop> = (props) => {
                     type={column.type} InputProps={{ disableUnderline: true }}
                     inputProps={{ style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
         : column.button ?
-          <Button size="small" onClick={() => handleClickButton(rowIndex, columnIndex)} variant="outlined" >{column.buttonLabel}</Button>
+          <DialogProviderContext.Consumer>
+            {({showServantItemsDialog}) =>
+              <Button size="small" onClick={() => showServantItemsDialog(tableData[rowIndex].servant, props.getInventoryStatus())} variant="outlined" >{column.buttonLabel}</Button>
+            }
+          </DialogProviderContext.Consumer>
         : charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>
                 : cellData
         }
@@ -438,7 +426,11 @@ export const ServantTable: FC<Prop> = (props) => {
           <Button onClick={handleClickClipboard} variant="outlined" >クリップボードにコピー</Button>
         </Grid>
         <Grid item>
-          <Button onClick={handleClickFilter} variant="contained" >フィルタ</Button>
+          <DialogProviderContext.Consumer>
+            {({showFilterDialog}) =>
+              <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)} variant="contained" >フィルタ</Button>
+            }
+          </DialogProviderContext.Consumer>
         </Grid>
       </Grid>
       <VariableSizeGrid width={tableSize[0]} height={30} ref={headerRef}
@@ -451,8 +443,6 @@ export const ServantTable: FC<Prop> = (props) => {
         rowCount={tableData.length} rowHeight={() => (30)} onScroll={({scrollLeft}) => {headerRef.current.scrollTo({scrollLeft: scrollLeft, scrollTop: 0})}} >
         {cell}
       </VariableSizeGrid>
-      <FilterDialog open={openFilterDialog} values={filterValues} defaultValues={defaultFilterValues} filterDefinition={filterDefinition} onClose={handleCloseFilter} />
-      <ServantItemsDialog open={servantsForItemDialog ? true : false} onClose={handleCloseServantItemsDialog} servant={servantsForItemDialog} inventoryStatus={props.getInventoryStatus()}/>
     </div>
   )
 }

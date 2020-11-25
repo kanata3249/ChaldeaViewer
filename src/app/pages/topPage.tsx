@@ -9,6 +9,7 @@ import MenuIcon from '@material-ui/icons/Menu'
 import { InventoryTable } from './../components/InventoryTable'
 import { ServantTable } from './../components/ServantTable'
 import { MSExchangeDialog } from './../components/MSExchangeDialog'
+import { DialogProvider } from '../components/DialogProvider'
 
 import { Inventory, InventoryStatus, importMSInventory, exportMSInventory, calcInventoryStatus } from './../../fgo/inventory'
 import { Servants, importMSServants, exportMSServants } from './../../fgo/servants'
@@ -145,35 +146,37 @@ export const TopPage: FC = () => {
 
   return (
     <>
-      <div className={classes.toolbar}>
-        <AppBar>
-          <Toolbar>
-            <IconButton edge="start" aria-label="menu" aria-controls="main-menu" onClick={handleMenuClick}>
-              <MenuIcon />
-            </IconButton>
-            <Menu id="main-menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
-              <MenuItem onClick={handleImportExport}>インポート/エクスポート</MenuItem>
-              <MenuItem onClick={handleBackup}>データバックアップ</MenuItem>
-              <MenuItem onClick={handleRestore}>データリストア</MenuItem>
-            </Menu>
-            <Typography variant="h6" className={classes.title}>
-              Chaldea Data Viewer
-            </Typography>
-            <Select label="表示対象" value={selectedInfo} onChange={handleSelectedInfoChanged}>
-              <MenuItem value={"Inventory"}>所持アイテム</MenuItem>
-              <MenuItem value={"Servants"}>サーヴァント</MenuItem>
-            </Select>
-          </Toolbar>
-        </AppBar>
-      </div>
-      <div className={classes.contents}>
-        {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} getInventoryStatus={getInventoryStatus} />}
-        {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
-        {openMSExchangeDialog && <MSExchangeDialog open={openMSExchangeDialog} onClose={handleCloseMSExchangeDialog}
-                                    onImportServants={handleImportServants} onExportServants={handleExportServants}
-                                    onImportInventory={handleImportInventory} onExportInventory={handleExportInventory}
-                                 />}
-      </div>
+      <DialogProvider>
+        <div className={classes.toolbar}>
+          <AppBar>
+            <Toolbar>
+              <IconButton edge="start" aria-label="menu" aria-controls="main-menu" onClick={handleMenuClick}>
+                <MenuIcon />
+              </IconButton>
+              <Menu id="main-menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
+                <MenuItem onClick={handleImportExport}>インポート/エクスポート</MenuItem>
+                <MenuItem onClick={handleBackup}>データバックアップ</MenuItem>
+                <MenuItem onClick={handleRestore}>データリストア</MenuItem>
+              </Menu>
+              <Typography variant="h6" className={classes.title}>
+                Chaldea Data Viewer
+              </Typography>
+              <Select label="表示対象" value={selectedInfo} onChange={handleSelectedInfoChanged}>
+                <MenuItem value={"Inventory"}>所持アイテム</MenuItem>
+                <MenuItem value={"Servants"}>サーヴァント</MenuItem>
+              </Select>
+            </Toolbar>
+          </AppBar>
+        </div>
+        <div className={classes.contents}>
+          {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} getInventoryStatus={getInventoryStatus} />}
+          {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
+          {openMSExchangeDialog && <MSExchangeDialog open={openMSExchangeDialog} onClose={handleCloseMSExchangeDialog}
+                                      onImportServants={handleImportServants} onExportServants={handleExportServants}
+                                      onImportInventory={handleImportInventory} onExportInventory={handleExportInventory}
+                                  />}
+        </div>
+      </DialogProvider>
     </>
   )
 }

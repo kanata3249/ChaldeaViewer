@@ -5,7 +5,8 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextF
 
 import { Inventory, InventoryStatus, ItemStatus, itemNames } from './../../fgo/inventory'
 
-import { FilterDialog, FilterDefinition, FilterValues } from './FilterDialog'
+import { FilterDefinition, FilterValues } from './FilterDialog'
+import { DialogProviderContext } from './DialogProvider'
 
 type Prop = {
   inventory: Inventory
@@ -201,7 +202,11 @@ export const InventoryTable: FC<Prop> = (props) => {
           <Button onClick={handleClickClipboard} variant="outlined" >クリップボードにコピー</Button>
         </Grid>
         <Grid item>
-          <Button onClick={handleClickFilter} variant="contained" >フィルタ</Button>
+          <DialogProviderContext.Consumer>
+              {({showFilterDialog}) =>
+                <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)} variant="contained" >フィルタ</Button>
+              }
+          </DialogProviderContext.Consumer>
         </Grid>
       </Grid>
       <TableContainer className={classes.container}>
@@ -233,7 +238,6 @@ export const InventoryTable: FC<Prop> = (props) => {
             ))}
           </TableBody>
         </Table>
-        <FilterDialog open={openFilterDialog} values={filterValues} defaultValues={defaultFilterValues} filterDefinition={filterDefinition} onClose={handleCloseFilter} />
       </TableContainer>
     </div>
   )
