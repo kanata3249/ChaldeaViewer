@@ -160,7 +160,7 @@ export const TopPage: FC = () => {
                 <MenuItem onClick={handleRestore}>データリストア</MenuItem>
               </Menu>
               <Typography variant="h6" className={classes.title}>
-                Chaldea Data Viewer
+                Chaldea Viewer
               </Typography>
               <Select label="表示対象" value={selectedInfo} onChange={handleSelectedInfoChanged}>
                 <MenuItem value={"Inventory"}>所持アイテム</MenuItem>
