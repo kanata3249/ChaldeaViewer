@@ -1,7 +1,8 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useState, useEffect, useRef } from 'react'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Button, Grid } from '@material-ui/core'
+import { TextField, Button, Grid } from '@material-ui/core'
+import { VariableSizeGrid } from 'react-window'
 
 import { Inventory, InventoryStatus, ItemStatus, itemNames } from './../../fgo/inventory'
 
@@ -18,9 +19,7 @@ type TableColumnInfo = {
   label: string
   key: string
   align: "left" | "right" | "center"
-  width: string
-  formatter?: (value: number) => string
-  span?: number
+  width: number
   editable?: boolean
 }
 
@@ -31,16 +30,16 @@ type InventoryTableData = {
 }
 
 const columns : TableColumnInfo[] = [
-  { label: 'ID', key: 'id', align: "right", width: "5%" },
-  { label: '名称', key: 'name', align: "left", width: "20% "},
-  { label: '所持数', key: 'stock', align: "right", width: "10%", editable: true },
-  { label: '使用予定', key: 'reserved', align: "right", width: "10%" },
-  { label: '使用可能', key: 'free', align: "right", width: "10%" },
-  { label: '使用済み', key: 'used', align: "right", width: "10%" },
-  { label: '必要数(実装済)', key: 'required', align: "right", width: "10%" },
-  { label: '必要数(召喚)', key: 'summoned', align: "right", width: "10%" },
-  { label: '残必要数(実装済)', key: 'remain', align: "right", width: "10%" },
-  { label: '残必要数(召喚)', key: 'remainSummoned', align: "right", width: "10%" },
+  { label: 'ID', key: 'id', align: "center", width: 80 },
+  { label: '名称', key: 'name', align: "left", width: 150 },
+  { label: '所持数', key: 'stock', align: "right", width: 110, editable: true },
+  { label: '使用予定', key: 'reserved', align: "right", width: 110 },
+  { label: '使用可能', key: 'free', align: "right", width: 110 },
+  { label: '使用済み', key: 'used', align: "right", width: 110 },
+  { label: '必要数(全)', key: 'required', align: "right", width: 110 },
+  { label: '必要数(召)', key: 'summoned', align: "right", width: 110 },
+  { label: '残必要数(全)', key: 'remain', align: "right", width: 110 },
+  { label: '残必要数(召)', key: 'remainSummoned', align: "right", width: 110 },
 ]
 
 const getTableData = (inventoryTableData: InventoryTableData, columnIndex: number) => {
@@ -103,6 +102,19 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     cell: {
     },
+    oddRowCell: {
+      backgroundColor: theme.palette.action.hover,
+      whiteSpace: "nowrap",
+      scrollbarWidth: "none",
+      overflow: "hidden",
+      padding: 4
+    },
+    evenRowCell: {
+      whiteSpace: "nowrap",
+      scrollbarWidth: "none",
+      overflow: "hidden",
+      padding: 4
+    },
   })
 )
 
@@ -147,13 +159,28 @@ const filterAndSort = (inventoryTableData: InventoryTableData[], filters: Filter
 
 export const InventoryTable: FC<Prop> = (props) => {
   const classes = useStyles()
-
+  const myRef = useRef<HTMLDivElement>()
+  const headerRef = useRef<VariableSizeGrid>()
+  const bodyRef = useRef<VariableSizeGrid>()
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(defaultFilterValues)
-  const [ openFilterDialog, setOpenFilterDialog ] = useState(false)
-  const [ tableKey, setTableKey ] = useState(0)
+  const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcInventoryTableData(props.getInventoryStatus()), filterValues, sortBy, sortOrder)
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      const width = entries[0].contentRect.width
+      const height = entries[0].contentRect.height - 48
+      setTableSize([width, height])
+    })
+
+    myRef.current && resizeObserver.observe(myRef.current.parentElement)
+
+    return (): void => {
+      resizeObserver.disconnect();
+    }
+  }, [])
 
   const handleClickColumn = (column: number) => {
     let newSortOrder = -sortOrder
@@ -164,24 +191,21 @@ export const InventoryTable: FC<Prop> = (props) => {
     setSortOrder(newSortOrder)
   }
 
-  const handleStockChanged = (rowIndex: number, value: number) => {
-    if (!Number.isNaN(value)) {
+  const handleLostFocus = (rowIndex: number, columnIndex: number, e: React.FocusEvent<HTMLInputElement>) => {
+    const row = tableData[rowIndex]
+    if (getTableData(row, columnIndex) != e.target.value) {
+      const value = Number.parseInt(e.target.value)
       tableData[rowIndex].item.free += (value - tableData[rowIndex].item.stock)
       tableData[rowIndex].item.stock = value
-      setTableKey(tableKey + 1)
+      bodyRef.current.resetAfterColumnIndex(columnIndex)
 
       props.inventory[tableData[rowIndex].id] = value
       props.onChange(props.inventory)
     }
   }
 
-  const handleClickFilter = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setOpenFilterDialog(true)
-  }
-
   const handleCloseFilter = (newFilterValues: FilterValues) => {
     setFilterValues(newFilterValues)
-    setOpenFilterDialog(false)
   }
 
   const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -195,50 +219,60 @@ export const InventoryTable: FC<Prop> = (props) => {
     navigator.clipboard?.writeText(lines.reduce((acc, line) => (acc + line.slice(1) + '\n'),""))
   }
 
+  const headerCell = ({columnIndex, rowIndex, style }) => {
+    const column = columns[columnIndex]
+
+    return (
+      <div style={{...style, textAlign: column.align}} className={classes.head} onClick={() => handleClickColumn(columnIndex)}>
+        {(sortBy == columnIndex) ? ((sortOrder == 1) ? column.label + "▲" : column.label + "▼") : column.label}
+      </div>
+    )
+  }
+
+  const cell = ({columnIndex, rowIndex, style }) => {
+    const column = columns[columnIndex]
+    const cellData = getTableData(tableData[rowIndex], columnIndex)
+    const [matchWord, charMain, charSub] = ((typeof(cellData) == 'string') && cellData.match(/^([^\s]+\s+[^\s]+)\s+(.*)$/)) || [ "", cellData, ""]
+
+    return (
+      <div style={{...style, textAlign: column.align}} className={rowIndex % 2 ? classes.oddRowCell : classes.evenRowCell}>
+        {column.editable ?
+          <TextField defaultValue={cellData} size="small"
+                    onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
+                    onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
+                    type="number" InputProps={{ disableUnderline: true }}
+                    inputProps={{min: 0, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
+        : charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>
+                : cellData
+        }
+      </div>
+    )
+  }
+
   return (
-    <div>
+    <div className={classes.container} ref={myRef}>
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
         <Grid item>
           <Button onClick={handleClickClipboard} variant="outlined" >クリップボードにコピー</Button>
         </Grid>
         <Grid item>
           <DialogProviderContext.Consumer>
-              {({showFilterDialog}) =>
-                <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)} variant="contained" >フィルタ</Button>
-              }
+            {({showFilterDialog}) =>
+              <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)} variant="contained" >フィルタ</Button>
+            }
           </DialogProviderContext.Consumer>
         </Grid>
       </Grid>
-      <TableContainer className={classes.container}>
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow key="label">
-              {columns.map((column, idx) =>
-                <TableCell className={classes.head} key={idx} width={column.width} onClick={() => handleClickColumn(idx)}>
-                  {(sortBy == idx) ? ((sortOrder == 1) ? column.label + "▲" : column.label + "▼") : column.label}
-                </TableCell>
-              )}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {tableData.map((tableDataRow, rowIndex) => (
-              <TableRow key={`${tableDataRow.id}-${rowIndex}`} className={classes.row} >
-                {columns.map((column, columnIndex) =>
-                  <TableCell className={classes.cell} key={`${tableDataRow.id}-${rowIndex}-${columnIndex}`} align={column.align} width={column.width} size="small">
-                    {column.editable ?
-                      <TextField value={getTableData(tableDataRow, columnIndex)} size="small"
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {handleStockChanged(rowIndex, Number.parseInt(e.target.value))}}
-                                onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
-                                type="number" InputProps={{ disableUnderline: true }} inputProps={{ min: 0, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
-                      : getTableData(tableData[rowIndex], columnIndex)
-                    }
-                  </TableCell>
-                )}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <VariableSizeGrid width={tableSize[0]} height={30} ref={headerRef}
+        columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
+        rowCount={1} rowHeight={() => (30)} style={{overflowX: "hidden", overflowY: "scroll"}}>
+        {headerCell}
+      </VariableSizeGrid>
+      <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 30} ref={bodyRef} scrollOffset={0}
+        columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
+        rowCount={tableData.length} rowHeight={() => (30)} onScroll={({scrollLeft}) => {headerRef.current.scrollTo({scrollLeft: scrollLeft, scrollTop: 0})}} >
+        {cell}
+      </VariableSizeGrid>
     </div>
   )
 }
