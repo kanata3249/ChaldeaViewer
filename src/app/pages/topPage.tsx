@@ -8,6 +8,7 @@ import MenuIcon from '@material-ui/icons/Menu'
 
 import { InventoryTable } from './../components/InventoryTable'
 import { ServantTable } from './../components/ServantTable'
+import { ServantSpecTable } from './../components/ServantSpecTable'
 import { MSExchangeDialog } from './../components/MSExchangeDialog'
 import { DialogProvider } from '../components/DialogProvider'
 
@@ -163,7 +164,8 @@ export const TopPage: FC = () => {
               </Typography>
               <Select label="表示対象" value={selectedInfo} onChange={handleSelectedInfoChanged}>
                 <MenuItem value={"Inventory"}>所持アイテム</MenuItem>
-                <MenuItem value={"Servants"}>サーヴァント</MenuItem>
+                <MenuItem value={"Servants"}>サーヴァント育成</MenuItem>
+                <MenuItem value={"ServantsSpec"}>サーヴァント性能</MenuItem>
               </Select>
             </Toolbar>
           </AppBar>
@@ -171,6 +173,7 @@ export const TopPage: FC = () => {
         <div className={classes.contents}>
           {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} getInventoryStatus={getInventoryStatus} />}
           {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
+          {selectedInfo == "ServantsSpec" && <ServantSpecTable key={`servantSpecTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
           {openMSExchangeDialog && <MSExchangeDialog open={openMSExchangeDialog} onClose={handleCloseMSExchangeDialog}
                                       onImportServants={handleImportServants} onExportServants={handleExportServants}
                                       onImportInventory={handleImportInventory} onExportInventory={handleExportInventory}

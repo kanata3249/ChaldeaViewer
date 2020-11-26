@@ -76,17 +76,10 @@ const columns : TableColumnInfo[] = [
   { label: '名称', key: 'name', align: "left", width: 300},
   { label: 'クラス', key: 'class', align: "center", width: 60},
   { label: 'レア', key: 'rare', align: "center", width: 60},
-  { label: 'レベル', key: 'level', align: "center", width: 60, editable: true, type: "number", max: 100},
-  { label: '宝具', key: 'npLevel', align: "center", width: 60, editable: true, type: "number", max: 5},
-  { label: '再臨', key: 'ascension', align: "center", width: 60, editable: true, type: "number", max: 4},
-  { label: '(予定)', key: 'maxAscension', align: "center", width: 60, editable: true, type: "number", max: 4},
-  { label: 'スキル', key: 'skillLevel', align: "center", width: 80, editable: true, type: "string"},
-  { label: '(予定)', key: 'maxSkillLevel', align: "center", width: 80, editable: true, type: "string"},
-  { label: 'Atk+', key: 'attackMod', align: "center", width: 80, editable: true, type: "number", max: 2000},
-  { label: 'HP+', key: 'hpMod', align: "center", width: 80, editable: true, type: "number", max: 2000},
-  { label: '育成中', key: 'leveling', align: "center", width: 60},
-  { label: '残素材数', key: 'items', align: "center", width: 80 },
-  { label: '素材確認', key: 'checkItems', align: "center", width: 80, button: true, buttonLabel: "素材" }
+  { label: '性別', key: 'gender', align: "center", width: 60},
+  { label: '属性', key: 'attributes', align: "center", width: 60},
+  { label: '特性', key: 'characteristics', align: "left", width: 400},
+  { label: '宝具タイプ', key: 'npType', align: "center", width: 80},
 ]
 
 const getTableData = (servantTableData: ServantTableData, columnIndex: number, sort?: boolean) => {
@@ -189,41 +182,39 @@ const filterDefinition: FilterDefinition[] = [
     ]
   },
   {
-    name: "宝具レベル", key: "npLevel", type: "check",
+    name: "性別", key: "gender", type: "check",
     buttons: [
-      { label: "未召喚", key: "0" },
-      { label: "1", key: "1" },
-      { label: "2", key: "2" },
-      { label: "3", key: "3" },
-      { label: "4", key: "4" },
-      { label: "5", key: "5" },
+      { label: "女", key: '女' },
+      { label: "男", key: '男' },
+      { label: "その他", key: '-' },
     ]
   },
   {
-    name: "ATKフォウ", key: "attackMod", type: "check",
+    name: "天地人", key: "attributes", type: "check",
     buttons: [
-      { label: "0～999", key: "0,999" },
-      { label: "1000～1999", key: "1000,1999" },
-      { label: "2000", key: "2000,2000" },
+      { label: "天", key: "0" },
+      { label: "地", key: "1" },
+      { label: "人", key: "2" },
+      { label: "星", key: "3" },
+      { label: "獣", key: "4" },
     ]
   },
   {
-    name: "HPフォウ", key: "hpMod", type: "check",
+    name: "宝具タイプ", key: "npType", type: "check",
     buttons: [
-      { label: "0～999", key: "0,999" },
-      { label: "1000～1999", key: "1000,1999" },
-      { label: "2000", key: "2000,2000" },
+      { label: "B 全体", key: "B 全体" },
+      { label: "A 全体", key: "A 全体" },
+      { label: "Q 全体", key: "Q 全体" },
+      { label: "B 単体", key: "B 単体" },
+      { label: "A 単体", key: "A 単体" },
+      { label: "Q 単体", key: "Q 単体" },
+      { label: "B サポート", key: "B サポート" },
+      { label: "A サポート", key: "A サポート" },
+      { label: "Q サポート", key: "Q サポート" },
     ]
   },
-  {
-    name: "育成状態", key: "growthStatus", type: "check",
-    buttons: [
-      { label: "未スキルマ", key: "0" },
-      { label: "スキルマ(偽)", key: "1" },
-      { label: "スキルマ", key: "2" },
-    ]
-  }
 ]
+
 const defaultFilterValues: FilterValues = Object.values(filterDefinition).reduce((acc, group) => {
   acc[group.key] = group.buttons.reduce((acc, button) => {
       acc[button.key] = true
@@ -283,47 +274,21 @@ const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterVal
         case "gender":
         case "attributes":
         case "npType":
-          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return Object.entries(groupValues).some(([filterKey, enabled]) => {
             return enabled && (row.servant.servantInfo[groupKey] == filterKey)
           })
         case "npLevel":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
             return enabled && (row.servant[groupKey] == Number.parseInt(filterKey))
           })
-        case 'hpMod':
-        case 'attackMod':
-          return Object.entries(groupValues).some(([filterKey, enabled]) => {
-            const [ min, max ] = filterKey.split(',')
-            return enabled && (Number.parseInt(min) <= row.servant[groupKey] && row.servant[groupKey] <= Number.parseInt(max))
-          })
-        case 'growthStatus':
-          return Object.entries(groupValues).some(([filterKey, enabled]) => {
-            switch (filterKey) {
-            case '0':
-              return enabled && (row.servant.skillLevel[0] < 9 || row.servant.skillLevel[1] < 9 || row.servant.skillLevel[2] < 9)
-            case '1':
-              return enabled && (row.servant.skillLevel[0] >= 9 && row.servant.skillLevel[1] >= 9 && row.servant.skillLevel[2] >= 9)
-                             && row.servant.skillLevel.reduce((acc, value) => acc * value) != 1000
-            case '2':
-              return enabled && (row.servant.skillLevel[0] == 10 && row.servant.skillLevel[1] == 10 && row.servant.skillLevel[2] == 10)
-            default:
-              return false
-            }
-          })
         default:
           return false
       }
     })
   }).sort((a, b) => {
-    let aValue = getTableData(a, sortColumn, true)
-    let bValue = getTableData(b, sortColumn, true)
+    const aValue = getTableData(a, sortColumn, true)
+    const bValue = getTableData(b, sortColumn, true)
 
-    if (columns[sortColumn].key == 'items') {
-      if (aValue === "")
-        aValue = 999999 * sortOrder
-      if (bValue === "")
-        bValue = 999999 * sortOrder
-    }
     if (aValue == bValue)
       return 0
     if (bValue > aValue)
@@ -333,7 +298,7 @@ const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterVal
   })
 }
 
-export const ServantTable: FC<Prop> = (props) => {
+export const ServantSpecTable: FC<Prop> = (props) => {
   const classes = useStyles()
   const myRef = useRef<HTMLDivElement>()
   const headerRef = useRef<VariableSizeGrid>()
