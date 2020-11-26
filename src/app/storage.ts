@@ -1,5 +1,6 @@
 import { Inventory, validateInventory, itemNames } from './../fgo/inventory'
 import { Servants, validateServants } from './../fgo/servants'
+import { FilterValues } from './components/FilterDialog'
 
 
 export const createBackup = () => {
@@ -58,4 +59,12 @@ export const loadServants = () => {
 
 export const saveServants = (servants: Servants) => {
   localStorage.setItem("servants", JSON.stringify(servants))
+}
+
+export const loadFilter = (key: string): FilterValues => {
+  return JSON.parse(localStorage.getItem(`filterValues/${key}`))
+}
+
+export const saveFilter = (key: string, filterValues: FilterValues) => {
+  localStorage.setItem(`filterValues/${key}`, JSON.stringify(filterValues))
 }

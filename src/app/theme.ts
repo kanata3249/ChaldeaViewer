@@ -9,6 +9,9 @@ export const appTheme = () => {
       primary: {
         main: colors.blue[800],
       },
+      secondary: {
+        main: "#ffb74d"
+      },
       type: isDarkMode() ? "dark" : "light",
     },
   })

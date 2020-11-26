@@ -9,6 +9,7 @@ import { InventoryStatus } from '../../fgo/inventory'
 
 import { DialogProviderContext } from './DialogProvider'
 import { FilterDefinition, FilterValues } from './FilterDialog'
+import { saveFilter, loadFilter } from '../storage'
 
 type Prop = {
   servants: Servants
@@ -230,17 +231,34 @@ const defaultFilterValues: FilterValues = Object.values(filterDefinition).reduce
       return acc
     },{})
     return acc
+  },{}
+)
+
+const validateFilter = (values: FilterValues): FilterValues => {
+  return Object.values(filterDefinition).reduce((acc, group) => {
+    acc[group.key] = group.buttons.reduce((acc, button) => {
+      acc[button.key] = defaultFilterValues[group.key][button.key]
+      if (values && values[group.key])
+        acc[button.key] = values[group.key][button.key]
+      return acc
+    },{})
+    return acc
   },{})
+}
 
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
     container: {
       height: "100%"
     },
+    summary: {
+      flexGrow: 1
+    },
     controller: {
       width: "100%",
-      height: 48,
-      paddingRight: 8
+      minHeight: 48,
+      paddingRight: 8,
+      paddingLeft: 8
     },
     head: {
       padding: 4,
@@ -266,6 +284,17 @@ const calcServantTableData = (servants: Servants): ServantTableData[] => {
   return servants.map((servant, index) => (
     { id: servant.id, name: servantNames[servant.id], index, servant: servant } 
   ))
+}
+
+const calcServantSummary = (servants: Servants) => {
+  return servants.reduce((acc, servant) => {
+    acc.servants++
+    servant.npLevel > 0 && acc.summoned++
+    servant.ascension == 4 && acc.maxAscension++
+    (servant.skillLevel[0] >= 9 && servant.skillLevel[1] >= 9 && servant.skillLevel[2] >= 9) && acc.maxSkill++
+
+    return acc
+  }, { servants: 0, summoned: 0, maxAscension: 0, maxSkill: 0 })
 }
 
 const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterValues, sortColumn: number, sortOrder: number) => {
@@ -339,9 +368,10 @@ export const ServantTable: FC<Prop> = (props) => {
   const headerRef = useRef<VariableSizeGrid>()
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
-  const [ filterValues, setFilterValues ] = useState<FilterValues>(defaultFilterValues)
+  const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("ServantTable")))
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, sortBy, sortOrder)
+  const summary = calcServantSummary(props.servants)
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -378,6 +408,7 @@ export const ServantTable: FC<Prop> = (props) => {
 
   const handleCloseFilter = (newFilterValues: FilterValues) => {
     setFilterValues(newFilterValues)
+    saveFilter("ServantTable", newFilterValues)
   }
 
   const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -436,14 +467,20 @@ export const ServantTable: FC<Prop> = (props) => {
   return (
     <div className={classes.container} ref={myRef}>
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
+        <Grid item className={classes.summary} >
+          {`実装: ${summary.servants} 召喚: ${summary.summoned} 最終再臨: ${summary.maxAscension} スキルマ(偽): ${summary.maxSkill}`}
+        </Grid>
         <Grid item>
-          <Button onClick={handleClickClipboard} variant="outlined" >クリップボードにコピー</Button>
+          <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
         </Grid>
         <Grid item>
           <DialogProviderContext.Consumer>
             {({showFilterDialog}) =>
-              <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)} variant="contained" >フィルタ</Button>
-            }
+              <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)}
+              variant="contained"  color={Object.values(filterValues).some((group) => Object.values(group).some((value) => !value)) ? "secondary" : "default"} >
+              フィルタ
+            </Button>
+          }
           </DialogProviderContext.Consumer>
         </Grid>
       </Grid>

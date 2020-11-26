@@ -8,6 +8,7 @@ import { Inventory, InventoryStatus, ItemStatus, itemNames } from './../../fgo/i
 
 import { FilterDefinition, FilterValues } from './FilterDialog'
 import { DialogProviderContext } from './DialogProvider'
+import { saveFilter, loadFilter } from '../storage'
 
 type Prop = {
   inventory: Inventory
@@ -68,20 +69,36 @@ const filterDefinition: FilterDefinition[] = [
   {
     name: "表示対象", key: "display", type: "check",
     buttons: [
-      { label: "再臨素材", key: "items" },
-      { label: "モニュピ", key: "essentials" },
+      { label: "素材(金)", key: "goldItems" },
+      { label: "素材(銀)", key: "silverItems" },
+      { label: "素材(銅)", key: "cupperItems" },
+      { label: "モニュメント・ピース", key: "essentials" },
       { label: "秘石等", key: "gems" },
     ]
   }
 ]
-const defaultFilterValues: FilterValues = {
-  "display": {
-    "items": true,
-    "essentials": true,
-    "gems": true,
-  }
-}
 
+const defaultFilterValues: FilterValues = Object.values(filterDefinition).reduce((acc, group) => {
+  acc[group.key] = group.buttons.reduce((acc, button) => {
+      acc[button.key] = true
+      return acc
+    },{})
+    return acc
+  },{}
+)
+
+const validateFilter = (values: FilterValues): FilterValues => {
+  return Object.values(filterDefinition).reduce((acc, group) => {
+    acc[group.key] = group.buttons.reduce((acc, button) => {
+      acc[button.key] = defaultFilterValues[group.key][button.key]
+      if (values && values[group.key])
+        acc[button.key] = values[group.key][button.key]
+      return acc
+    },{})
+    return acc
+  },{})
+}
+  
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
     controller: {
@@ -132,8 +149,12 @@ const filterAndSort = (inventoryTableData: InventoryTableData[], filters: Filter
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
             if (enabled) {
               switch(filterKey) {
-                case 'items':
-                  return (row.id >= 300 && row.id < 600)
+                case 'goldItems':
+                  return (row.id >= 500 && row.id < 600)
+                case 'silverItems':
+                  return (row.id >= 400 && row.id < 500)
+                case 'cupperItems':
+                  return (row.id >= 300 && row.id < 400)
                 case 'gems':
                   return (row.id < 300 || row.id == 800)
                 case 'essentials':
@@ -164,7 +185,7 @@ export const InventoryTable: FC<Prop> = (props) => {
   const bodyRef = useRef<VariableSizeGrid>()
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
-  const [ filterValues, setFilterValues ] = useState<FilterValues>(defaultFilterValues)
+  const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("InventoryTable")))
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcInventoryTableData(props.getInventoryStatus()), filterValues, sortBy, sortOrder)
 
@@ -206,6 +227,7 @@ export const InventoryTable: FC<Prop> = (props) => {
 
   const handleCloseFilter = (newFilterValues: FilterValues) => {
     setFilterValues(newFilterValues)
+    saveFilter("InventoryTable", newFilterValues)
   }
 
   const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -253,13 +275,16 @@ export const InventoryTable: FC<Prop> = (props) => {
     <div className={classes.container} ref={myRef}>
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
         <Grid item>
-          <Button onClick={handleClickClipboard} variant="outlined" >クリップボードにコピー</Button>
+          <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
         </Grid>
         <Grid item>
           <DialogProviderContext.Consumer>
             {({showFilterDialog}) =>
-              <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)} variant="contained" >フィルタ</Button>
-            }
+              <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)}
+              variant="contained"  color={Object.values(filterValues).some((group) => Object.values(group).some((value) => !value)) ? "secondary" : "default"} >
+              フィルタ
+            </Button>
+          }
           </DialogProviderContext.Consumer>
         </Grid>
       </Grid>

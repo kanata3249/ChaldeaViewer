@@ -1,8 +1,9 @@
 import React, { FC, useState } from 'react'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 
-import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, TextField } from '@material-ui/core'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core'
 import { Paper, Grid } from '@material-ui/core'
+import { ToggleButton } from '@material-ui/lab'
 
 export type FilterDefinition = {
   key: string
@@ -32,18 +33,29 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     groupContainer: {
       padding: 8
-    }
+    },
   })
 )
 
 export const FilterDialog: FC<Prop> = (props) => {
   const classes = useStyles()
 
-  const [ filterValues, setFilterValues ] = useState(props.values)
+  const [ filterValues, setFilterValues ] = useState({...props.defaultValues, ...props.values})
 
   const handleDefault = () => {
-    console.log(props.defaultValues)
     setFilterValues(props.defaultValues)
+  }
+  const handleClearAll = () => {
+    const newValue = Object.values(props.filterDefinition).reduce((acc, group) => {
+      acc[group.key] = group.buttons.reduce((acc, button) => {
+        acc[button.key] = false
+        return acc
+      },{})
+      if (group.type == "radio")
+        acc[group.key][group.buttons[0].key] = true
+      return acc
+    },{})
+    setFilterValues(newValue)
   }
   const handleClose = () => {
     props.onClose(filterValues)
@@ -77,9 +89,9 @@ export const FilterDialog: FC<Prop> = (props) => {
               <Grid container spacing={1}>
                 {group.buttons.map((button, buttonIndex) =>
                   <Grid item key={`${groupIndex}-${buttonIndex}`}>
-                    <Button onClick={() => { handleClickFilterButton(group.key, button.key, group) }} variant={filterValues[group.key][button.key] ? "contained" : "outlined"}>
+                    <ToggleButton onClick={() => { handleClickFilterButton(group.key, button.key, group) }} value={button.label} selected={filterValues[group.key][button.key]}>
                       {button.label}
-                    </Button>
+                    </ToggleButton>
                   </Grid>
                 )}
               </Grid>
@@ -87,6 +99,9 @@ export const FilterDialog: FC<Prop> = (props) => {
           )}
         </DialogContent>
         <DialogActions>
+          <Button onClick={handleClearAll} variant="outlined">
+            全解除
+          </Button>
           <Button onClick={handleDefault} variant="outlined">
             初期値に戻す
           </Button>

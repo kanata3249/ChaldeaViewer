@@ -9,6 +9,7 @@ import { InventoryStatus } from '../../fgo/inventory'
 
 import { DialogProviderContext } from './DialogProvider'
 import { FilterDefinition, FilterValues } from './FilterDialog'
+import { saveFilter, loadFilter } from '../storage'
 
 type Prop = {
   servants: Servants
@@ -202,15 +203,17 @@ const filterDefinition: FilterDefinition[] = [
   {
     name: "宝具タイプ", key: "npType", type: "check",
     buttons: [
-      { label: "B 全体", key: "B 全体" },
-      { label: "A 全体", key: "A 全体" },
-      { label: "Q 全体", key: "Q 全体" },
-      { label: "B 単体", key: "B 単体" },
-      { label: "A 単体", key: "A 単体" },
-      { label: "Q 単体", key: "Q 単体" },
-      { label: "B サポート", key: "B サポート" },
-      { label: "A サポート", key: "A サポート" },
-      { label: "Q サポート", key: "Q サポート" },
+      { label: "バスター", key: "B" },
+      { label: "アーツ", key: "A" },
+      { label: "クィック", key: "Q" },
+    ]
+  },
+  {
+    name: "宝具効果", key: "npEffect", type: "check",
+    buttons: [
+      { label: "全体攻撃", key: "全体" },
+      { label: "単体攻撃", key: "単体" },
+      { label: "補助", key: "補助" },
     ]
   },
 ]
@@ -221,7 +224,20 @@ const defaultFilterValues: FilterValues = Object.values(filterDefinition).reduce
       return acc
     },{})
     return acc
+  },{}
+)
+
+const validateFilter = (values: FilterValues): FilterValues => {
+  return Object.values(filterDefinition).reduce((acc, group) => {
+    acc[group.key] = group.buttons.reduce((acc, button) => {
+      acc[button.key] = defaultFilterValues[group.key][button.key]
+      if (values && values[group.key])
+        acc[button.key] = values[group.key][button.key]
+      return acc
+    },{})
+    return acc
   },{})
+}
 
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
@@ -273,9 +289,13 @@ const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterVal
           })
         case "gender":
         case "attributes":
-        case "npType":
             return Object.entries(groupValues).some(([filterKey, enabled]) => {
             return enabled && (row.servant.servantInfo[groupKey] == filterKey)
+          })
+        case "npType":
+        case "npEffect":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (row.servant.servantInfo.npType.match(filterKey))
           })
         case "npLevel":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
@@ -304,7 +324,7 @@ export const ServantSpecTable: FC<Prop> = (props) => {
   const headerRef = useRef<VariableSizeGrid>()
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
-  const [ filterValues, setFilterValues ] = useState<FilterValues>(defaultFilterValues)
+  const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("ServantSpecTable")))
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, sortBy, sortOrder)
 
@@ -343,6 +363,7 @@ export const ServantSpecTable: FC<Prop> = (props) => {
 
   const handleCloseFilter = (newFilterValues: FilterValues) => {
     setFilterValues(newFilterValues)
+    saveFilter("ServantSpecTable", newFilterValues)
   }
 
   const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -402,12 +423,15 @@ export const ServantSpecTable: FC<Prop> = (props) => {
     <div className={classes.container} ref={myRef}>
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
         <Grid item>
-          <Button onClick={handleClickClipboard} variant="outlined" >クリップボードにコピー</Button>
+          <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
         </Grid>
         <Grid item>
           <DialogProviderContext.Consumer>
             {({showFilterDialog}) =>
-              <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)} variant="contained" >フィルタ</Button>
+              <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)}
+                variant="contained"  color={Object.values(filterValues).some((group) => Object.values(group).some((value) => !value)) ? "secondary" : "default"} >
+                フィルタ
+              </Button>
             }
           </DialogProviderContext.Consumer>
         </Grid>
