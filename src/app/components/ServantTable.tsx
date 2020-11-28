@@ -25,6 +25,7 @@ type TableColumnInfo = {
   span?: number
   editable?: boolean
   type?: "number" | "string"
+  min?: number
   max?: number
   button?: boolean
   buttonLabel?: string
@@ -77,14 +78,14 @@ const columns : TableColumnInfo[] = [
   { label: '名称', key: 'name', align: "left", width: 300},
   { label: 'クラス', key: 'class', align: "center", width: 60},
   { label: 'レア', key: 'rare', align: "center", width: 60},
-  { label: 'レベル', key: 'level', align: "center", width: 60, editable: true, type: "number", max: 100},
-  { label: '宝具', key: 'npLevel', align: "center", width: 60, editable: true, type: "number", max: 5},
-  { label: '再臨', key: 'ascension', align: "center", width: 60, editable: true, type: "number", max: 4},
-  { label: '(予定)', key: 'maxAscension', align: "center", width: 60, editable: true, type: "number", max: 4},
+  { label: 'レベル', key: 'level', align: "center", width: 60, editable: true, type: "number", min: 1, max: 100},
+  { label: '宝具', key: 'npLevel', align: "center", width: 60, editable: true, type: "number", min: 0, max: 5},
+  { label: '再臨', key: 'ascension', align: "center", width: 60, editable: true, type: "number", min: 0, max: 4},
+  { label: '(予定)', key: 'maxAscension', align: "center", width: 60, editable: true, type: "number", min: 0, max: 4},
   { label: 'スキル', key: 'skillLevel', align: "center", width: 80, editable: true, type: "string"},
   { label: '(予定)', key: 'maxSkillLevel', align: "center", width: 80, editable: true, type: "string"},
-  { label: 'Atk+', key: 'attackMod', align: "center", width: 80, editable: true, type: "number", max: 2000},
-  { label: 'HP+', key: 'hpMod', align: "center", width: 80, editable: true, type: "number", max: 2000},
+  { label: 'Atk+', key: 'attackMod', align: "center", width: 80, editable: true, type: "number", min: 0, max: 2000},
+  { label: 'HP+', key: 'hpMod', align: "center", width: 80, editable: true, type: "number", min: 0, max: 2000},
   { label: '育成中', key: 'leveling', align: "center", width: 60},
   { label: '残素材数', key: 'items', align: "center", width: 80 },
   { label: '素材確認', key: 'checkItems', align: "center", width: 80, button: true, buttonLabel: "素材" }
@@ -141,20 +142,28 @@ const setTableData = (servantTableData: ServantTableData, columnIndex: number, v
 
   switch (key) {
     case 'level':
-      row.servant[key] = Number.parseInt(value) || 1
+      row.servant[key] = Math.max(1, Math.min(Number.parseInt(value) || 0, columns[columnIndex].max))
       break
     case 'npLevel':
     case 'hpMod':
     case 'attackMod':
+      row.servant[key] = Math.max(0, Math.min(Number.parseInt(value) || 0, columns[columnIndex].max))
+      break
     case 'ascension':
     case 'maxAscension':
-      row.servant[key] = Number.parseInt(value) || 0
+      row.servant[key] = Math.max(0, Math.min(Number.parseInt(value) || 0, columns[columnIndex].max))
+      row.servant.maxAscension = Math.max(row.servant.ascension, row.servant.maxAscension)
+      console.log(row.servant[key])
       break
     case 'skillLevel':
     case 'maxSkillLevel':
       const values = parseSkillLevel(value)
-      if (values && values[0])
+      if (values && values[0]) {
         row.servant[key] = values
+        row.servant.maxSkillLevel[0] = Math.max(row.servant.skillLevel[0], row.servant.maxSkillLevel[0])
+        row.servant.maxSkillLevel[1] = Math.max(row.servant.skillLevel[1], row.servant.maxSkillLevel[1])
+        row.servant.maxSkillLevel[2] = Math.max(row.servant.skillLevel[2], row.servant.maxSkillLevel[2])
+      }
       break
   }
 }
@@ -366,12 +375,15 @@ export const ServantTable: FC<Prop> = (props) => {
   const classes = useStyles()
   const myRef = useRef<HTMLDivElement>()
   const headerRef = useRef<VariableSizeGrid>()
+  const bodyRef = useRef<VariableSizeGrid>()
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("ServantTable")))
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, sortBy, sortOrder)
   const summary = calcServantSummary(props.servants)
+
+  const refs = {}
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -398,9 +410,18 @@ export const ServantTable: FC<Prop> = (props) => {
 
   const handleLostFocus = (rowIndex: number, columnIndex: number, e: React.FocusEvent<HTMLInputElement>) => {
     const row = tableData[rowIndex]
-    if (getTableData(row, columnIndex) != e.target.value) {
-      setTableData(row, columnIndex, e.target.value)
-      e.target.value = getTableData(row, columnIndex)
+    const isChanged = getTableData(row, columnIndex) != e.target.value
+
+    isChanged && setTableData(row, columnIndex, e.target.value)
+    e.target.value = getTableData(row, columnIndex)
+    if (isChanged) {
+      if (columns[columnIndex].key == 'ascension' || columns[columnIndex].key == 'skillLevel') {
+        bodyRef.current.resetAfterColumnIndex(columnIndex)
+        if (refs[rowIndex + '-' + (columnIndex + 1)]) {
+          refs[rowIndex + '-' + (columnIndex + 1)].current.value = getTableData(row, columnIndex + 1)
+        }
+      }
+
       props.servants[row.index] = row.servant
       props.onChange(props.servants)
     }
@@ -432,6 +453,27 @@ export const ServantTable: FC<Prop> = (props) => {
     )
   }
 
+  const editableCell = (columnIndex, rowIndex) => {
+    const column = columns[columnIndex]
+    const cellData = getTableData(tableData[rowIndex], columnIndex)
+    const ref = useRef()
+
+    refs[rowIndex + "-" + columnIndex] = ref
+    if (column.type == "number") {
+      return <TextField defaultValue={cellData} size="small" inputRef={ref}
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
+              onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
+              type={column.type} InputProps={{ disableUnderline: true }}
+              inputProps={{min: column.min, max: column.max, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
+    } else {
+      return <TextField defaultValue={cellData} size="small" inputRef={ref}
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
+              onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
+              type={column.type} InputProps={{ disableUnderline: true }}
+              inputProps={{ style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
+    }
+  }
+
   const cell = ({columnIndex, rowIndex, style }) => {
     const column = columns[columnIndex]
     const cellData = getTableData(tableData[rowIndex], columnIndex)
@@ -440,17 +482,7 @@ export const ServantTable: FC<Prop> = (props) => {
     return (
       <div style={{...style, textAlign: column.align}} className={rowIndex % 2 ? classes.oddRowCell : classes.evenRowCell}>
         {column.editable ?
-          column.type == "number" ?
-          <TextField defaultValue={cellData} size="small"
-                    onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
-                    onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
-                    type={column.type} InputProps={{ disableUnderline: true }}
-                    inputProps={{min: 0, max: column.max, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
-          : <TextField defaultValue={cellData} size="small"
-                    onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
-                    onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
-                    type={column.type} InputProps={{ disableUnderline: true }}
-                    inputProps={{ style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
+          editableCell(columnIndex, rowIndex)
         : column.button ?
           <DialogProviderContext.Consumer>
             {({showServantItemsDialog}) =>
@@ -489,7 +521,7 @@ export const ServantTable: FC<Prop> = (props) => {
         rowCount={1} rowHeight={() => (30)} style={{overflowX: "hidden", overflowY: "scroll"}}>
         {headerCell}
       </VariableSizeGrid>
-      <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 30} scrollOffset={0}
+      <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 30} ref={bodyRef} scrollOffset={0}
         columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
         rowCount={tableData.length} rowHeight={() => (30)} onScroll={({scrollLeft}) => {headerRef.current.scrollTo({scrollLeft: scrollLeft, scrollTop: 0})}} >
         {cell}

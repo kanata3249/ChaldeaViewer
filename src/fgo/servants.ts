@@ -140,6 +140,12 @@ export const validateServants = (servants: Servants): Servants =>
       const servantIndex = servants.findIndex((item) => (item.id == servant.id))
       if (servantIndex >= 0)
         result[index] = { ...servants[servantIndex], servantInfo: servantData[servant.id] } 
+        result[index].ascension = Math.max(0, Math.min(4, result[index].ascension))
+        result[index].maxAscension = Math.max(result[index].ascension, Math.min(4, result[index].maxAscension))
+        result[index].skillLevel.forEach((skillLevel, skillNo) => {
+          result[index].skillLevel[skillNo] = Math.max(1, Math.min(10, result[index].skillLevel[skillNo]))
+          result[index].maxSkillLevel[skillNo] = Math.max(result[index].skillLevel[skillNo], Math.min(10, result[index].maxSkillLevel[skillNo]))
+        })
     })
   }
   return result
