@@ -4,7 +4,7 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import { Grid, Button, TextField } from '@material-ui/core'
 import { VariableSizeGrid } from 'react-window'
 
-import { Servants, Servant, servantNames, servantClassNames, attributeNames } from '../../fgo/servants'
+import { Servants, Servant, servantNames, servantClassNames, attributeNames, servantSkills } from '../../fgo/servants'
 import { InventoryStatus } from '../../fgo/inventory'
 
 import { DialogProviderContext } from './DialogProvider'
@@ -35,6 +35,65 @@ type ServantTableData = {
   index: number
   name: string
   servant: Servant
+}
+
+const findSkill = (row: ServantTableData, effectText: string): { id: number, name: string, effect: string } => {
+  const result = {
+    id: -1,
+    effectIndex: -1,
+    name: "",
+    effect: "",
+    sort: ""
+  }
+
+  row.servant.spec.skills.active.some((skillId) => {
+    const skillSpec = servantSkills[skillId]
+
+    return skillSpec.effects.some((effect, effectIndex) => {
+      if (effect.text.match(effectText)) {
+        if (effect.target.match(/(全体|単体)/)) {
+          result.id = skillId
+          result.effectIndex = effectIndex
+          return true
+        }
+      }
+      return false
+    })
+  })
+
+  if (result.id == -1) {
+    row.servant.spec.skills.np.some((skillId) => {
+      const skillSpec = servantSkills[skillId]
+
+      return skillSpec.effects.some((effect, effectIndex) => {
+        if (effect.text.match(effectText)) {
+          if (effect.target.match(/(全体|単体)/)) {
+            result.id = skillId
+            result.effectIndex = effectIndex
+            return true
+          }
+        }
+        return false
+      })
+    })
+  }
+
+  if (result.id >= 0) {
+    const skillSpec = servantSkills[result.id]
+    const effect = skillSpec.effects[result.effectIndex]
+    const min = effect.values[0]
+    const max = skillSpec.type == "np" ? effect.values[4] : effect.values[9]
+
+    const prefix = effect.target.match(/単体/) ? "単 " : skillSpec.type == "np" ? "宝 " : ""
+    result.name = skillSpec.name
+    if (min != max)
+      result.effect = prefix + min + "～" + max + " " + effect.text.replace(/^.*(\(.*)$/, "$1").replace(/NP増加/,"")
+    else
+      result.effect = prefix + min + " " + effect.text.replace(/^.*(\(.*)$/, "$1").replace(/NP増加/,"")
+    result.sort = ((Number.parseFloat(min) * 100) >> 0).toString().padStart(8, "0")
+  }
+  
+  return result
 }
 
 const parseSkillLevel = (text: string) => {
@@ -76,11 +135,16 @@ const columns : TableColumnInfo[] = [
   { label: 'ID', key: 'id', align: "center", width: 80},
   { label: '名称', key: 'name', align: "left", width: 300},
   { label: 'クラス', key: 'class', align: "center", width: 60},
-  { label: 'レア', key: 'rare', align: "center", width: 60},
   { label: '性別', key: 'gender', align: "center", width: 60},
   { label: '属性', key: 'attributes', align: "center", width: 60},
   { label: '特性', key: 'characteristics', align: "left", width: 400},
   { label: '宝具タイプ', key: 'npType', align: "center", width: 80},
+  { label: '攻up', key: 'attackBuff', align: "left", width: 120 },
+  { label: 'B up', key: 'busterBuff', align: "left", width: 120 },
+  { label: 'A up', key: 'artsBuff', align: "left", width: 120 },
+  { label: 'Q up', key: 'quickBuff', align: "left", width: 120 },
+  { label: '宝up', key: 'npBuff', align: "left", width: 120 },
+  { label: 'NP', key: 'npCharge', align: "left", width: 120 },
   { label: 'スキル', key: 'skills', align: "center", width: 80, button: true, buttonLabel: "表示" },
 ]
 
@@ -122,6 +186,18 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
       } else {
         return ""
       }
+    case 'attackBuff':
+      return findSkill(row, "攻撃力アップ")[sort ? "sort" : "effect"]
+    case 'busterBuff':
+      return findSkill(row, "Busterカード性能アップ")[sort ? "sort" : "effect"]
+    case 'artsBuff':
+      return findSkill(row, "Artsカード性能アップ")[sort ? "sort" : "effect"]
+    case 'quickBuff':
+      return findSkill(row, "Quickカード性能アップ")[sort ? "sort" : "effect"]
+    case 'npBuff':
+      return findSkill(row, "宝具威力アップ")[sort ? "sort" : "effect"]
+    case 'npCharge':
+      return findSkill(row, "NP増加")[sort ? "sort" : "effect"] || findSkill(row, "NP獲得\\(")[sort ? "sort" : "effect"]
     case 'checkItems':
       return ""
     default:
@@ -307,9 +383,13 @@ const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValu
       }
     })
   }).sort((a, b) => {
-    const aValue = getTableData(a, sortColumn, true)
-    const bValue = getTableData(b, sortColumn, true)
+    let aValue = getTableData(a, sortColumn, true)
+    let bValue = getTableData(b, sortColumn, true)
 
+    if (aValue === "")
+      aValue = (99999999 * sortOrder).toString()
+    if (bValue === "")
+      bValue = (99999999 * sortOrder).toString()
     if (aValue == bValue)
       return 0
     if (bValue > aValue)
