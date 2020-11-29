@@ -164,7 +164,7 @@ export const ServantItemsDialog: FC<Prop> = (props) => {
   return (
     <div>
       <Dialog open={props.open} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle className={classes.title} id="form-dialog-title">{`必要素材${props.servant ? ` - ${servantNames[props.servant.id]} (${servantClassNames[props.servant.servantInfo.class]})` : ""}`}</DialogTitle>
+        <DialogTitle className={classes.title} id="form-dialog-title">{`必要素材${props.servant ? ` - ${servantNames[props.servant.id]} (${servantClassNames[props.servant.spec.class]})` : ""}`}</DialogTitle>
         <DialogContent>
           {props.servant && (
             <>

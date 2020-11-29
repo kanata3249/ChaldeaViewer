@@ -105,18 +105,18 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
       return `${row.servant[key][0]}/${row.servant[key][1]}/${row.servant[key][2]}`
     case 'class':
       if (sort)
-        return row.servant.servantInfo[key]
-      return servantClassNames[row.servant.servantInfo[key]]
+        return row.servant.spec[key]
+      return servantClassNames[row.servant.spec[key]]
     case 'attributes':
       if (sort)
-        return row.servant.servantInfo[key]
-      return attributeNames[row.servant.servantInfo[key]]
+        return row.servant.spec[key]
+      return attributeNames[row.servant.spec[key]]
     case 'rare':
     case 'gender':
     case 'npType':
-        return row.servant.servantInfo[key]
+        return row.servant.spec[key]
     case 'characteristics':
-      return row.servant.servantInfo[key]
+      return row.servant.spec[key]
     case 'leveling':
       if ((row.servant.npLevel > 0)
           && (row.servant.ascension < row.servant.maxAscension || row.servant.skillLevel[0] < row.servant.maxSkillLevel[0]
@@ -312,17 +312,17 @@ const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterVal
       switch(groupKey) {
         case "class":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
-            return enabled && (servantClassNames[row.servant.servantInfo.class] == filterKey)
+            return enabled && (servantClassNames[row.servant.spec.class] == filterKey)
           })
         case "rare":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
-            return enabled && (row.servant.servantInfo.rare == Number.parseInt(filterKey))
+            return enabled && (row.servant.spec.rare == Number.parseInt(filterKey))
           })
         case "gender":
         case "attributes":
         case "npType":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
-            return enabled && (row.servant.servantInfo[groupKey] == filterKey)
+            return enabled && (row.servant.spec[groupKey] == filterKey)
           })
         case "npLevel":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {

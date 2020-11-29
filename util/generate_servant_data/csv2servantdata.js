@@ -163,8 +163,34 @@ const validateCharacteristics = (text) => {
   return toZenKata(text)
 }
 
-Promise.all([csv2json(csvs[0])])
-.then(([servant_array]) => {
+const derrivedSkill = {
+  "誉れ堅き雪花の壁": "今は脆き雪花の壁",    //s1
+  "アマルガムゴート D": "時に煙る白亜の壁",  //s2
+  "悲壮なる奮起の盾": "奮い断つ決意の盾",    //s3
+  "バンカーボルト A": "誉れ堅き雪花の壁",    //s1
+  "ブラックバレル B": "バンカーボルト A",   //s1
+}
+
+const isDerrivedSkill = (a, b) => {
+  let matched = false
+  if (derrivedSkill[a.name]) {
+    return derrivedSkill[a.name] == b.name
+  }
+  a.effects.forEach((aEffect, aIndex) => {
+    b.effects.forEach((bEffect, bIndex) => {
+      if (aEffect.text.replace(/\(.*$/, "") == bEffect.text.replace(/\(.*$/, "")) {
+        matched = true
+      }
+    })
+  })
+  if (matched) {
+    return true
+  }
+  return false;
+}
+
+Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
+.then(([servant_array, skill_array]) => {
 
   const servantId2msId = {}
   const servantList = {}
@@ -188,31 +214,156 @@ Promise.all([csv2json(csvs[0])])
       attributes: power2Id[servant.power],
       characteristics: servant.attribute + " " + validateCharacteristics(servant.characteristics),
       npType: servant.npType,
-      ascension: [
-        convertItemNames(servant.ascension1),
-        convertItemNames(servant.ascension2),
-        convertItemNames(servant.ascension3),
-        convertItemNames(servant.ascension4),
-      ],
-      skill: [
-        convertItemNames(servant.skill1),
-        convertItemNames(servant.skill2),
-        convertItemNames(servant.skill3),
-        convertItemNames(servant.skill4),
-        convertItemNames(servant.skill5),
-        convertItemNames(servant.skill6),
-        convertItemNames(servant.skill7),
-        convertItemNames(servant.skill8),
-        convertItemNames(servant.skill9),
-      ]
+      skills: {np: [], active: [], passive: []},
+      items: {
+        ascension: [
+          convertItemNames(servant.ascension1),
+          convertItemNames(servant.ascension2),
+          convertItemNames(servant.ascension3),
+          convertItemNames(servant.ascension4),
+        ],
+        skill: [
+          convertItemNames(servant.skill1),
+          convertItemNames(servant.skill2),
+          convertItemNames(servant.skill3),
+          convertItemNames(servant.skill4),
+          convertItemNames(servant.skill5),
+          convertItemNames(servant.skill6),
+          convertItemNames(servant.skill7),
+          convertItemNames(servant.skill8),
+          convertItemNames(servant.skill9),
+        ]
+      }
     }
+  })
+
+  const servantSkills = {}
+  const skills = {}
+  let skillId = 0
+  skill_array.forEach((skill) => {
+    skillId++
+    // patch
+    if (skill.SkillName == "文明接触 D") {
+      skill.CT = null
+    }
+    
+    const skillType = skill.NobleTraits ? "np" : skill.CT ? "active" : "passive"
+    const name = skillType != "np" ? skill.SkillName : skill.SkillName.replace(/^(.*[A-Z\+]+).*$/, "$1")
+    const owners = skill.Owners.split("\n").map((owner) => owner.replace(/s(\d+)/,"$1"))
+    const effects = []
+
+    const target = skill.Target.split("\n")
+    const target2 = skill.Target2.split("\n")
+    const preText = skill.PreText.split("\n")
+    const mainText = skill.MainText.split("\n")
+    const postText = skill.PostText.split("\n")
+    const grow = skill.Grow.split("\n")
+    const values = []
+    if (grow.length == 1) {
+      values.push([skill.Value0])
+      values.push([skill.Value1])
+      values.push([skill.Value2])
+      values.push([skill.Value3])
+      values.push([skill.Value4])
+      values.push([skill.Value5])
+      values.push([skill.Value6])
+      values.push([skill.Value7])
+      values.push([skill.Value8])
+      values.push([skill.Value9])
+    } else {
+      if (grow[0] == "-") {
+        if (typeof skill.Value0 == "number") {
+          skill.Value0 = skill.Value0.toString()
+          skill.Value1 = skill.Value1.toString()
+          skill.Value2 = skill.Value2.toString()
+          skill.Value3 = skill.Value3.toString()
+          skill.Value4 = skill.Value4.toString()
+          skill.Value5 = skill.Value5.toString()
+          skill.Value6 = skill.Value6.toString()
+          skill.Value7 = skill.Value7.toString()
+          skill.Value8 = skill.Value8.toString()
+          skill.Value9 = skill.Value9.toString()
+        }
+        skill.Value0 = skill.Value0.replace(/^-(.*)$/,"-\n$1")
+        skill.Value1 = skill.Value1.replace(/^-(.*)$/,"-\n$1")
+        skill.Value2 = skill.Value2.replace(/^-(.*)$/,"-\n$1")
+        skill.Value3 = skill.Value3.replace(/^-(.*)$/,"-\n$1")
+        skill.Value4 = skill.Value4.replace(/^-(.*)$/,"-\n$1")
+        skill.Value5 = skill.Value5.replace(/^-(.*)$/,"-\n$1")
+        skill.Value6 = skill.Value6.replace(/^-(.*)$/,"-\n$1")
+        skill.Value7 = skill.Value7.replace(/^-(.*)$/,"-\n$1")
+        skill.Value8 = skill.Value8.replace(/^-(.*)$/,"-\n$1")
+        skill.Value9 = skill.Value9.replace(/^-(.*)$/,"-\n$1")
+      }
+      values.push(skill.Value0.split("\n"))
+      values.push(skill.Value1.split("\n"))
+      values.push(skill.Value2.split("\n"))
+      values.push(skill.Value3.split("\n"))
+      values.push(skill.Value4.split("\n"))
+      values.push(skill.Value5.split("\n"))
+      values.push(skill.Value6.split("\n"))
+      values.push(skill.Value7.split("\n"))
+      values.push(skill.Value8.split("\n"))
+      values.push(skill.Value9.split("\n"))
+    }
+    switch(skillType) {
+      case 'np':
+        values.length = 5
+        break;
+      case 'passive':
+        values.length = 1
+        break;
+    }
+
+    target.forEach((v, index) => {
+      effects.push( {
+        target: target[index] + target2[index].replace(/^-$/,""),
+        text: (preText[index] != "-" ? preText[index] + " " : "") + mainText[index] + postText[index],
+        grow: grow[index] == "-" ? "" : grow[index],
+        values: values.map((value) => value[index] == "-" ? "" : value[index])
+      })
+    })
+  
+    skills[skillId] = {
+      Id: skillId,
+      name: name,
+      type: skillType,
+      effects: effects,
+    }
+    owners.forEach((owner) => {
+      if (skillType == "np") {
+        servantList[owner].skills[skillType] = [ skillId ]
+      } else if (skillType == "active") {
+        if (servantList[owner].skills.active.length >= 3) {
+          if (isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[0]]))
+            servantList[owner].skills.active[0] = skillId
+          else if (isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[1]]))
+            servantList[owner].skills.active[1] = skillId
+          else if (isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[2]]))
+            servantList[owner].skills.active[2] = skillId
+          else
+            servantList[owner].skills[skillType].push(skillId)
+        } else {
+          servantList[owner].skills[skillType].push(skillId)
+        }
+      } else {
+        servantList[owner].skills[skillType].push(skillId)
+      }
+    })
   })
 
   try {
     fs.writeFileSync("servantdata.json", JSON.stringify(servantList))
     fs.writeFileSync("servantid2msid.json", JSON.stringify(servantId2msId))
     fs.writeFileSync("servantnames.json", JSON.stringify(servantNames))
+    fs.writeFileSync("skills.json", JSON.stringify(skills))
   } catch (e) {
     console.log(e)
   }
+
+  Object.entries(servantList).forEach(([id, servant]) => {
+    if (servant.skills.active.length > 3) {
+      console.log("active", servant.skills.active.length, servantNames[id])
+    }
+  })
 })

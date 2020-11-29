@@ -164,8 +164,8 @@ const itemsForServant = (servant: Servant) => {
   const currentSkillLevel = servant.skillLevel
   const reservedSkillLevel = servant.maxSkillLevel
 
-  const ascensionItems = servant.servantInfo.ascension
-  const skillItems = servant.servantInfo.skill
+  const ascensionItems = servant.spec.items.ascension
+  const skillItems = servant.spec.items.skill
 
   const servantItemCounts = {}
 
