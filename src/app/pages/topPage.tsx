@@ -9,8 +9,7 @@ import MenuIcon from '@material-ui/icons/Menu'
 import { InventoryTable } from './../components/InventoryTable'
 import { ServantTable } from './../components/ServantTable'
 import { ServantSpecTable } from './../components/ServantSpecTable'
-import { MSExchangeDialog } from './../components/MSExchangeDialog'
-import { DialogProvider } from '../components/DialogProvider'
+import { DialogProvider, DialogProviderContext } from '../components/DialogProvider'
 
 import { Inventory, InventoryStatus, importMSInventory, exportMSInventory, calcInventoryStatus } from './../../fgo/inventory'
 import { Servants, importMSServants, exportMSServants } from './../../fgo/servants'
@@ -70,13 +69,6 @@ export const TopPage: FC = () => {
   let inventoryStatus: InventoryStatus = calcInventoryStatus(inventory, servants)
   const getInventoryStatus = () => inventoryStatus
 
-  const handleImportExport = () => {
-    setOpenMSExchangeDialog(true)
-    closeMenu()
-  }
-  const handleCloseMSExchangeDialog = () => {
-    setOpenMSExchangeDialog(false)
-  }
   const handleImportServants = (json: string) => {
     try {
       handleServantChanged(importMSServants(json))
@@ -155,7 +147,15 @@ export const TopPage: FC = () => {
                 <MenuIcon />
               </IconButton>
               <Menu id="main-menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
-                <MenuItem onClick={handleImportExport}>インポート/エクスポート</MenuItem>
+                <DialogProviderContext.Consumer>
+                  {({showMSExchangeDialog}) =>
+                    <MenuItem onClick={() => {
+                      showMSExchangeDialog(handleImportInventory, handleExportInventory, handleImportServants, handleExportServants)
+                      closeMenu()}}>
+                      インポート/エクスポート
+                    </MenuItem>
+                  }
+                </DialogProviderContext.Consumer>
                 <MenuItem onClick={handleBackup}>データバックアップ</MenuItem>
                 <MenuItem onClick={handleRestore}>データリストア</MenuItem>
               </Menu>
@@ -174,10 +174,6 @@ export const TopPage: FC = () => {
           {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} getInventoryStatus={getInventoryStatus} />}
           {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
           {selectedInfo == "ServantsSpec" && <ServantSpecTable key={`servantSpecTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
-          {openMSExchangeDialog && <MSExchangeDialog open={openMSExchangeDialog} onClose={handleCloseMSExchangeDialog}
-                                      onImportServants={handleImportServants} onExportServants={handleExportServants}
-                                      onImportInventory={handleImportInventory} onExportInventory={handleExportInventory}
-                                  />}
         </div>
       </DialogProvider>
     </>

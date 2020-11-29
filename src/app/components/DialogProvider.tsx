@@ -1,5 +1,6 @@
 import React, { FC, useState } from 'react'
 
+import { MSExchangeDialog } from './MSExchangeDialog'
 import { FilterDialog, FilterDefinition, FilterValues } from './FilterDialog'
 import { ServantItemsDialog } from './ServantItemsDialog'
 
@@ -7,6 +8,14 @@ import { Servant } from '../../fgo/servants'
 import { InventoryStatus } from '../../fgo/inventory'
 
 type Prop = {
+}
+
+type MSExchangeDialogState = {
+  openFlag: boolean
+  handleImportInventory(): void
+  handleExportInventory(): string
+  handleImportServants(): void
+  handleExportServants(): string
 }
 
 type onCloseFilterDialog = (result: FilterValues) => void
@@ -25,6 +34,10 @@ type ServantItemsDialogState = {
 }
 
 type DialogProviderContext = {
+  showMSExchangeDialog(handleImportInventory: (string) => void,
+                        handleExportInventory: () => string,
+                        handleImportServants: (string) => void,
+                        handleExportServants: () => string),
   showFilterDialog(filterValues: FilterValues,
                    defaultFilterValues: FilterValues,
                    filterDefinition: FilterDefinition[],
@@ -36,6 +49,30 @@ type DialogProviderContext = {
 export const DialogProviderContext = React.createContext<DialogProviderContext>(null)
 
 export const DialogProvider: FC<Prop> = (props) => {
+  // MSExchangeDialog
+  const initialMSExchangeDialogState = {
+    openFlag: false,
+    handleImportInventory: () => {},
+    handleExportInventory: () => "",
+    handleImportServants: () => {},
+    handleExportServants: () => "",
+  }
+  const [msExchangeDialogState, setMSExchangeDialogState] = useState<MSExchangeDialogState>(initialMSExchangeDialogState)
+
+  const showMSExchangeDialog = (handleImportInventory, handleExportInventory, handleImportServants, handleExportServants) => {
+    const newMSExchangeDialogState = {
+      openFlag: true,
+      handleImportInventory,
+      handleExportInventory,
+      handleImportServants,
+      handleExportServants
+    }
+    setMSExchangeDialogState(newMSExchangeDialogState)
+  }
+  const hideMSExchangeDialog = () => {
+    setMSExchangeDialogState(initialMSExchangeDialogState)
+  }
+
   // FilterDialog
   const initialFilterDialogState = {
     openFlag: false,
@@ -83,6 +120,7 @@ export const DialogProvider: FC<Prop> = (props) => {
 
   // Context
   const controllerContext: DialogProviderContext = {
+    showMSExchangeDialog,
     showFilterDialog,
     showServantItemsDialog,
   }
@@ -90,6 +128,14 @@ export const DialogProvider: FC<Prop> = (props) => {
   return (
     <DialogProviderContext.Provider value={controllerContext}>
       {props.children}
+      <DialogProviderContext.Consumer>
+        {(context) => (
+          msExchangeDialogState.openFlag
+           && <MSExchangeDialog open={msExchangeDialogState.openFlag} onClose={hideMSExchangeDialog}
+           onImportServants={msExchangeDialogState.handleImportServants} onExportServants={msExchangeDialogState.handleExportServants}
+           onImportInventory={msExchangeDialogState.handleImportInventory} onExportInventory={msExchangeDialogState.handleExportInventory} />
+        )}
+      </DialogProviderContext.Consumer>
       <DialogProviderContext.Consumer>
         {(context) => (
           filterDialogState.openFlag
