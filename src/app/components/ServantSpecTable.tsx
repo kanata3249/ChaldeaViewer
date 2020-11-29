@@ -81,6 +81,7 @@ const columns : TableColumnInfo[] = [
   { label: '属性', key: 'attributes', align: "center", width: 60},
   { label: '特性', key: 'characteristics', align: "left", width: 400},
   { label: '宝具タイプ', key: 'npType', align: "center", width: 80},
+  { label: 'スキル', key: 'skills', align: "center", width: 80, button: true, buttonLabel: "表示" },
 ]
 
 const getTableData = (servantTableData: ServantTableData, columnIndex: number, sort?: boolean) => {
@@ -275,8 +276,8 @@ const calcServantTableData = (servants: Servants): ServantTableData[] => {
   ))
 }
 
-const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterValues, sortColumn: number, sortOrder: number) => {
-  return sesrvantTableData.filter((row) => {
+const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValues, sortColumn: number, sortOrder: number) => {
+  return servantTableData.filter((row) => {
     return Object.entries(filters).every(([groupKey, groupValues]) => {
       switch(groupKey) {
         case "class":
@@ -302,7 +303,7 @@ const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterVal
             return enabled && (row.servant[groupKey] == Number.parseInt(filterKey))
           })
         default:
-          return false
+          return true
       }
     })
   }).sort((a, b) => {
@@ -408,8 +409,8 @@ export const ServantSpecTable: FC<Prop> = (props) => {
                     inputProps={{ style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
         : column.button ?
           <DialogProviderContext.Consumer>
-            {({showServantItemsDialog}) =>
-              <Button size="small" onClick={() => showServantItemsDialog(tableData[rowIndex].servant, props.getInventoryStatus())} variant="outlined" >{column.buttonLabel}</Button>
+            {({showServantSkillsDialog}) =>
+              <Button size="small" onClick={() => showServantSkillsDialog(tableData[rowIndex].servant)} variant="outlined" >{column.buttonLabel}</Button>
             }
           </DialogProviderContext.Consumer>
         : charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>

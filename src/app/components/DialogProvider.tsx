@@ -3,6 +3,7 @@ import React, { FC, useState } from 'react'
 import { MSExchangeDialog } from './MSExchangeDialog'
 import { FilterDialog, FilterDefinition, FilterValues } from './FilterDialog'
 import { ServantItemsDialog } from './ServantItemsDialog'
+import { ServantSkillsDialog } from './ServantSkillsDialog'
 
 import { Servant } from '../../fgo/servants'
 import { InventoryStatus } from '../../fgo/inventory'
@@ -33,6 +34,11 @@ type ServantItemsDialogState = {
   inventoryStatus: InventoryStatus
 }
 
+type ServantSkillsDialogState = {
+  openFlag: boolean
+  servant: Servant
+}
+
 type DialogProviderContext = {
   showMSExchangeDialog(handleImportInventory: (string) => void,
                         handleExportInventory: () => string,
@@ -44,6 +50,7 @@ type DialogProviderContext = {
                    onClose: onCloseFilterDialog): void
   showServantItemsDialog(servant: Servant,
                          inventoryStatus: InventoryStatus): void
+  showServantSkillsDialog(servant: Servant): void
 }
 
 export const DialogProviderContext = React.createContext<DialogProviderContext>(null)
@@ -118,11 +125,30 @@ export const DialogProvider: FC<Prop> = (props) => {
     setServantItemsDialogState(initialServantItemsDialogState)
   }
 
+  // ServantSkillsDialog
+  const initialServantSkillsDialogState = {
+    openFlag: false,
+    servant: null,
+  }
+  const [servantSkillsDialogState, setServantSkillsDialogState] = useState<ServantSkillsDialogState>(initialServantSkillsDialogState)
+  
+  const showServantSkillsDialog = (servant: Servant) => {
+    const newServantSkillsDialogState = {
+      openFlag: true,
+      servant,
+    }
+    setServantSkillsDialogState(newServantSkillsDialogState)
+  }
+  const hideServantSkillsDialog = () => {
+    setServantSkillsDialogState(initialServantSkillsDialogState)
+  }
+
   // Context
   const controllerContext: DialogProviderContext = {
     showMSExchangeDialog,
     showFilterDialog,
     showServantItemsDialog,
+    showServantSkillsDialog
   }
 
   return (
@@ -148,6 +174,13 @@ export const DialogProvider: FC<Prop> = (props) => {
           servantItemsDialogState.openFlag
            && <ServantItemsDialog open={servantItemsDialogState.openFlag} onClose={hideServantItemsDialog}
                 servant={servantItemsDialogState.servant} inventoryStatus={servantItemsDialogState.inventoryStatus}/>
+        )}
+      </DialogProviderContext.Consumer>
+      <DialogProviderContext.Consumer>
+        {(context) => (
+          servantSkillsDialogState.openFlag
+           && <ServantSkillsDialog open={servantSkillsDialogState.openFlag} onClose={hideServantSkillsDialog}
+                servant={servantSkillsDialogState.servant} />
         )}
       </DialogProviderContext.Consumer>
     </DialogProviderContext.Provider>
