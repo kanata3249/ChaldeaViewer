@@ -55,7 +55,7 @@ type FindSkillResult = {
   sort: string
 }
 
-const findSkill = (servant: Servant, effectText: string): FindSkillResult => {
+const findSkill = (servant: Servant, effectText: string, type = "active,np" ): FindSkillResult => {
   const result: FindSkillResult = {
     id: 0,
     effectIndex: -1,
@@ -64,23 +64,8 @@ const findSkill = (servant: Servant, effectText: string): FindSkillResult => {
     sort: ""
   }
 
-  servant.spec.skills.active.some((skillId) => {
-    const skillSpec = servantSkills[skillId]
-
-    return skillSpec.effects.some((effect, effectIndex) => {
-      if (effect.text.match(effectText)) {
-        if (effect.target.match(/(全体|単体)/)) {
-          result.id = skillId
-          result.effectIndex = effectIndex
-          return true
-        }
-      }
-      return false
-    })
-  })
-
-  if (result.id == 0) {
-    servant.spec.skills.np.some((skillId) => {
+  if (type.match("active")) {
+    servant.spec.skills.active.some((skillId) => {
       const skillSpec = servantSkills[skillId]
 
       return skillSpec.effects.some((effect, effectIndex) => {
@@ -94,6 +79,25 @@ const findSkill = (servant: Servant, effectText: string): FindSkillResult => {
         return false
       })
     })
+  }
+
+  if (type.match("np")) {
+    if (result.id == 0) {
+      servant.spec.skills.np.some((skillId) => {
+        const skillSpec = servantSkills[skillId]
+
+        return skillSpec.effects.some((effect, effectIndex) => {
+          if (effect.text.match(effectText)) {
+            if (effect.target.match(/(全体|単体)/)) {
+              result.id = skillId
+              result.effectIndex = effectIndex
+              return true
+            }
+          }
+          return false
+        })
+      })
+    }
   }
 
   if (result.id > 0) {
@@ -334,6 +338,63 @@ const validateFilter = (values: FilterValues): FilterValues => {
   },{})
 }
 
+const skillFilterDefinition: FilterDefinition[] = [
+  {
+    name: "スキル", key: "active", type: "check",
+    buttons: [
+      { label: "攻撃力アップ", key: "攻撃力アップ" },
+      { label: "Bバフ", key: "Busterカード性能アップ" },
+      { label: "Aバフ", key: "Artsカード性能アップ" },
+      { label: "Qバフ", key: "Quickカード性能アップ" },
+      { label: "宝具威力アップ", key: "宝具威力アップ" },
+      { label: "NPチャージ", key: "(NP増加|NP獲得\\()" },
+      { label: "強化解除", key: "強化〕状態を解除" },
+      { label: "弱体解除", key: "弱体〕状態を解除" },
+      { label: "強化解除耐性", key: "強化解除耐性" },
+      { label: "弱体耐性", key: "弱体耐性アップ" },
+      { label: "弱体無効", key: "弱体無効" },
+    ]
+  },
+  {
+    name: "宝具", key: "np", type: "check",
+    buttons: [
+      { label: "攻撃力アップ", key: "攻撃力アップ" },
+      { label: "Bバフ", key: "Busterカード性能アップ" },
+      { label: "Aバフ", key: "Artsカード性能アップ" },
+      { label: "Qバフ", key: "Quickカード性能アップ" },
+      { label: "宝具威力アップ", key: "宝具威力アップ" },
+      { label: "NPチャージ", key: "(NP増加|NP獲得\\()" },
+      { label: "強化解除", key: "強化〕状態を解除" },
+      { label: "弱体解除", key: "弱体〕状態を解除" },
+      { label: "強化解除耐性", key: "強化解除耐性" },
+      { label: "弱体耐性", key: "弱体耐性アップ" },
+      { label: "弱体無効", key: "弱体無効" },
+    ]
+  },
+]
+
+const defaultSkillFilterValues: FilterValues = Object.values(skillFilterDefinition).reduce((acc, group) => {
+  acc[group.key] = group.buttons.reduce((acc, button) => {
+      acc[button.key] = false
+      return acc
+    },{})
+    return acc
+  },{}
+)
+
+const validateSkillFilter = (values: FilterValues): FilterValues => {
+  return Object.values(skillFilterDefinition).reduce((acc, group) => {
+    acc[group.key] = group.buttons.reduce((acc, button) => {
+      acc[button.key] = defaultSkillFilterValues[group.key][button.key]
+      if (values && values[group.key])
+        acc[button.key] = values[group.key][button.key]
+      return acc
+    },{})
+    return acc
+  },{})
+}
+
+
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
     container: {
@@ -383,7 +444,9 @@ const calcServantTableData = (servants: Servants): ServantSpecTableData[] => {
   ))
 }
 
-const filterAndSort = (servantTableData: ServantSpecTableData[], filters: FilterValues, sortColumn: number, sortOrder: number) => {
+const filterAndSort = (servantTableData: ServantSpecTableData[], filters: FilterValues, skillFilters: FilterValues, sortColumn: number, sortOrder: number) => {
+  const isSkillFilterUsed = Object.values(skillFilters).some((group) => Object.values(group).some((value) => value))
+
   return servantTableData.filter((row) => {
     return Object.entries(filters).every(([groupKey, groupValues]) => {
       switch(groupKey) {
@@ -413,6 +476,20 @@ const filterAndSort = (servantTableData: ServantSpecTableData[], filters: Filter
           return true
       }
     })
+  }).filter((row) => {
+    if (!isSkillFilterUsed)
+      return true
+    return Object.entries(skillFilters).some(([groupKey, groupValues]) => {
+      switch(groupKey) {
+        case "active":
+        case "np":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (findSkill(row.servant, filterKey, groupKey).id > 0)
+          })
+        default:
+          return false
+      }
+    })
   }).sort((a, b) => {
     let aValue = getTableData(a, sortColumn, { sort: true } )
     let bValue = getTableData(b, sortColumn, { sort: true } )
@@ -437,8 +514,9 @@ export const ServantSpecTable: FC<Prop> = (props) => {
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("ServantSpecTable")))
+  const [ skillFilterValues, setSkillFilterValues ] = useState<FilterValues>(validateSkillFilter(loadFilter("ServantSpecTable/skill")))
   const [ tableSize, setTableSize ] = useState([1000, 800])
-  const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, sortBy, sortOrder)
+  const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, skillFilterValues, sortBy, sortOrder)
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -476,6 +554,11 @@ export const ServantSpecTable: FC<Prop> = (props) => {
   const handleCloseFilter = (newFilterValues: FilterValues) => {
     setFilterValues(newFilterValues)
     saveFilter("ServantSpecTable", newFilterValues)
+  }
+
+  const handleCloseSkillFilter = (newFilterValues: FilterValues) => {
+    setSkillFilterValues(newFilterValues)
+    saveFilter("ServantSpecTable/skill", newFilterValues)
   }
 
   const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -583,6 +666,16 @@ export const ServantSpecTable: FC<Prop> = (props) => {
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
         <Grid item>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
+        </Grid>
+        <Grid item>
+          <DialogProviderContext.Consumer>
+            {({showFilterDialog}) =>
+              <Button onClick={() => showFilterDialog(skillFilterValues, defaultSkillFilterValues, skillFilterDefinition, handleCloseSkillFilter)}
+                variant="contained"  color={Object.values(skillFilterValues).some((group) => Object.values(group).some((value) => value)) ? "secondary" : "default"} >
+                スキルフィルタ
+              </Button>
+            }
+          </DialogProviderContext.Consumer>
         </Grid>
         <Grid item>
           <DialogProviderContext.Consumer>
