@@ -4,9 +4,10 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import { Grid, Button, TextField } from '@material-ui/core'
 import { VariableSizeGrid } from 'react-window'
 
-import { Servants, Servant, servantNames, servantClassNames, attributeNames, servantSkills } from '../../fgo/servants'
+import { Servants, Servant, servantNames, servantClassNames, attributeNames, servantSkills, skillTypeNames } from '../../fgo/servants'
 import { InventoryStatus } from '../../fgo/inventory'
 
+import { PopoverCell } from './PopoverCell'
 import { DialogProviderContext } from './DialogProvider'
 import { FilterDefinition, FilterValues } from './FilterDialog'
 import { saveFilter, loadFilter } from '../storage'
@@ -28,25 +29,42 @@ type TableColumnInfo = {
   max?: number
   button?: boolean
   buttonLabel?: string
+  popover?: boolean
 }
 
-type ServantTableData = {
+type ServantSpecTableData = {
   id: number
   index: number
   name: string
   servant: Servant
+  buffSkill: {
+    attackBuff: FindSkillResult
+    busterBuff: FindSkillResult
+    artsBuff: FindSkillResult
+    quickBuff: FindSkillResult
+    npBuff: FindSkillResult
+    npCharge: FindSkillResult
+  }
 }
 
-const findSkill = (row: ServantTableData, effectText: string): { id: number, name: string, effect: string } => {
-  const result = {
-    id: -1,
+type FindSkillResult = {
+  id: number
+  name: string
+  effect: string
+  effectIndex: number
+  sort: string
+}
+
+const findSkill = (servant: Servant, effectText: string): FindSkillResult => {
+  const result: FindSkillResult = {
+    id: 0,
     effectIndex: -1,
     name: "",
     effect: "",
     sort: ""
   }
 
-  row.servant.spec.skills.active.some((skillId) => {
+  servant.spec.skills.active.some((skillId) => {
     const skillSpec = servantSkills[skillId]
 
     return skillSpec.effects.some((effect, effectIndex) => {
@@ -61,8 +79,8 @@ const findSkill = (row: ServantTableData, effectText: string): { id: number, nam
     })
   })
 
-  if (result.id == -1) {
-    row.servant.spec.skills.np.some((skillId) => {
+  if (result.id == 0) {
+    servant.spec.skills.np.some((skillId) => {
       const skillSpec = servantSkills[skillId]
 
       return skillSpec.effects.some((effect, effectIndex) => {
@@ -78,7 +96,7 @@ const findSkill = (row: ServantTableData, effectText: string): { id: number, nam
     })
   }
 
-  if (result.id >= 0) {
+  if (result.id > 0) {
     const skillSpec = servantSkills[result.id]
     const effect = skillSpec.effects[result.effectIndex]
     const min = effect.values[0]
@@ -139,16 +157,21 @@ const columns : TableColumnInfo[] = [
   { label: '属性', key: 'attributes', align: "center", width: 60},
   { label: '特性', key: 'characteristics', align: "left", width: 400},
   { label: '宝具タイプ', key: 'npType', align: "center", width: 80},
-  { label: '攻up', key: 'attackBuff', align: "left", width: 120 },
-  { label: 'B up', key: 'busterBuff', align: "left", width: 120 },
-  { label: 'A up', key: 'artsBuff', align: "left", width: 120 },
-  { label: 'Q up', key: 'quickBuff', align: "left", width: 120 },
-  { label: '宝up', key: 'npBuff', align: "left", width: 120 },
-  { label: 'NP', key: 'npCharge', align: "left", width: 120 },
+  { label: '攻up', key: 'attackBuff', align: "left", width: 120, popover: true },
+  { label: 'B up', key: 'busterBuff', align: "left", width: 120, popover: true },
+  { label: 'A up', key: 'artsBuff', align: "left", width: 120, popover: true },
+  { label: 'Q up', key: 'quickBuff', align: "left", width: 120, popover: true },
+  { label: '宝up', key: 'npBuff', align: "left", width: 120, popover: true },
+  { label: 'NP', key: 'npCharge', align: "left", width: 120, popover: true },
   { label: 'スキル', key: 'skills', align: "center", width: 80, button: true, buttonLabel: "表示" },
 ]
 
-const getTableData = (servantTableData: ServantTableData, columnIndex: number, sort?: boolean) => {
+type getTableDataOption = {
+  sort?: boolean
+  popover?: boolean
+}
+
+const getTableData = (servantTableData: ServantSpecTableData, columnIndex: number, option: getTableDataOption = { sort: false, popover: false }) => {
   const key = columns[columnIndex].key
   const row = servantTableData
 
@@ -157,15 +180,15 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
       return row[key]
     case 'skillLevel':
     case 'maxSkillLevel':
-      if (sort)
+      if (option.sort)
         return row.servant[key].reduce((acc, level) => acc * level)
       return `${row.servant[key][0]}/${row.servant[key][1]}/${row.servant[key][2]}`
     case 'class':
-      if (sort)
+      if (option.sort)
         return row.servant.spec[key]
       return servantClassNames[row.servant.spec[key]]
     case 'attributes':
-      if (sort)
+      if (option.sort)
         return row.servant.spec[key]
       return attributeNames[row.servant.spec[key]]
     case 'rare':
@@ -187,17 +210,12 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
         return ""
       }
     case 'attackBuff':
-      return findSkill(row, "攻撃力アップ")[sort ? "sort" : "effect"]
     case 'busterBuff':
-      return findSkill(row, "Busterカード性能アップ")[sort ? "sort" : "effect"]
     case 'artsBuff':
-      return findSkill(row, "Artsカード性能アップ")[sort ? "sort" : "effect"]
     case 'quickBuff':
-      return findSkill(row, "Quickカード性能アップ")[sort ? "sort" : "effect"]
     case 'npBuff':
-      return findSkill(row, "宝具威力アップ")[sort ? "sort" : "effect"]
     case 'npCharge':
-      return findSkill(row, "NP増加")[sort ? "sort" : "effect"] || findSkill(row, "NP獲得\\(")[sort ? "sort" : "effect"]
+      return row.buffSkill[key][option.sort ? "sort" : option.popover ? "id" : "effect"]
     case 'checkItems':
       return ""
     default:
@@ -205,7 +223,7 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
   }
 }
 
-const setTableData = (servantTableData: ServantTableData, columnIndex: number, value: string) => {
+const setTableData = (servantTableData: ServantSpecTableData, columnIndex: number, value: string) => {
   const key = columns[columnIndex].key
   const row = servantTableData
 
@@ -343,16 +361,29 @@ const useStyles = makeStyles((theme: Theme) =>
       overflow: "hidden",
       padding: 4
     },
+    skillDescription: {
+      paddingLeft: 8,
+      fontSize: "smaller"
+    }
   })
 )
 
-const calcServantTableData = (servants: Servants): ServantTableData[] => {
+const calcServantTableData = (servants: Servants): ServantSpecTableData[] => {
   return servants.map((servant, index) => (
-    { id: servant.id, name: servantNames[servant.id], index, servant: servant } 
+    { id: servant.id, name: servantNames[servant.id], index, servant: servant,
+      buffSkill: {
+        attackBuff: findSkill(servant, "攻撃力アップ"),
+        busterBuff: findSkill(servant, "Busterカード性能アップ"),
+        artsBuff: findSkill(servant, "Artsカード性能アップ"),
+        quickBuff: findSkill(servant, "Quickカード性能アップ"),
+        npBuff: findSkill(servant, "宝具威力アップ"),
+        npCharge: findSkill(servant, "(NP増加|NP獲得\\()")
+      }
+    } 
   ))
 }
 
-const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValues, sortColumn: number, sortOrder: number) => {
+const filterAndSort = (servantTableData: ServantSpecTableData[], filters: FilterValues, sortColumn: number, sortOrder: number) => {
   return servantTableData.filter((row) => {
     return Object.entries(filters).every(([groupKey, groupValues]) => {
       switch(groupKey) {
@@ -383,8 +414,8 @@ const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValu
       }
     })
   }).sort((a, b) => {
-    let aValue = getTableData(a, sortColumn, true)
-    let bValue = getTableData(b, sortColumn, true)
+    let aValue = getTableData(a, sortColumn, { sort: true } )
+    let bValue = getTableData(b, sortColumn, { sort: true } )
 
     if (aValue === "")
       aValue = (99999999 * sortOrder).toString()
@@ -458,6 +489,47 @@ export const ServantSpecTable: FC<Prop> = (props) => {
     navigator.clipboard?.writeText(lines.reduce((acc, line) => (acc + line.slice(1) + '\n'),""))
   }
 
+  const skill = (skillId: number) => {
+    if (skillId == 0) {
+      return <></>
+    }
+    const skill = servantSkills[skillId]
+    return (
+      <Grid container direction="column" >
+        <Grid item>
+          {skill.name + " - " + skillTypeNames[skill.type]}
+        </Grid>
+        <Grid item className={classes.skillDescription} >
+          <table>
+            <tbody>
+              {skill.effects.map((effect, index) => {
+                switch (skill.type) {
+                case "np":
+                  return (<tr key={index}><td colSpan={11} >{`${effect.target[index]} ${effect.text}`}</td></tr>)
+                case "passive":
+                  return (<tr key={index}><td colSpan={11} >{`${effect.text} ${effect.values[index]}`}</td></tr>)
+                case "active":
+                  if (effect.values[0] != effect.values[9])
+                    return (<tr key={index}><td colSpan={11} >{`${effect.target} ${effect.text} ${effect.values[0]}～${effect.values[9]}`}</td></tr>)
+                  else
+                    return (<tr key={index}><td colSpan={11} >{`${effect.target} ${effect.text} ${effect.values[0]}`}</td></tr>)
+                }
+              })}
+              {skill.type == "np" && (<tr><th></th><th></th>{skill.effects[0].values.map((value, index) => (<th key={index}>{index + 1}</th>))}</tr>)}
+              {skill.type == "np" && skill.effects.map((effect, index) => (
+                <tr key={index}><td></td>{skill.type == "np" && (<td>{effect.grow}</td>)}
+                  {effect.values.map((value, index) => (
+                    <td key={index}>{typeof value == "string" ? value.replace(/rate:/,"") : value}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Grid>
+      </Grid>
+    )
+}
+
   const headerCell = ({columnIndex, rowIndex, style }) => {
     const column = columns[columnIndex]
 
@@ -475,7 +547,7 @@ export const ServantSpecTable: FC<Prop> = (props) => {
 
     return (
       <div style={{...style, textAlign: column.align}} className={rowIndex % 2 ? classes.oddRowCell : classes.evenRowCell}>
-        {column.editable ?
+        {column.editable && (
           column.type == "number" ?
           <TextField defaultValue={cellData} size="small"
                     onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
@@ -487,15 +559,21 @@ export const ServantSpecTable: FC<Prop> = (props) => {
                     onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
                     type={column.type} InputProps={{ disableUnderline: true }}
                     inputProps={{ style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
-        : column.button ?
+        )}
+        {column.button && (
           <DialogProviderContext.Consumer>
             {({showServantSkillsDialog}) =>
               <Button size="small" onClick={() => showServantSkillsDialog(tableData[rowIndex].servant)} variant="outlined" >{column.buttonLabel}</Button>
             }
           </DialogProviderContext.Consumer>
-        : charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>
-                : cellData
-        }
+        )}
+        {column.popover && (
+          <PopoverCell popover={skill(getTableData(tableData[rowIndex], columnIndex, { popover: true }))}>{cellData}</PopoverCell>
+        )}
+        {!column.editable && !column.button && !column.popover && (
+          charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>
+                  : cellData
+        )}
       </div>
     )
   }
