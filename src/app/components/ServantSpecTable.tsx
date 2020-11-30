@@ -92,7 +92,7 @@ const findSkill = (row: ServantTableData, effectText: string): { id: number, nam
       result.effect = prefix + min + " " + effect.text.replace(/^.*(\(.*)$/, "$1").replace(/NP増加/,"")
     result.sort = ((Number.parseFloat(min) * 100) >> 0).toString().padStart(8, "0")
   }
-  
+
   return result
 }
 
@@ -427,7 +427,7 @@ export const ServantSpecTable: FC<Prop> = (props) => {
     if (sortBy == column) {
       setSortOrder(-sortOrder)
     } else {
-      setSortOrder(1)
+      setSortOrder(-1)
       setSortBy(column)
     }
   }

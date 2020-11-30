@@ -76,17 +76,17 @@ const parseSkillLevel = (text: string) => {
 const columns : TableColumnInfo[] = [
   { label: 'ID', key: 'id', align: "center", width: 80},
   { label: '名称', key: 'name', align: "left", width: 300},
-  { label: 'クラス', key: 'class', align: "center", width: 60},
-  { label: 'レア', key: 'rare', align: "center", width: 60},
-  { label: 'レベル', key: 'level', align: "center", width: 60, editable: true, type: "number", min: 1, max: 100},
-  { label: '宝具', key: 'npLevel', align: "center", width: 60, editable: true, type: "number", min: 0, max: 5},
-  { label: '再臨', key: 'ascension', align: "center", width: 60, editable: true, type: "number", min: 0, max: 4},
-  { label: '(予定)', key: 'maxAscension', align: "center", width: 60, editable: true, type: "number", min: 0, max: 4},
+  { label: 'クラス', key: 'class', align: "center", width: 80},
+  { label: 'レア', key: 'rare', align: "center", width: 80},
+  { label: 'レベル', key: 'level', align: "center", width: 80, editable: true, type: "number", min: 1, max: 100},
+  { label: '宝具', key: 'npLevel', align: "center", width: 80, editable: true, type: "number", min: 0, max: 5},
+  { label: '再臨', key: 'ascension', align: "center", width: 80, editable: true, type: "number", min: 0, max: 4},
+  { label: '(予定)', key: 'maxAscension', align: "center", width: 80, editable: true, type: "number", min: 0, max: 4},
   { label: 'スキル', key: 'skillLevel', align: "center", width: 80, editable: true, type: "string"},
   { label: '(予定)', key: 'maxSkillLevel', align: "center", width: 80, editable: true, type: "string"},
   { label: 'Atk+', key: 'attackMod', align: "center", width: 80, editable: true, type: "number", min: 0, max: 2000},
   { label: 'HP+', key: 'hpMod', align: "center", width: 80, editable: true, type: "number", min: 0, max: 2000},
-  { label: '育成中', key: 'leveling', align: "center", width: 60},
+  { label: '育成中', key: 'leveling', align: "center", width: 80},
   { label: '残素材数', key: 'items', align: "center", width: 80 },
   { label: '素材確認', key: 'checkItems', align: "center", width: 80, button: true, buttonLabel: "素材" }
 ]
@@ -403,7 +403,7 @@ export const ServantTable: FC<Prop> = (props) => {
     if (sortBy == column) {
       setSortOrder(-sortOrder)
     } else {
-      setSortOrder(1)
+      setSortOrder(-1)
       setSortBy(column)
     }
   }

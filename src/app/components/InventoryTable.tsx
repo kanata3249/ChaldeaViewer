@@ -204,12 +204,12 @@ export const InventoryTable: FC<Prop> = (props) => {
   }, [])
 
   const handleClickColumn = (column: number) => {
-    let newSortOrder = -sortOrder
-    if (sortBy != column) {
-      newSortOrder = 1
+    if (sortBy == column) {
+      setSortOrder(-sortOrder)
+    } else {
+      setSortOrder(-1)
       setSortBy(column)
     }
-    setSortOrder(newSortOrder)
   }
 
   const handleLostFocus = (rowIndex: number, columnIndex: number, e: React.FocusEvent<HTMLInputElement>) => {
