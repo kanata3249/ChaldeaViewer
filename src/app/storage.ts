@@ -2,6 +2,9 @@ import { Inventory, validateInventory, itemNames } from './../fgo/inventory'
 import { Servants, validateServants } from './../fgo/servants'
 import { FilterValues } from './components/FilterDialog'
 
+const makeKey = (name: string) => {
+  return "chaldea/0/" + name
+}
 
 export const createBackup = () => {
   const backup = {
@@ -38,33 +41,33 @@ export const restoreBackup = (backupData: string) => {
 }
 
 export const loadSelectedInfo = () => {
-  return localStorage.getItem("selectedInfo") || "Inventory"
+  return localStorage.getItem(makeKey("selectedInfo")) || "Inventory"
 }
 
 export const saveSelectedInfo = (selectedInfo: string) => {
-  localStorage.setItem("selectedInfo", selectedInfo)
+  localStorage.setItem(makeKey("selectedInfo"), selectedInfo)
 }
 
 export const loadInventory = () => {
-  return validateInventory(JSON.parse(localStorage.getItem("inventory")))
+  return validateInventory(JSON.parse(localStorage.getItem(makeKey("inventory"))))
 }
 
 export const saveInventory = (inventory: Inventory) => {
-  localStorage.setItem("inventory", JSON.stringify(inventory))
+  localStorage.setItem(makeKey("inventory"), JSON.stringify(inventory))
 }
 
 export const loadServants = () => {
-  return validateServants(JSON.parse(localStorage.getItem("servants")))
+  return validateServants(JSON.parse(localStorage.getItem(makeKey("servants"))))
 }
 
 export const saveServants = (servants: Servants) => {
-  localStorage.setItem("servants", JSON.stringify(servants))
+  localStorage.setItem(makeKey("servants"), JSON.stringify(servants.map(({ spec, itemCounts, totalItemsForMax, ...info } ) => ({ ...info }))))
 }
 
 export const loadFilter = (key: string): FilterValues => {
-  return JSON.parse(localStorage.getItem(`filterValues/${key}`))
+  return JSON.parse(localStorage.getItem(makeKey(`filterValues/${key}`)))
 }
 
 export const saveFilter = (key: string, filterValues: FilterValues) => {
-  localStorage.setItem(`filterValues/${key}`, JSON.stringify(filterValues))
+  localStorage.setItem(makeKey(`filterValues/${key}`), JSON.stringify(filterValues))
 }
