@@ -275,17 +275,6 @@ const filterDefinition: FilterDefinition[] = [
     ]
   },
   {
-    name: "宝具レベル", key: "npLevel", type: "check",
-    buttons: [
-      { label: "未召喚", key: "0" },
-      { label: "1", key: "1" },
-      { label: "2", key: "2" },
-      { label: "3", key: "3" },
-      { label: "4", key: "4" },
-      { label: "5", key: "5" },
-    ]
-  },
-  {
     name: "性別", key: "gender", type: "check",
     buttons: [
       { label: "女", key: '女' },
@@ -301,6 +290,36 @@ const filterDefinition: FilterDefinition[] = [
       { label: "人", key: "2" },
       { label: "星", key: "3" },
       { label: "獣", key: "4" },
+    ]
+  },
+  {
+    name: "方針", key: "policy", type: "check",
+    buttons: [
+      { label: "秩序", key: "秩序" },
+      { label: "中立", key: "中立" },
+      { label: "混沌", key: "混沌" },
+    ]
+  },
+  {
+    name: "性格", key: "personality", type: "check",
+    buttons: [
+      { label: "善", key: "善" },
+      { label: "中庸", key: "中庸" },
+      { label: "悪", key: "悪" },
+      { label: "狂", key: "狂" },
+      { label: "夏", key: "夏" },
+      { label: "花嫁", key: "花嫁" },
+    ]
+  },
+  {
+    name: "宝具レベル", key: "npLevel", type: "check",
+    buttons: [
+      { label: "未召喚", key: "0" },
+      { label: "1", key: "1" },
+      { label: "2", key: "2" },
+      { label: "3", key: "3" },
+      { label: "4", key: "4" },
+      { label: "5", key: "5" },
     ]
   },
   {
@@ -415,6 +434,53 @@ const validateSkillFilter = (values: FilterValues): FilterValues => {
   },{})
 }
 
+const charFilterDefinition: FilterDefinition[] = [
+  {
+    name: "特性", key: "characteristics", type: "check",
+    buttons: [
+      { label: "愛する者", key: "愛する者" },
+      { label: "アルゴノーツ", key: "アルゴノーツ" },
+      { label: "アルトリア顔", key: "アルトリア顔" },
+      { label: "アーサー", key: "アーサー" },
+      { label: "今を生きる人類", key: "今を生きる人類" },
+      { label: "イリヤ", key: "イリヤ" },
+      { label: "王", key: "王" },
+      { label: "ギリシャ男", key: "ギリシャ男" },
+      { label: "巨人", key: "巨人" },
+      { label: "子供", key: "子供" },
+      { label: "神性", key: "神性" },
+      { label: "人類の脅威", key: "人類の脅威" },
+      { label: "超巨大", key: "超巨大" },
+      { label: "信長", key: "信長" },
+      { label: "魔性", key: "魔性" },
+      { label: "猛獣", key: "猛獣" },
+      { label: "竜", key: "竜" },
+      { label: "領域外の生命", key: "領域外の生命" },
+      { label: "ローマ", key: "ローマ" },
+    ]
+  },
+]
+
+const defaultCharFilterValues: FilterValues = Object.values(charFilterDefinition).reduce((acc, group) => {
+  acc[group.key] = group.buttons.reduce((acc, button) => {
+      acc[button.key] = false
+      return acc
+    },{})
+    return acc
+  },{}
+)
+
+const validateCharFilter = (values: FilterValues): FilterValues => {
+  return Object.values(charFilterDefinition).reduce((acc, group) => {
+    acc[group.key] = group.buttons.reduce((acc, button) => {
+      acc[button.key] = defaultCharFilterValues[group.key][button.key]
+      if (values && values[group.key])
+        acc[button.key] = values[group.key][button.key]
+      return acc
+    },{})
+    return acc
+  },{})
+}
 
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
@@ -466,8 +532,10 @@ const calcServantTableData = (servants: Servants): ServantSpecTableData[] => {
   ))
 }
 
-const filterAndSort = (servantTableData: ServantSpecTableData[], filters: FilterValues, skillFilters: FilterValues, sortColumn: number, sortOrder: number) => {
+const filterAndSort = (servantTableData: ServantSpecTableData[], filters: FilterValues, skillFilters: FilterValues, charFilters: FilterValues,
+                       sortColumn: number, sortOrder: number) => {
   const isSkillFilterUsed = Object.values(skillFilters).some((group) => Object.values(group).some((value) => value))
+  const isCharFilterUsed = Object.values(charFilters).some((group) => Object.values(group).some((value) => value))
 
   return servantTableData.filter((row) => {
     return Object.entries(filters).every(([groupKey, groupValues]) => {
@@ -482,8 +550,13 @@ const filterAndSort = (servantTableData: ServantSpecTableData[], filters: Filter
           })
         case "gender":
         case "attributes":
-            return Object.entries(groupValues).some(([filterKey, enabled]) => {
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
             return enabled && (row.servant.spec[groupKey] == filterKey)
+          })
+        case "policy":
+        case "personality":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (row.servant.spec.characteristics.match(filterKey))
           })
         case "npType":
         case "npEffect":
@@ -518,6 +591,19 @@ const filterAndSort = (servantTableData: ServantSpecTableData[], filters: Filter
           return false
       }
     })
+  }).filter((row) => {
+    if (!isCharFilterUsed)
+      return true
+    return Object.entries(charFilters).some(([groupKey, groupValues]) => {
+      switch(groupKey) {
+        case "characteristics":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (row.servant.spec[groupKey].match(filterKey))
+          })
+        default:
+          return false
+      }
+    })
   }).sort((a, b) => {
     let aValue = getTableData(a, sortColumn, { sort: true } )
     let bValue = getTableData(b, sortColumn, { sort: true } )
@@ -543,8 +629,9 @@ export const ServantSpecTable: FC<Prop> = (props) => {
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("ServantSpecTable")))
   const [ skillFilterValues, setSkillFilterValues ] = useState<FilterValues>(validateSkillFilter(loadFilter("ServantSpecTable/skill")))
+  const [ charFilterValues, setCharFilterValues ] = useState<FilterValues>(validateCharFilter(loadFilter("ServantSpecTable/char")))
   const [ tableSize, setTableSize ] = useState([1000, 800])
-  const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, skillFilterValues, sortBy, sortOrder)
+  const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, skillFilterValues, charFilterValues, sortBy, sortOrder)
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -587,6 +674,11 @@ export const ServantSpecTable: FC<Prop> = (props) => {
   const handleCloseSkillFilter = (newFilterValues: FilterValues) => {
     setSkillFilterValues(newFilterValues)
     saveFilter("ServantSpecTable/skill", newFilterValues)
+  }
+
+  const handleCloseCharFilter = (newFilterValues: FilterValues) => {
+    setCharFilterValues(newFilterValues)
+    saveFilter("ServantSpecTable/char", newFilterValues)
   }
 
   const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -692,6 +784,16 @@ export const ServantSpecTable: FC<Prop> = (props) => {
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
         <Grid item>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
+        </Grid>
+        <Grid item>
+          <DialogProviderContext.Consumer>
+            {({showFilterDialog}) =>
+              <Button onClick={() => showFilterDialog(charFilterValues, defaultCharFilterValues, charFilterDefinition, handleCloseCharFilter)}
+                variant="contained"  color={Object.values(charFilterValues).some((group) => Object.values(group).some((value) => value)) ? "secondary" : "default"} >
+                特性フィルタ
+              </Button>
+            }
+          </DialogProviderContext.Consumer>
         </Grid>
         <Grid item>
           <DialogProviderContext.Consumer>
