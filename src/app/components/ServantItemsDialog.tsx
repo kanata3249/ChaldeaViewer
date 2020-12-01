@@ -173,7 +173,7 @@ export const ServantItemsDialog: FC<Prop> = (props) => {
                 rowCount={1} rowHeight={() => (30)} >
                 {headerCell}
               </VariableSizeGrid>
-              <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 30} scrollOffset={0}
+              <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 30}
                 columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
                 rowCount={tableData.length} rowHeight={() => (30)} >
                 {cell}

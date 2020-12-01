@@ -693,7 +693,7 @@ export const ServantSpecTable: FC<Prop> = (props) => {
         rowCount={1} rowHeight={() => (30)} style={{overflowX: "hidden", overflowY: "scroll"}}>
         {headerCell}
       </VariableSizeGrid>
-      <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 30} scrollOffset={0}
+      <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 30}
         columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
         rowCount={tableData.length} rowHeight={() => (30)} onScroll={({scrollLeft}) => {headerRef.current.scrollTo({scrollLeft: scrollLeft, scrollTop: 0})}} >
         {cell}
