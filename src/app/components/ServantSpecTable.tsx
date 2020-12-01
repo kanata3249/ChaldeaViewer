@@ -55,7 +55,8 @@ type FindSkillResult = {
   sort: string
 }
 
-const findSkill = (servant: Servant, effectText: string, type = "active,np" ): FindSkillResult => {
+const findSkill = (servant: Servant, effectText: string, option = {} ): FindSkillResult => {
+  const { type, target } = { type: "active,np", target: "(全体|単体)", ...option }
   const result: FindSkillResult = {
     id: 0,
     effectIndex: -1,
@@ -70,7 +71,7 @@ const findSkill = (servant: Servant, effectText: string, type = "active,np" ): F
 
       return skillSpec.effects.some((effect, effectIndex) => {
         if (effect.text.match(effectText)) {
-          if (effect.target.match(/(全体|単体)/)) {
+          if (effect.target.match(target)) {
             result.id = skillId
             result.effectIndex = effectIndex
             return true
@@ -88,7 +89,7 @@ const findSkill = (servant: Servant, effectText: string, type = "active,np" ): F
 
         return skillSpec.effects.some((effect, effectIndex) => {
           if (effect.text.match(effectText)) {
-            if (effect.target.match(/(全体|単体)/)) {
+            if (effect.target.match(target)) {
               result.id = skillId
               result.effectIndex = effectIndex
               return true
@@ -155,18 +156,18 @@ const parseSkillLevel = (text: string) => {
 
 const columns : TableColumnInfo[] = [
   { label: 'ID', key: 'id', align: "center", width: 80},
-  { label: '名称', key: 'name', align: "left", width: 300},
-  { label: 'クラス', key: 'class', align: "center", width: 60},
-  { label: '性別', key: 'gender', align: "center", width: 60},
-  { label: '属性', key: 'attributes', align: "center", width: 60},
+  { label: '名称', key: 'name', align: "left", width: 240},
+  { label: 'クラス', key: 'class', align: "center", width: 80},
   { label: '特性', key: 'characteristics', align: "left", width: 400},
   { label: '宝具タイプ', key: 'npType', align: "center", width: 80},
-  { label: '攻up', key: 'attackBuff', align: "left", width: 120, popover: true },
-  { label: 'B up', key: 'busterBuff', align: "left", width: 120, popover: true },
-  { label: 'A up', key: 'artsBuff', align: "left", width: 120, popover: true },
-  { label: 'Q up', key: 'quickBuff', align: "left", width: 120, popover: true },
-  { label: '宝up', key: 'npBuff', align: "left", width: 120, popover: true },
-  { label: 'NP', key: 'npCharge', align: "left", width: 120, popover: true },
+  { label: '宝具Lv', key: 'npLevel', align: "center", width: 80 },
+  { label: '攻up付与', key: 'attackBuff', align: "left", width: 120, popover: true },
+  { label: 'B up付与', key: 'busterBuff', align: "left", width: 120, popover: true },
+  { label: 'A up付与', key: 'artsBuff', align: "left", width: 120, popover: true },
+  { label: 'Q up付与', key: 'quickBuff', align: "left", width: 120, popover: true },
+  { label: '宝up付与', key: 'npBuff', align: "left", width: 120, popover: true },
+  { label: '特攻付与', key: 'specialAttack', align: "left", width: 120, popover: true },
+  { label: 'NP付与', key: 'npCharge', align: "left", width: 120, popover: true },
   { label: 'スキル', key: 'skills', align: "center", width: 80, button: true, buttonLabel: "表示" },
 ]
 
@@ -200,7 +201,9 @@ const getTableData = (servantTableData: ServantSpecTableData, columnIndex: numbe
     case 'npType':
         return row.servant.spec[key]
     case 'characteristics':
-      return row.servant.spec[key]
+      if (row.servant.spec.gender != "-")
+        return attributeNames[row.servant.spec.attributes] + " " + row.servant.spec.gender + " " + row.servant.spec[key]
+      return attributeNames[row.servant.spec.attributes] + " " + row.servant.spec[key]
     case 'leveling':
       if ((row.servant.npLevel > 0)
           && (row.servant.ascension < row.servant.maxAscension || row.servant.skillLevel[0] < row.servant.maxSkillLevel[0]
@@ -219,6 +222,7 @@ const getTableData = (servantTableData: ServantSpecTableData, columnIndex: numbe
     case 'quickBuff':
     case 'npBuff':
     case 'npCharge':
+    case 'specialAttack':
       return row.buffSkill[key][option.sort ? "sort" : option.popover ? "id" : "effect"]
     case 'checkItems':
       return ""
@@ -271,14 +275,14 @@ const filterDefinition: FilterDefinition[] = [
     ]
   },
   {
-    name: "レアリティ", key: "rare", type: "check",
+    name: "宝具レベル", key: "npLevel", type: "check",
     buttons: [
-      { label: "★5", key: "5" },
-      { label: "★4", key: "4" },
-      { label: "★3", key: "3" },
-      { label: "★2", key: "2" },
-      { label: "★1", key: "1" },
-      { label: "★0", key: "0" },
+      { label: "未召喚", key: "0" },
+      { label: "1", key: "1" },
+      { label: "2", key: "2" },
+      { label: "3", key: "3" },
+      { label: "4", key: "4" },
+      { label: "5", key: "5" },
     ]
   },
   {
@@ -340,14 +344,16 @@ const validateFilter = (values: FilterValues): FilterValues => {
 
 const skillFilterDefinition: FilterDefinition[] = [
   {
-    name: "スキル", key: "active", type: "check",
+    name: "スキル効果", key: "active", type: "check",
     buttons: [
-      { label: "攻撃力アップ", key: "攻撃力アップ" },
-      { label: "Bバフ", key: "Busterカード性能アップ" },
-      { label: "Aバフ", key: "Artsカード性能アップ" },
-      { label: "Qバフ", key: "Quickカード性能アップ" },
-      { label: "宝具威力アップ", key: "宝具威力アップ" },
-      { label: "NPチャージ", key: "(NP増加|NP獲得\\()" },
+      { label: "攻撃力アップ付与", key: "攻撃力アップ" },
+      { label: "Bバフ付与", key: "Busterカード性能アップ" },
+      { label: "Aバフ付与", key: "Artsカード性能アップ" },
+      { label: "Qバフ付与", key: "Quickカード性能アップ" },
+      { label: "宝具威力アップ付与", key: "宝具威力アップ" },
+      { label: "特攻付与", key: "〕威力アップ" },
+      { label: "特攻", key: "〕威力アップ,自身" },
+      { label: "NP付与", key: "(NP増加|NP獲得\\()" },
       { label: "強化解除", key: "強化〕状態を解除" },
       { label: "弱体解除", key: "弱体〕状態を解除" },
       { label: "強化解除耐性", key: "強化解除耐性" },
@@ -356,19 +362,34 @@ const skillFilterDefinition: FilterDefinition[] = [
     ]
   },
   {
-    name: "宝具", key: "np", type: "check",
+    name: "宝具効果", key: "np", type: "check",
     buttons: [
-      { label: "攻撃力アップ", key: "攻撃力アップ" },
-      { label: "Bバフ", key: "Busterカード性能アップ" },
-      { label: "Aバフ", key: "Artsカード性能アップ" },
-      { label: "Qバフ", key: "Quickカード性能アップ" },
-      { label: "宝具威力アップ", key: "宝具威力アップ" },
-      { label: "NPチャージ", key: "(NP増加|NP獲得\\()" },
+      { label: "攻撃力アップ付与", key: "攻撃力アップ" },
+      { label: "Bバフ付与", key: "Busterカード性能アップ" },
+      { label: "Aバフ付与", key: "Artsカード性能アップ" },
+      { label: "Qバフ付与", key: "Quickカード性能アップ" },
+      { label: "宝具威力アップ付与", key: "宝具威力アップ" },
+      { label: "特攻", key: "特攻宝具攻撃" },
+      { label: "NP付与", key: "(NP増加|NP獲得\\()" },
       { label: "強化解除", key: "強化〕状態を解除" },
       { label: "弱体解除", key: "弱体〕状態を解除" },
       { label: "強化解除耐性", key: "強化解除耐性" },
       { label: "弱体耐性", key: "弱体耐性アップ" },
       { label: "弱体無効", key: "弱体無効" },
+    ]
+  },
+  {
+    name: "宝具タイプ", key: "npType", type: "check",
+    buttons: [
+      { label: "B 全体", key: "B 全体" },
+      { label: "B 単体", key: "B 単体" },
+      { label: "B 補助", key: "B 補助" },
+      { label: "A 全体", key: "A 全体" },
+      { label: "A 単体", key: "A 単体" },
+      { label: "A 補助", key: "A 補助" },
+      { label: "Q 全体", key: "Q 全体" },
+      { label: "Q 単体", key: "Q 単体" },
+      { label: "Q 補助", key: "Q 補助" },
     ]
   },
 ]
@@ -438,7 +459,8 @@ const calcServantTableData = (servants: Servants): ServantSpecTableData[] => {
         artsBuff: findSkill(servant, "Artsカード性能アップ"),
         quickBuff: findSkill(servant, "Quickカード性能アップ"),
         npBuff: findSkill(servant, "宝具威力アップ"),
-        npCharge: findSkill(servant, "(NP増加|NP獲得\\()")
+        npCharge: findSkill(servant, "(NP増加|NP獲得\\()"),
+        specialAttack: findSkill(servant, "〕威力アップ")
       }
     } 
   ))
@@ -484,7 +506,13 @@ const filterAndSort = (servantTableData: ServantSpecTableData[], filters: Filter
         case "active":
         case "np":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
-            return enabled && (findSkill(row.servant, filterKey, groupKey).id > 0)
+            if (filterKey == "〕威力アップ,自身")
+              return enabled && (findSkill(row.servant, "〕威力アップ", { type: groupKey, target: "自身" } ).id > 0)
+            return enabled && (findSkill(row.servant, filterKey, { type: groupKey } ).id > 0)
+          })
+        case "npType":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (row.servant.spec.npType.match(filterKey))
           })
         default:
           return false
@@ -626,7 +654,6 @@ export const ServantSpecTable: FC<Prop> = (props) => {
   const cell = ({columnIndex, rowIndex, style }) => {
     const column = columns[columnIndex]
     const cellData = getTableData(tableData[rowIndex], columnIndex)
-    const [matchWord, charMain, charSub] = ((typeof(cellData) == 'string') && cellData.match(/^([^\s]+\s+[^\s]+)\s+(.*)$/)) || [ "", cellData, ""]
 
     return (
       <div style={{...style, textAlign: column.align}} className={rowIndex % 2 ? classes.oddRowCell : classes.evenRowCell}>
@@ -654,8 +681,7 @@ export const ServantSpecTable: FC<Prop> = (props) => {
           <PopoverCell popover={skill(getTableData(tableData[rowIndex], columnIndex, { popover: true }))}>{cellData}</PopoverCell>
         )}
         {!column.editable && !column.button && !column.popover && (
-          charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>
-                  : cellData
+          <span style={{fontSize:"smaller"}}>{cellData}</span>
         )}
       </div>
     )

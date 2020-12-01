@@ -75,7 +75,7 @@ const parseSkillLevel = (text: string) => {
 
 const columns : TableColumnInfo[] = [
   { label: 'ID', key: 'id', align: "center", width: 80},
-  { label: '名称', key: 'name', align: "left", width: 300},
+  { label: '名称', key: 'name', align: "left", width: 240},
   { label: 'クラス', key: 'class', align: "center", width: 80},
   { label: 'レア', key: 'rare', align: "center", width: 80},
   { label: 'レベル', key: 'level', align: "center", width: 80, editable: true, type: "number", min: 1, max: 100},
