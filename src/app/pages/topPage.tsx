@@ -22,9 +22,10 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1
     },
     contents: {
-      height: "calc(100vh - 64px)"
+      height: "calc(100vh - 64px - 20px)"
     },
     notice: {
+      height: 20,
       marginLeft: 10,
     }
   }))
@@ -174,6 +175,9 @@ export const TopPage: FC = () => {
           {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} getInventoryStatus={getInventoryStatus} />}
           {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
           {selectedInfo == "ServantsSpec" && <ServantSpecTable key={`servantSpecTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
+        </div>
+        <div className={classes.notice}>
+        サーヴァントデータなど大部分は<Link href="https://w.atwiki.jp/f_go/" target="blank">Fate/Grand Order @wiki 【FGO】</Link>を参考にさせていただいています。
         </div>
       </DialogProvider>
     </>
