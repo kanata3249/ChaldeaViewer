@@ -224,7 +224,7 @@ const getTableData = (servantTableData: ServantSpecTableData, columnIndex: numbe
     case 'npCharge':
     case 'specialAttack':
       return row.buffSkill[key][option.sort ? "sort" : option.popover ? "id" : "effect"]
-    case 'checkItems':
+    case 'skills':
       return ""
     default:
       return row.servant[key]
