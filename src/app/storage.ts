@@ -41,7 +41,7 @@ export const restoreBackup = (backupData: string) => {
 }
 
 export const loadSelectedInfo = () => {
-  return localStorage.getItem(makeKey("selectedInfo")) || "Inventory"
+  return localStorage.getItem(makeKey("selectedInfo")) || "ServantsSpec"
 }
 
 export const saveSelectedInfo = (selectedInfo: string) => {
