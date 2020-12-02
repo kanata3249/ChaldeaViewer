@@ -7,6 +7,7 @@
 
 fs = require('fs')
 csv = require('csvtojson')
+pako = require('pako')
 
 const itemNames = {
 200: "剣の輝石",
@@ -356,10 +357,10 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
   })
 
   try {
-    fs.writeFileSync("servantdata.json", JSON.stringify(servantList))
+    fs.writeFileSync("servantdata.json.gz",  pako.deflate(JSON.stringify(servantList)))
     fs.writeFileSync("servantid2msid.json", JSON.stringify(servantId2msId))
     fs.writeFileSync("servantnames.json", JSON.stringify(servantNames))
-    fs.writeFileSync("skills.json", JSON.stringify(skills))
+    fs.writeFileSync("skills.json.gz", pako.deflate(JSON.stringify(skills)))
   } catch (e) {
     console.log(e)
   }

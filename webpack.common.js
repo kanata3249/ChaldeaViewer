@@ -21,6 +21,10 @@ module.exports = {
       {
         test: /\.jsx?$/,
         loader: 'babel-loader'
+      },
+      {
+          test: /\.gz$/,
+          use: 'arraybuffer-loader'
       }
     ]
   },

@@ -1,4 +1,5 @@
 import { ServantItemCounts, ItemPerUsage } from './inventory'
+import pako from 'pako'
 
 export type ServantSkillSpec = {
   type: "np" | "active" | "passive"
@@ -48,8 +49,8 @@ export type Servants = Servant[]
 
 const servantSpecs: {
   [id: number]: ServantSpec
-} = require('./servantdata.json')
-export const servantSkills: ServantSkills = require('./skills.json')
+} = JSON.parse(pako.inflate(new Uint8Array(require('./servantdata.json.gz')), { to: 'string' }))
+export const servantSkills: ServantSkills = JSON.parse(pako.inflate(new Uint8Array(require('./skills.json.gz')), { to: 'string' }))
 const servantId2msId = require('./servantId2msId.json')
 
 export const servantNames = require('./servantNames.json')
