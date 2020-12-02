@@ -89,7 +89,7 @@ export const FilterDialog: FC<Prop> = (props) => {
               <Grid container spacing={1}>
                 {group.buttons.map((button, buttonIndex) =>
                   <Grid item key={`${groupIndex}-${buttonIndex}`}>
-                    <ToggleButton onClick={() => { handleClickFilterButton(group.key, button.key, group) }} value={button.label} selected={filterValues[group.key][button.key]}>
+                    <ToggleButton onClick={() => { handleClickFilterButton(group.key, button.key, group) }} value={button.label} selected={filterValues[group.key][button.key]} size="small">
                       {button.label}
                     </ToggleButton>
                   </Grid>
