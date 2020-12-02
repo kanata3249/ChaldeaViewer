@@ -125,7 +125,9 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
       return ""
     case 'items':
       if (row.servant.ascension < 4 || row.servant.skillLevel[0] < 9 || row.servant.skillLevel[1] < 9 || row.servant.skillLevel[2] < 9) {
-        return Object.values(row.servant.totalItemsForMax).reduce((acc, value) => acc + value)
+        if (!sort && row.servant.ascension < 4)
+          return row.servant.totalItemsForMax.ascension + " + " + row.servant.totalItemsForMax.skill
+        return row.servant.totalItemsForMax.skill
       } else {
         return ""
       }
