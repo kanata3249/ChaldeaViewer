@@ -246,6 +246,9 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
     if (skill.SkillName == "文明接触 D") {
       skill.CT = null
     }
+    skill.PreText = skill.PreText.replace(/〔2730〕/g, "〔虚数空間〕")
+    skill.Target2 = skill.Target2.replace(/〔2730〕/g, "〔虚数空間〕")
+    skill.Target2 = skill.Target2.replace(/〔2731〕/g, "〔領域外の生命〕")
     
     const skillType = skill.NobleTraits ? "np" : skill.CT ? "active" : "passive"
     const name = skillType != "np" ? skill.SkillName : skill.SkillName.replace(/^(.*[A-Z\+]+).*$/, "$1")
