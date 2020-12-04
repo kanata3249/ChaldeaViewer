@@ -329,7 +329,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
     })
   
     skills[skillId] = {
-      Id: skillId,
+      id: skillId,
       name: name,
       type: skillType,
       effects: effects,
