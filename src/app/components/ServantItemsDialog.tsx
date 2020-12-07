@@ -82,7 +82,7 @@ const getTableData = (tableData: ServantItemsTableData, columnIndex: number) => 
     case 'free':
       return tableData[key]
     case 'shortage':
-      return Math.max(0, tableData.remain - tableData.free)
+      return Math.max(0, tableData.remain - Math.max(0, tableData.free))
   }
 }
 
