@@ -252,6 +252,13 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
     skill.PreText = skill.PreText.replace(/〔2730〕/g, "〔虚数空間〕")
     skill.Target2 = skill.Target2.replace(/〔2730〕/g, "〔虚数空間〕")
     skill.Target2 = skill.Target2.replace(/〔2731〕/g, "〔領域外の生命〕")
+    if (skill.SkillName.match("狂瀾怒濤・悪霊左府 B")) {
+      skill.Value0 = skill.Value0.replace(/-$/, "120")
+      skill.Value1 = skill.Value1.replace(/-$/, "120")
+      skill.Value2 = skill.Value2.replace(/-$/, "120")
+      skill.Value3 = skill.Value3.replace(/-$/, "120")
+      skill.Value4 = skill.Value4.replace(/-$/, "120")
+    }
     
     const skillType = skill.NobleTraits ? "np" : skill.CT ? "active" : "passive"
     const name = skillType != "np" ? skill.SkillName : skill.SkillName.replace(/^(.*[A-Z\+]+).*$/, "$1")
