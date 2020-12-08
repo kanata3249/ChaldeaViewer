@@ -2,6 +2,10 @@ import { Inventory, validateInventory, itemNames } from './../fgo/inventory'
 import { Servants, validateServants } from './../fgo/servants'
 import { FilterValues } from './components/FilterDialog'
 
+const defaultConfiguration = {
+  modifyInventory: false
+}
+
 const makeKey = (name: string) => {
   return "chaldea/0/" + name
 }
@@ -70,4 +74,17 @@ export const loadFilter = (key: string): FilterValues => {
 
 export const saveFilter = (key: string, filterValues: FilterValues) => {
   localStorage.setItem(makeKey(`filterValues/${key}`), JSON.stringify(filterValues))
+}
+
+export const loadModifyInventory = (): boolean => {
+  const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
+
+  return configuration.modifyInventory
+}
+
+export const saveModifyInventory = (value: boolean) => {
+  const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
+
+  configuration.modifyInventory = value
+  localStorage.setItem(makeKey('configuration'), JSON.stringify(configuration))
 }

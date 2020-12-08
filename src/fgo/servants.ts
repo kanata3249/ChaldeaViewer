@@ -33,8 +33,8 @@ export type ServantSpec = {
   npType: string
   skills: ServantSkills
   items: {
-    ascension: {}[]
-    skill: {}[]
+    ascension: { [id: number]: number }[]
+    skill: { [id: number]: number }[]
   }
 }
 

@@ -69,6 +69,15 @@ export const TopPage: FC = () => {
 
   let inventoryStatus: InventoryStatus = calcInventoryStatus(inventory, servants)
   const getInventoryStatus = () => inventoryStatus
+  const setInventoryStatus = (newInventoryStatus: InventoryStatus) => {
+    const newInventory = Object.entries(newInventoryStatus).reduce<Inventory>((acc, [id, status]) => {
+      acc[id] = status.stock
+      return acc
+    },{})
+    saveInventory(newInventory)
+    Object.assign(inventory, newInventory)
+    inventoryStatus = calcInventoryStatus(inventory, servants)
+  }
 
   const handleImportServants = (json: string) => {
     try {
@@ -173,7 +182,7 @@ export const TopPage: FC = () => {
         </div>
         <div className={classes.contents}>
           {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} getInventoryStatus={getInventoryStatus} />}
-          {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
+          {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} setInventoryStatus={setInventoryStatus} />}
           {selectedInfo == "ServantsSpec" && <ServantSpecTable key={`servantSpecTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
         </div>
         <div className={classes.notice}>

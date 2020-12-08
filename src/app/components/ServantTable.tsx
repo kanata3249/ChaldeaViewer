@@ -1,20 +1,21 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 
-import { Grid, Button, TextField } from '@material-ui/core'
+import { Grid, Button, TextField, FormControlLabel, Checkbox } from '@material-ui/core'
 import { VariableSizeGrid } from 'react-window'
 
-import { Servants, Servant, servantNames, servantClassNames, attributeNames } from '../../fgo/servants'
+import { Servants, Servant, ServantSpec, servantNames, servantClassNames, attributeNames } from '../../fgo/servants'
 import { InventoryStatus } from '../../fgo/inventory'
 
 import { DialogProviderContext } from './DialogProvider'
 import { FilterDefinition, FilterValues } from './FilterDialog'
-import { saveFilter, loadFilter } from '../storage'
+import { saveFilter, loadFilter, saveModifyInventory, loadModifyInventory } from '../storage'
 
 type Prop = {
   servants: Servants
   onChange(servants: Servants): void
   getInventoryStatus(): InventoryStatus
+  setInventoryStatus(InventoryStatus): void
 }
 
 type TableColumnInfo = {
@@ -138,7 +139,40 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
   }
 }
 
-const setTableData = (servantTableData: ServantTableData, columnIndex: number, value: string) => {
+const updateInventoryForAscension = (servantSpec: ServantSpec, newAscensionLevel: number, oldAscensionLevel: number, inventoryStatus: InventoryStatus) => {
+  const [ min, max ] = [ Math.min(newAscensionLevel, oldAscensionLevel), Math.max(newAscensionLevel, oldAscensionLevel) ]
+  const inc = min == newAscensionLevel
+  let updated = false
+
+  for (let ascensionLevel = min; ascensionLevel < max; ascensionLevel++) {
+    updated = true
+    Object.entries(servantSpec.items.ascension[ascensionLevel]).forEach(([id, count]) => {
+      inventoryStatus[id].stock += (inc ? 1 : -1) * count
+    })
+  }
+  return updated
+}
+
+const updateInventoryForSkill = (servantSpec: ServantSpec, newSkillLevel: number[], oldSkillLevel: number[], inventoryStatus: InventoryStatus) => {
+  const skillNos = [ 0, 1, 2 ]
+  let updated = false
+
+  skillNos.forEach((skillNo: number) => {
+    const [ min, max ] = [ Math.min(newSkillLevel[skillNo], oldSkillLevel[skillNo]), Math.max(newSkillLevel[skillNo], oldSkillLevel[skillNo]) ]
+    const inc = min == newSkillLevel[skillNo]
+
+    for (let skillLevel = min - 1; skillLevel < max - 1; skillLevel++) {
+      updated = true
+      Object.entries(servantSpec.items.skill[skillLevel]).forEach(([id, count]) => {
+        inventoryStatus[id].stock += (inc ? 1 : -1) * count
+      })
+    }
+  })
+  return updated
+}
+
+
+const setTableData = (servantTableData: ServantTableData, columnIndex: number, value: string, props: Prop, modifyInventory: boolean) => {
   const key = columns[columnIndex].key
   const row = servantTableData
 
@@ -153,18 +187,34 @@ const setTableData = (servantTableData: ServantTableData, columnIndex: number, v
       break
     case 'ascension':
     case 'maxAscension':
-      row.servant[key] = Math.max(0, Math.min(Number.parseInt(value) || 0, columns[columnIndex].max))
-      row.servant.maxAscension = Math.max(row.servant.ascension, row.servant.maxAscension)
-      console.log(row.servant[key])
+      {
+        const newValue = Math.max(0, Math.min(Number.parseInt(value) || 0, columns[columnIndex].max))
+        if (key == 'ascension' && modifyInventory) {
+          const inventoryStatus = props.getInventoryStatus()
+          if (updateInventoryForAscension(row.servant.spec, newValue, row.servant.ascension, inventoryStatus)) {
+            props.setInventoryStatus(inventoryStatus)
+          }
+        }
+        row.servant[key] = newValue
+        row.servant.maxAscension = Math.max(row.servant.ascension, row.servant.maxAscension)
+      }
       break
     case 'skillLevel':
     case 'maxSkillLevel':
-      const values = parseSkillLevel(value)
-      if (values && values[0]) {
-        row.servant[key] = values
-        row.servant.maxSkillLevel[0] = Math.max(row.servant.skillLevel[0], row.servant.maxSkillLevel[0])
-        row.servant.maxSkillLevel[1] = Math.max(row.servant.skillLevel[1], row.servant.maxSkillLevel[1])
-        row.servant.maxSkillLevel[2] = Math.max(row.servant.skillLevel[2], row.servant.maxSkillLevel[2])
+      {
+        const newValues = parseSkillLevel(value)
+        if (newValues && newValues[0]) {
+          if (key == 'skillLevel' && modifyInventory) {
+            const inventoryStatus = props.getInventoryStatus()
+            if (updateInventoryForSkill(row.servant.spec, newValues, row.servant.skillLevel, inventoryStatus)) {
+              props.setInventoryStatus(inventoryStatus)
+            }
+          }
+          row.servant[key] = newValues
+          row.servant.maxSkillLevel[0] = Math.max(row.servant.skillLevel[0], row.servant.maxSkillLevel[0])
+          row.servant.maxSkillLevel[1] = Math.max(row.servant.skillLevel[1], row.servant.maxSkillLevel[1])
+          row.servant.maxSkillLevel[2] = Math.max(row.servant.skillLevel[2], row.servant.maxSkillLevel[2])
+        }
       }
       break
   }
@@ -384,6 +434,7 @@ export const ServantTable: FC<Prop> = (props) => {
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, sortBy, sortOrder)
   const summary = calcServantSummary(props.servants)
+  let modifyInventory = loadModifyInventory()
 
   const refs = {}
 
@@ -414,7 +465,7 @@ export const ServantTable: FC<Prop> = (props) => {
     const row = tableData[rowIndex]
     const isChanged = getTableData(row, columnIndex) != e.target.value
 
-    isChanged && setTableData(row, columnIndex, e.target.value)
+    isChanged && setTableData(row, columnIndex, e.target.value, props, modifyInventory)
     e.target.value = getTableData(row, columnIndex)
     if (isChanged) {
       if (columns[columnIndex].key == 'ascension' || columns[columnIndex].key == 'skillLevel') {
@@ -443,6 +494,11 @@ export const ServantTable: FC<Prop> = (props) => {
     })
 
     navigator.clipboard?.writeText(lines.reduce((acc, line) => (acc + line.slice(1) + '\n'),""))
+  }
+
+  const handleModifyInventory = (e: React.ChangeEvent<HTMLInputElement>) => {
+    modifyInventory = e.target.checked
+    saveModifyInventory(modifyInventory)
   }
 
   const headerCell = ({columnIndex, rowIndex, style }) => {
@@ -503,6 +559,10 @@ export const ServantTable: FC<Prop> = (props) => {
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
         <Grid item className={classes.summary} >
           {`実装: ${summary.servants} 召喚: ${summary.summoned} 最終再臨: ${summary.maxAscension} スキルマ(偽): ${summary.maxSkill}`}
+        </Grid>
+        <Grid item>
+          <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={modifyInventory} onChange={handleModifyInventory} />}
+                            label="再臨・スキル変更時に所持数に反映" />
         </Grid>
         <Grid item>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
