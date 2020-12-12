@@ -329,6 +329,10 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
     }
 
     target.forEach((v, index) => {
+      if (mainText[index].match("やけど無効") && index > 0) {
+        console.log("remove やけど無効 from", name, owners.reduce(((names, o) => names += " " + servantNames[o]), ""))
+        return
+      }
       effects.push( {
         target: target[index] + target2[index].replace(/^-$/,""),
         text: (preText[index] != "-" ? preText[index] + " " : "") + mainText[index] + postText[index],
