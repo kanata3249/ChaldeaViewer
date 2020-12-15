@@ -370,8 +370,8 @@ const skillFilterDefinition: FilterDefinition[] = [
       { label: "Aバフ付与", key: "Artsカード性能アップ" },
       { label: "Qバフ付与", key: "Quickカード性能アップ" },
       { label: "宝具威力アップ付与", key: "宝具威力アップ" },
-      { label: "特攻付与", key: "〕威力アップ" },
-      { label: "特攻", key: "〕威力アップ,自身" },
+      { label: "特攻付与", key: "〔(?!Arts).*〕威力アップ" },
+      { label: "特攻", key: "〔(?!Arts).*〕威力アップ,自身" },
       { label: "NP付与", key: "(NP増加|NP獲得\\()" },
       { label: "強化解除", key: "強化〕状態を解除" },
       { label: "弱体解除", key: "弱体〕状態を解除" },
@@ -526,7 +526,7 @@ const calcServantTableData = (servants: Servants): ServantSpecTableData[] => {
         quickBuff: findSkill(servant, "Quickカード性能アップ"),
         npBuff: findSkill(servant, "宝具威力アップ"),
         npCharge: findSkill(servant, "(NP増加|NP獲得\\()"),
-        specialAttack: findSkill(servant, "〕威力アップ")
+        specialAttack: findSkill(servant, "〔(?!Arts).*〕威力アップ")
       }
     } 
   ))
@@ -579,9 +579,11 @@ const filterAndSort = (servantTableData: ServantSpecTableData[], filters: Filter
         case "active":
         case "np":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
-            if (filterKey == "〕威力アップ,自身")
-              return enabled && (findSkill(row.servant, "〕威力アップ", { type: groupKey, target: "自身" } ).id > 0)
-            return enabled && (findSkill(row.servant, filterKey, { type: groupKey } ).id > 0)
+            const findOption: { type: string, target?: string } = { type: groupKey }
+            const [ filter, target ] = filterKey.split(",")
+            if (target)
+              findOption.target = target
+            return enabled && (findSkill(row.servant, filter, findOption ).id > 0)
           })
         case "npType":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
