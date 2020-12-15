@@ -59,6 +59,7 @@ type ServantItemsTableData = {
   remain: number
   stock: number
   free: number
+  shortage: number
 }
 
 const columns : TableColumnInfo[] = [
@@ -80,9 +81,8 @@ const getTableData = (tableData: ServantItemsTableData, columnIndex: number) => 
     case 'remain':
     case 'stock':
     case 'free':
-      return tableData[key]
     case 'shortage':
-      return Math.max(0, tableData.remain - Math.max(0, tableData.free))
+      return tableData[key]
   }
 }
 
@@ -108,11 +108,16 @@ const createServantItemsTableData = (servant: Servant, inventoryStatus: Inventor
     const required = Object.values(counts.required).reduce((acc, value) => acc + value)
     const used = Object.values(counts.used).reduce((acc, value) => acc + value)
     const reserved = Object.values(counts.reserved).reduce((acc, value) => acc + value)
+    const shortage = Object.keys(counts.reserved).reduce((acc, key) => (
+      acc + Math.max(0, counts.required[key] - counts.used[key] - (counts.reserved[key] ? Math.max(0, inventoryStatus[itemId].stock)
+                                                                                        : Math.max(0, inventoryStatus[itemId].free)))
+    ), 0)
     return {
       id: Number.parseInt(itemId),
       name: itemNames[itemId],
       required,
       used,
+      shortage,
       remain: required - used,
       stock: inventoryStatus[itemId].stock,
       free: inventoryStatus[itemId].free + reserved
