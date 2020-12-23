@@ -95,7 +95,7 @@ export const skillTypeNames = {
   "passive": "クラススキル",
 }
 
-const estimatedLevelByAscensionAndRare = [
+export const estimatedLevelByAscensionAndRare = [
   [ 1, 25, 35, 45, 65 ],
   [ 1, 20, 30, 40, 60 ],
   [ 1, 25, 35, 45, 65 ],

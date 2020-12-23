@@ -4,7 +4,7 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import { Grid, Button, TextField, FormControlLabel, Checkbox } from '@material-ui/core'
 import { VariableSizeGrid } from 'react-window'
 
-import { Servants, Servant, ServantSpec, servantNames, servantClassNames, attributeNames } from '../../fgo/servants'
+import { Servants, Servant, ServantSpec, servantNames, servantClassNames, attributeNames, estimatedLevelByAscensionAndRare } from '../../fgo/servants'
 import { InventoryStatus } from '../../fgo/inventory'
 
 import { DialogProviderContext } from './DialogProvider'
@@ -189,6 +189,9 @@ const setTableData = (servantTableData: ServantTableData, columnIndex: number, v
     case 'maxAscension':
       {
         const newValue = Math.max(0, Math.min(Number.parseInt(value) || 0, columns[columnIndex].max))
+        if (key == 'ascension') {
+          row.servant.level = estimatedLevelByAscensionAndRare[row.servant.spec.rare][newValue]
+        }
         if (key == 'ascension' && modifyInventory) {
           const inventoryStatus = props.getInventoryStatus()
           if (updateInventoryForAscension(row.servant.spec, newValue, row.servant.ascension, inventoryStatus)) {
@@ -470,9 +473,13 @@ export const ServantTable: FC<Prop> = (props) => {
     if (isChanged) {
       if (columns[columnIndex].key == 'ascension' || columns[columnIndex].key == 'skillLevel') {
         bodyRef.current.resetAfterColumnIndex(columnIndex)
-        if (refs[rowIndex + '-' + (columnIndex + 1)]) {
-          refs[rowIndex + '-' + (columnIndex + 1)].current.value = getTableData(row, columnIndex + 1)
-        }
+        columns.forEach((columnInfo, index) => {
+          if (columnInfo.editable) {
+            if (refs[rowIndex + '-' + index]) {
+              refs[rowIndex + '-' + index].current.value = getTableData(row, index)
+            }
+          }
+        })
       }
 
       props.servants[row.index] = row.servant
