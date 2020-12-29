@@ -189,6 +189,8 @@ export const InventoryTable: FC<Prop> = (props) => {
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcInventoryTableData(props.getInventoryStatus()), filterValues, sortBy, sortOrder)
 
+  const refs = {}
+
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
       const width = entries[0].contentRect.width
@@ -225,6 +227,13 @@ export const InventoryTable: FC<Prop> = (props) => {
     }
   }
 
+  const handleKeyPress = (rowIndex: number, columnIndex: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key == "Enter") {
+      const nextTabRef = refs[(rowIndex + 1) + "-" + columnIndex]
+      nextTabRef?.current?.focus()
+    }
+  }
+
   const handleCloseFilter = (newFilterValues: FilterValues) => {
     setFilterValues(newFilterValues)
     saveFilter("InventoryTable", newFilterValues)
@@ -255,13 +264,16 @@ export const InventoryTable: FC<Prop> = (props) => {
     const column = columns[columnIndex]
     const cellData = getTableData(tableData[rowIndex], columnIndex)
     const [matchWord, charMain, charSub] = ((typeof(cellData) == 'string') && cellData.match(/^([^\s]+\s+[^\s]+)\s+(.*)$/)) || [ "", cellData, ""]
+    if (column.editable)
+      refs[rowIndex + "-" + columnIndex] = useRef()
 
     return (
       <div style={{...style, textAlign: column.align}} className={rowIndex % 2 ? classes.oddRowCell : classes.evenRowCell}>
         {column.editable ?
-          <TextField defaultValue={cellData} size="small"
+          <TextField defaultValue={cellData} size="small" inputRef={refs[rowIndex + "-" + columnIndex]}
                     onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
                     onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
+                    onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)}}
                     type="number" InputProps={{ disableUnderline: true }}
                     inputProps={{min: 0, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
         : charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>
