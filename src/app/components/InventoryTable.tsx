@@ -75,6 +75,13 @@ const filterDefinition: FilterDefinition[] = [
       { label: "モニュメント・ピース", key: "essentials" },
       { label: "秘石等", key: "gems" },
     ]
+  },
+  {
+    name: "在庫", key: "stockStatus", type: "check",
+    buttons: [
+      { label: "在庫", key: "inStock" },
+      { label: "不足", key: "outOfStock" },
+    ]
   }
 ]
 
@@ -159,6 +166,17 @@ const filterAndSort = (inventoryTableData: InventoryTableData[], filters: Filter
                   return (row.id < 300 || row.id == 800)
                 case 'essentials':
                   return (row.id >= 600 && row.id < 700)
+              }
+            }
+          })
+        case "stockStatus":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            if (enabled) {
+              switch(filterKey) {
+                case 'inStock':
+                  return (row.item.free >= 0)
+                case 'outOfStock':
+                  return (row.item.free < 0)
               }
             }
           })
