@@ -281,8 +281,19 @@ const filterDefinition: FilterDefinition[] = [
     ]
   },
   {
+    name: "再臨状態", key: "ascension", type: "check",
+    buttons: [
+      { label: "最終再臨", key: "4" },
+      { label: "第3再臨", key: "3" },
+      { label: "第2再臨", key: "2" },
+      { label: "第1再臨", key: "1" },
+      { label: "未再臨", key: "0" },
+    ]
+  },
+  {
     name: "育成状態", key: "growthStatus", type: "check",
     buttons: [
+      { label: "育成中", key: "leveling" },
       { label: "未スキルマ", key: "0" },
       { label: "スキルマ(偽)", key: "1" },
       { label: "スキルマ", key: "2" },
@@ -389,9 +400,15 @@ const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterVal
             const [ min, max ] = filterKey.split(',')
             return enabled && (Number.parseInt(min) <= row.servant[groupKey] && row.servant[groupKey] <= Number.parseInt(max))
           })
+        case 'ascension':
+          return Object.entries(groupValues).some(([filterKey, enabled]) => (enabled && (row.servant.ascension == Number.parseInt(filterKey))))
         case 'growthStatus':
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
             switch (filterKey) {
+            case 'leveling':
+              return enabled && (row.servant.npLevel > 0)
+                             && (row.servant.ascension < row.servant.maxAscension || row.servant.skillLevel[0] < row.servant.maxSkillLevel[0]
+                                || row.servant.skillLevel[1] < row.servant.maxSkillLevel[1] || row.servant.skillLevel[2] < row.servant.maxSkillLevel[2])
             case '0':
               return enabled && (row.servant.skillLevel[0] < 9 || row.servant.skillLevel[1] < 9 || row.servant.skillLevel[2] < 9)
             case '1':
