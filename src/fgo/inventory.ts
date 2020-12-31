@@ -141,14 +141,19 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants): I
           return
 
         const ascension = counts.required.ascension - counts.used.ascension
-                        - (counts.reserved.ascension - Math.max(0, (counts.reserved.ascension - inventoryStatus[itemId].stock)))
         if (ascension) {
-          servant.totalItemsForMax.ascension += Math.max(0, ascension - Math.max(inventoryStatus[itemId].free, 0))
+          if (counts.reserved.ascension)
+            servant.totalItemsForMax.ascension += Math.max(0, ascension - Math.max(inventoryStatus[itemId].stock, 0))
+          else
+            servant.totalItemsForMax.ascension += Math.max(0, ascension - Math.max(inventoryStatus[itemId].free, 0))
         }
 
-        const skill = counts.required.skill - counts.used.skill - (counts.reserved.skill - Math.max(0, (counts.reserved.skill - inventoryStatus[itemId].stock)))
+        const skill = counts.required.skill - counts.used.skill
         if (skill) {
-          servant.totalItemsForMax.skill += Math.max(0, skill - Math.max(inventoryStatus[itemId].free, 0))
+          if (counts.reserved.skill)
+            servant.totalItemsForMax.skill += Math.max(0, skill - Math.max(inventoryStatus[itemId].stock, 0))
+          else
+            servant.totalItemsForMax.skill += Math.max(0, skill - Math.max(inventoryStatus[itemId].free, 0))
         }
       })
     }
