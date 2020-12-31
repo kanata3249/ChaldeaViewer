@@ -504,6 +504,29 @@ export const ServantTable: FC<Prop> = (props) => {
     }
   }
 
+  const focusNextTabStop = (rowIndex: number, columnIndex: number) => {
+    for (let index = columnIndex + 1; index < columns.length; index++) {
+      if (columns[index].editable) {
+        const nextTabRef = refs[rowIndex + "-" + index]
+        nextTabRef?.current?.focus()
+        return
+      }
+    }
+    for (let index = 0; index <= columnIndex; index++) {
+      if (columns[index].editable) {
+        const nextTabRef = refs[(rowIndex + 1) + "-" + index]
+        nextTabRef?.current?.focus()
+        return
+      }
+    }
+  }
+
+  const handleKeyPress = (rowIndex: number, columnIndex: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key == "Enter") {
+      focusNextTabStop(rowIndex, columnIndex)
+    }
+  }
+
   const handleCloseFilter = (newFilterValues: FilterValues) => {
     setFilterValues(newFilterValues)
     saveFilter("ServantTable", newFilterValues)
@@ -545,12 +568,14 @@ export const ServantTable: FC<Prop> = (props) => {
       return <TextField defaultValue={cellData} size="small" inputRef={ref}
               onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
               onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
+              onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)}}
               type={column.type} InputProps={{ disableUnderline: true }}
               inputProps={{min: column.min, max: column.max, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
     } else {
       return <TextField defaultValue={cellData} size="small" inputRef={ref}
               onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
               onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
+              onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)}}
               type={column.type} InputProps={{ disableUnderline: true }}
               inputProps={{ style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
     }

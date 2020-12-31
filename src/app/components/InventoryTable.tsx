@@ -245,10 +245,26 @@ export const InventoryTable: FC<Prop> = (props) => {
     }
   }
 
+  const focusNextTabStop = (rowIndex: number, columnIndex: number) => {
+    for (let index = columnIndex + 1; index < columns.length; index++) {
+      if (columns[index].editable) {
+        const nextTabRef = refs[rowIndex + "-" + index]
+        nextTabRef?.current?.focus()
+        return
+      }
+    }
+    for (let index = 0; index <= columnIndex; index++) {
+      if (columns[index].editable) {
+        const nextTabRef = refs[(rowIndex + 1) + "-" + index]
+        nextTabRef?.current?.focus()
+        return
+      }
+    }
+  }
+
   const handleKeyPress = (rowIndex: number, columnIndex: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key == "Enter") {
-      const nextTabRef = refs[(rowIndex + 1) + "-" + columnIndex]
-      nextTabRef?.current?.focus()
+      focusNextTabStop(rowIndex, columnIndex)
     }
   }
 
