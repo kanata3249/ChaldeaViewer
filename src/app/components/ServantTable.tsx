@@ -448,6 +448,7 @@ export const ServantTable: FC<Prop> = (props) => {
   const myRef = useRef<HTMLDivElement>()
   const headerRef = useRef<VariableSizeGrid>()
   const bodyRef = useRef<VariableSizeGrid>()
+  const [ tableKey, setTableKey ] = useState(0)
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("ServantTable")))
@@ -543,6 +544,10 @@ export const ServantTable: FC<Prop> = (props) => {
     navigator.clipboard?.writeText(lines.reduce((acc, line) => (acc + line.slice(1) + '\n'),""))
   }
 
+  const handleClickRecalc = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setTableKey(tableKey + 1)
+  }
+
   const handleModifyInventory = (e: React.ChangeEvent<HTMLInputElement>) => {
     modifyInventory = e.target.checked
     saveModifyInventory(modifyInventory)
@@ -608,6 +613,9 @@ export const ServantTable: FC<Prop> = (props) => {
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
         <Grid item className={classes.summary} >
           {`実装: ${summary.servants} 召喚: ${summary.summoned} 最終再臨: ${summary.maxAscension} スキルマ(偽): ${summary.maxSkill}`}
+        </Grid>
+        <Grid item>
+          <Button onClick={handleClickRecalc} variant="outlined" >再計算</Button>
         </Grid>
         <Grid item>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={modifyInventory} onChange={handleModifyInventory} />}
