@@ -34,6 +34,9 @@ const useStyles = makeStyles((theme: Theme) =>
     groupContainer: {
       padding: 8
     },
+    title: {
+      flexGrow: 1
+    },
   })
 )
 
@@ -61,6 +64,29 @@ export const FilterDialog: FC<Prop> = (props) => {
     props.onClose(filterValues)
   }
 
+  const handleGroupSelectAll = (groupIndex: number) => {
+    const newValue = JSON.parse(JSON.stringify(filterValues))
+    const group = props.filterDefinition[groupIndex]
+    if (group.type == "check") {
+      newValue[group.key] = group.buttons.reduce((acc, button) => {
+        acc[button.key] = true
+        return acc
+      },{})
+      setFilterValues(newValue)
+    }
+  }
+  const handleGroupClearAll = (groupIndex: number) => {
+    const newValue = JSON.parse(JSON.stringify(filterValues))
+    const group = props.filterDefinition[groupIndex]
+    if (group.type == "check") {
+      newValue[group.key] = group.buttons.reduce((acc, button) => {
+        acc[button.key] = false
+        return acc
+      },{})
+      setFilterValues(newValue)
+    }
+  }
+
   const handleClickFilterButton = (groupKey: string, clickedButtonKey: string, group: FilterDefinition) => {
     const newFilterValues = JSON.parse(JSON.stringify(filterValues))
 
@@ -85,7 +111,19 @@ export const FilterDialog: FC<Prop> = (props) => {
         <DialogContent>
           {props.filterDefinition.map((group, groupIndex) =>
             <Paper variant="outlined" className={classes.groupContainer} key={groupIndex} >
-              <span>{group.name}:</span><br />
+              <Grid container spacing={1}>
+                <Grid item className={classes.title} >{group.name}:</Grid>
+                {group.type == "check" &&
+                  <Grid item>
+                    <Button onClick={() => { handleGroupClearAll(groupIndex) }} variant="outlined" size="small" style={{ padding: 0 }} >全解除</Button>
+                  </Grid>
+                }
+                {group.type == "check" &&
+                  <Grid item>
+                    <Button onClick={() => { handleGroupSelectAll(groupIndex) }} variant="outlined" size="small" style={{ padding: 0 }} >全選択</Button>
+                  </Grid>
+                }
+                </Grid>
               <Grid container spacing={1}>
                 {group.buttons.map((button, buttonIndex) =>
                   <Grid item key={`${groupIndex}-${buttonIndex}`}>
