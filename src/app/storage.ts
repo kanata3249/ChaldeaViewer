@@ -30,6 +30,9 @@ export const restoreBackup = (backupData: string) => {
     switch (backup.version) {
     case 1:
       if (backup.servants && backup.inventory) {
+        if (backup.inventory["鳳凰の羽"]) {
+          backup.inventory["鳳凰の羽根"] = backup.inventory["鳳凰の羽"]
+        }
         saveServants(validateServants(backup.servants))
         saveInventory(validateInventory(Object.entries(itemNames).reduce((acc, [itemId, name]) => {
           acc[itemId] = backup.inventory[name]
