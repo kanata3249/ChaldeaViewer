@@ -33,6 +33,9 @@ export const restoreBackup = (backupData: string) => {
         if (backup.inventory["鳳凰の羽"]) {
           backup.inventory["鳳凰の羽根"] = backup.inventory["鳳凰の羽"]
         }
+        if (backup.inventory["虚陰の塵"]) {
+          backup.inventory["虚影の塵"] = backup.inventory["虚陰の塵"]
+        }
         saveServants(validateServants(backup.servants))
         saveInventory(validateInventory(Object.entries(itemNames).reduce((acc, [itemId, name]) => {
           acc[itemId] = backup.inventory[name]
