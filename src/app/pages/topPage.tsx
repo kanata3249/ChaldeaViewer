@@ -27,6 +27,9 @@ const useStyles = makeStyles((theme: Theme) =>
     notice: {
       height: 20,
       marginLeft: 10,
+    },
+    link: {
+      color: theme.palette.info.main
     }
   }))
 
@@ -186,7 +189,7 @@ export const TopPage: FC = () => {
           {selectedInfo == "ServantsSpec" && <ServantSpecTable key={`servantSpecTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
         </div>
         <div className={classes.notice}>
-        サーヴァントデータなど大部分は<Link href="https://w.atwiki.jp/f_go/" target="blank">Fate/Grand Order @wiki 【FGO】</Link>を参考にさせていただいています。
+        サーヴァントデータなど大部分は<Link className={classes.link} href="https://w.atwiki.jp/f_go/" target="blank">Fate/Grand Order @wiki 【FGO】</Link>を参考にさせていただいています。
         </div>
       </DialogProvider>
     </>
