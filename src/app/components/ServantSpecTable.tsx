@@ -447,6 +447,7 @@ const charFilterDefinition: FilterDefinition[] = [
       { label: "王", key: "王" },
       { label: "ギリシャ男", key: "ギリシャ男" },
       { label: "巨人", key: "巨人" },
+      { label: "源氏", key: "源氏" },
       { label: "子供", key: "子供" },
       { label: "神性", key: "神性" },
       { label: "人類の脅威", key: "人類の脅威" },
