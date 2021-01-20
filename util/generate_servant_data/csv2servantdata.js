@@ -132,11 +132,14 @@ const power2Id = {
   "獣": 4
 }
 
-const convertItemNames = (items) => {
-  return items.reduce((acc, item) => {
-    acc[itemName2Id[Object.keys(item)[0]]] = Object.values(item)[0]
+const parseItems = (itemsText) => {
+  return itemsText.split(",").reduce((acc, itemText) => {
+    if (itemText != "") {
+      const [item, count] = itemText.split(":")
+      acc[itemName2Id[item]] = Number(count)
+    }
     return acc
-  }, {})
+  },{})
 }
 
 const csvs = process.argv.slice(2)
@@ -220,21 +223,21 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
       skills: {np: [], active: [], passive: []},
       items: {
         ascension: [
-          convertItemNames(servant.ascension1),
-          convertItemNames(servant.ascension2),
-          convertItemNames(servant.ascension3),
-          convertItemNames(servant.ascension4),
+          parseItems(servant.ascension1),
+          parseItems(servant.ascension2),
+          parseItems(servant.ascension3),
+          parseItems(servant.ascension4),
         ],
         skill: [
-          convertItemNames(servant.skill1),
-          convertItemNames(servant.skill2),
-          convertItemNames(servant.skill3),
-          convertItemNames(servant.skill4),
-          convertItemNames(servant.skill5),
-          convertItemNames(servant.skill6),
-          convertItemNames(servant.skill7),
-          convertItemNames(servant.skill8),
-          convertItemNames(servant.skill9),
+          parseItems(servant.skill1),
+          parseItems(servant.skill2),
+          parseItems(servant.skill3),
+          parseItems(servant.skill4),
+          parseItems(servant.skill5),
+          parseItems(servant.skill6),
+          parseItems(servant.skill7),
+          parseItems(servant.skill8),
+          parseItems(servant.skill9),
         ]
       }
     }
@@ -370,9 +373,11 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
   })
 
   try {
+    fs.writeFileSync("servantdata.json",  JSON.stringify(servantList))
     fs.writeFileSync("servantdata.json.gz",  pako.deflate(JSON.stringify(servantList)))
     fs.writeFileSync("servantid2msid.json", JSON.stringify(servantId2msId))
     fs.writeFileSync("servantnames.json", JSON.stringify(servantNames))
+    fs.writeFileSync("skills.json",  JSON.stringify(skills))
     fs.writeFileSync("skills.json.gz", pako.deflate(JSON.stringify(skills)))
   } catch (e) {
     console.log(e)
