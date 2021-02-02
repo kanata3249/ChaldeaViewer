@@ -3,7 +3,7 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import { useTheme } from '@material-ui/core/styles'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 
-import { AppBar, Menu, MenuItem, Toolbar, IconButton, Typography, Select, Link } from '@material-ui/core'
+import { AppBar, Menu, MenuItem, Toolbar, IconButton, Typography, Select, Link, Divider } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 
 import { InventoryTable } from './../components/InventoryTable'
@@ -143,6 +143,11 @@ export const TopPage: FC = () => {
     closeMenu()
   }
 
+  const handleOpenSourceLicenses = () => {
+    window.open("./opensource-licenses.txt", "_blank")
+    closeMenu()
+  }
+
   const handleMenuClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(e.currentTarget)
   }
@@ -171,6 +176,8 @@ export const TopPage: FC = () => {
                 </DialogProviderContext.Consumer>
                 <MenuItem onClick={handleBackup}>データバックアップ</MenuItem>
                 <MenuItem onClick={handleRestore}>データリストア</MenuItem>
+                <Divider />
+                <MenuItem onClick={handleOpenSourceLicenses}>オープンソースライセンス</MenuItem>
               </Menu>
               <Typography variant="h6" className={classes.title}>
                 Chaldea Viewer

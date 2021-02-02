@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "webpack serve --config webpack.dev.js",
+    "dist-licenses": "cross-env NODE_ENV=production yarn licenses generate-disclaimer > dist/opensource-licenses.txt",
     "dist": "webpack --config webpack.prod.js"
   },
   "babel": {
@@ -23,6 +24,7 @@
     "@types/resize-observer-browser": "^0.1.4",
     "arraybuffer-loader": "^1.0.8",
     "babel-loader": "^8.0.5",
+    "cross-env": "^7.0.3",
     "css-loader": "^2.1.1",
     "eslint": "^5.16.0",
     "html-webpack-plugin": "^4.5.0",
