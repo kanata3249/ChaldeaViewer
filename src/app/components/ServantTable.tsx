@@ -612,7 +612,7 @@ export const ServantTable: FC<Prop> = (props) => {
     <div className={classes.container} ref={myRef}>
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
         <Grid item className={classes.summary} >
-          {`実装: ${summary.servants} 召喚: ${summary.summoned} 最終再臨: ${summary.maxAscension} スキルマ(偽): ${summary.maxSkill}`}
+          {`実装: ${summary.servants} 召喚: ${summary.summoned} 最終再臨: ${summary.maxAscension} スキルマ(含偽): ${summary.maxSkill} フィルタ: ${tableData.length}`}
         </Grid>
         <Grid item>
           <Button onClick={handleClickRecalc} variant="outlined" >再計算</Button>

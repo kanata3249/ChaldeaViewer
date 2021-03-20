@@ -111,7 +111,11 @@ const useStyles = makeStyles((theme: Theme) =>
     controller: {
       width: "100%",
       height: 48,
-      marginRight: 8
+      paddingRight: 8,
+      paddingLeft: 8
+    },
+    summary: {
+      flexGrow: 1
     },
     container: {
       maxHeight: "calc(100vh - 64px - 48px)"    // find another way to limit heght.
@@ -320,6 +324,9 @@ export const InventoryTable: FC<Prop> = (props) => {
   return (
     <div className={classes.container} ref={myRef}>
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
+        <Grid item className={classes.summary} >
+          {`フィルタ: ${tableData.length}`}
+        </Grid>
         <Grid item>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
         </Grid>
