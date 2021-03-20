@@ -7,6 +7,7 @@ module.exports = merge(common, {
     hot: true,
     open: true,
     https: false,
-    contentBase: `${__dirname}/dist/`
+    contentBase: 'dist',
+    watchContentBase: true
   }
 })
