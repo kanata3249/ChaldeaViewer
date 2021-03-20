@@ -30,6 +30,7 @@ type TableColumnInfo = {
   max?: number
   button?: boolean
   buttonLabel?: string
+  step?: number
 }
 
 type ServantTableData = {
@@ -85,8 +86,8 @@ const columns : TableColumnInfo[] = [
   { label: '(予定)', key: 'maxAscension', align: "center", width: 80, editable: true, type: "number", min: 0, max: 4},
   { label: 'スキル', key: 'skillLevel', align: "center", width: 80, editable: true, type: "string"},
   { label: '(予定)', key: 'maxSkillLevel', align: "center", width: 80, editable: true, type: "string"},
-  { label: 'Atk+', key: 'attackMod', align: "center", width: 80, editable: true, type: "number", min: 0, max: 2000},
-  { label: 'HP+', key: 'hpMod', align: "center", width: 80, editable: true, type: "number", min: 0, max: 2000},
+  { label: 'Atk+', key: 'attackMod', align: "center", width: 80, editable: true, type: "number", min: 0, max: 2000, step: 10},
+  { label: 'HP+', key: 'hpMod', align: "center", width: 80, editable: true, type: "number", min: 0, max: 2000, step: 10},
   { label: '育成中', key: 'leveling', align: "center", width: 80},
   { label: '残素材数', key: 'items', align: "center", width: 80 },
   { label: '素材確認', key: 'checkItems', align: "center", width: 80, button: true, buttonLabel: "素材" }
@@ -575,7 +576,7 @@ export const ServantTable: FC<Prop> = (props) => {
               onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
               onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)}}
               type={column.type} InputProps={{ disableUnderline: true }}
-              inputProps={{min: column.min, max: column.max, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
+              inputProps={{min: column.min, max: column.max, step: column.step || 1, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
     } else {
       return <TextField defaultValue={cellData} size="small" inputRef={ref}
               onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
