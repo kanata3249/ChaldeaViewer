@@ -30,6 +30,8 @@ export type ServantSpec = {
   gender: string
   attributes: string
   characteristics: string
+  hp: { min: number, max: number }
+  attack: { min: number, max: number }
   npType: string
   skills: ServantSkills
   items: {
@@ -189,4 +191,28 @@ export const validateServants = (servants: Servants): Servants =>
     })
   }
   return result
+}
+
+export const calcServantAttack = (spec: ServantSpec, level: number) =>
+{
+  const maxLevel = estimatedLevelByAscensionAndRare[spec.rare][4]
+
+  if (level <= maxLevel) {
+    return spec.attack.max
+  }
+
+  const levelMod = (((level - 1) / (maxLevel - 1)) * 1000 >> 0) / 1000
+  return (spec.attack.min + (spec.attack.max - spec.attack.min) * levelMod) >> 0
+}
+
+export const calcServantHP = (spec: ServantSpec, level: number) =>
+{
+  const maxLevel = estimatedLevelByAscensionAndRare[spec.rare][4]
+
+  if (level <= maxLevel) {
+    return spec.hp.max
+  }
+
+  const levelMod = (((level - 1) / (maxLevel - 1)) * 1000 >> 0) / 1000
+  return (spec.hp.min + (spec.hp.max - spec.hp.min) * levelMod) >> 0
 }

@@ -219,6 +219,8 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
       gender: servant.gender,
       attributes: power2Id[servant.power],
       characteristics: servant.attribute + " " + validateCharacteristics(servant.characteristics),
+      hp: { min: Number.parseInt(String(servant.minHP).replace(/,/,"")), max: Number.parseInt(String(servant.maxHP).replace(/,/,"")) },
+      attack: { min: Number.parseInt(String(servant.minAtk).replace(/,/,"")), max: Number.parseInt(String(servant.maxAtk).replace(/,/,"")) },
       npType: servant.npType,
       skills: {np: [], active: [], passive: []},
       items: {
