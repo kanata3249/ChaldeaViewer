@@ -270,12 +270,12 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
     const owners = skill.Owners.split("\n").map((owner) => owner.replace(/s(\d+)/,"$1"))
     const effects = []
 
-    const target = skill.Target.split("\n")
-    const target2 = skill.Target2.split("\n")
-    const preText = skill.PreText.split("\n")
-    const mainText = skill.MainText.split("\n")
-    const postText = skill.PostText.split("\n")
-    const grow = skill.Grow.split("\n")
+    const target = skill.Target.split(/\r?\n/)
+    const target2 = skill.Target2.split(/\r?\n/)
+    const preText = skill.PreText.split(/\r?\n/)
+    const mainText = skill.MainText.split(/\r?\n/)
+    const postText = skill.PostText.split(/\r?\n/)
+    const grow = skill.Grow.split(/\r?\n/)
     const values = []
     if (grow.length == 1) {
       values.push([skill.Value0])
