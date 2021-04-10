@@ -374,13 +374,26 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
     })
   })
 
+  skills2 = Object.values(servantList).reduce((acc, servant) => {
+    servant.skills.np.forEach((skillId) => {
+      acc[skillId] = skills[skillId]
+    })
+    servant.skills.active.forEach((skillId) => {
+      acc[skillId] = skills[skillId]
+    })
+    servant.skills.passive.forEach((skillId) => {
+      acc[skillId] = skills[skillId]
+    })
+    return acc
+  }, {})
+
   try {
     fs.writeFileSync("servantdata.json",  JSON.stringify(servantList))
     fs.writeFileSync("servantdata.json.gz",  pako.deflate(JSON.stringify(servantList)))
     fs.writeFileSync("servantid2msid.json", JSON.stringify(servantId2msId))
     fs.writeFileSync("servantnames.json", JSON.stringify(servantNames))
-    fs.writeFileSync("skills.json",  JSON.stringify(skills))
-    fs.writeFileSync("skills.json.gz", pako.deflate(JSON.stringify(skills)))
+    fs.writeFileSync("skills.json",  JSON.stringify(skills2))
+    fs.writeFileSync("skills.json.gz", pako.deflate(JSON.stringify(skills2)))
   } catch (e) {
     console.log(e)
   }
