@@ -169,6 +169,89 @@ const validateCharacteristics = (text) => {
   return toZenKata(text)
 }
 
+const skillNoMap = {
+  '3': { '魔力放出 A': 1 },
+  '4': { '魔力放出 A': 2, '直感 B': 1 },
+  '8': { '軍略 B': 1 },
+  '18': { 'カリスマ C': 1 },
+  '20': { '矢避けの加護 B': 2 },
+  '21': { '戦闘続行 A': 2 },
+  '22': { '皇帝特権 EX': 2 },
+  '24': { '戦闘続行 A': 3 },
+  '26': { '戦闘続行 A': 2 },
+  '28': { 'カリスマ C': 1 },
+  '38': { '仕切り直し C': 3 },
+  '41': { '吸血 C': 1, '魅惑の美声 A': 2 },
+  '44': { '精神汚染 A': 3, '無辜の怪物 D': 1 },
+  '46': { '吸血 C': 1, '拷問技術 A': 2 },
+  '47': { '戦闘続行 A': 3 },
+  '52': { '戦闘続行 A': 3 },
+  '55': { '仕切り直し A': 2, '黄金律 B': 1, '戦闘続行 A': 3 },
+  '56': { '変化 C': 1 },
+  '57': { '戦闘続行 B': 2 },
+  '58': { '怪力 B': 1 },
+  '63': { 'カリスマ B': 3 },
+  '65': { '黄金律 B': 2 },
+  '67': { '高速神言 A': 1 },
+  '68': { '心眼（偽） A': 3 },
+  '71': { '心眼（真） B': 1 },
+  '72': { '反骨の相 B': 2 },
+  '73': { '直感 A': 2 },
+  '76': { '魔力放出 A': 1, '直感 B': 2 },
+  '77': { '星の開拓者 EX': 3 },
+  '78': { 'カリスマ E': 3 },
+  '85': { '魔力放出（炎） A': 2 },
+  '89': { '直感 B': 2, '戦闘続行 B': 3 },
+  '92': { '心眼（偽） A': 2 },
+  '93': { '啓示 A': 1 },
+  '95': { 'カリスマ A+': 1, '黄金律 A': 3 },
+  '96': { '黄金律 A': 1 },
+  '98': { '戦闘続行 A': 3 },
+  '99': { 'カリスマ B': 2, '魅惑の美声 C': 3 },
+  '101': { 'カリスマ B': 2 },
+  '103': { '変化 C': 1 },
+  '108': { '軍略 B': 2 },
+  '109': { '魔術 B': 1 },
+  '114': { '無窮の武練 A+': 1 },
+  '115': { '動物会話 C': 2, '天性の肉体 A': 3 },
+  '116': { '仕切り直し A': 2, '変化 A': 3, '鬼種の魔 A': 1, "大江の鬼あばれ A+": 2 },
+  '118': { 'カリスマ B': 1, '皇帝特権 A': 2 },
+  '119': { 'カリスマ B': 2, '魔力放出 A': 1 },
+  '121': { '無窮の武練 A+': 2 },
+  '123': { 'カリスマ E': 2, "不夜のカリスマ B": 2 },
+  '125': { '矢避けの加護 C': 2 },
+  '126': { '軍略 C': 1 },
+  '127': { '星の開拓者 EX': 3 },
+  '131': { 'ビーチフラワー A+': 1 },
+  '137': { '心眼（偽） B': 1 },
+  '139': { '皇帝特権 A': 1 },
+  '140': { '軍略 B': 2 },
+  '144': { 'カリスマ A+': 1 },
+  '145': { 'カリスマ A+': 2 },
+  '147': { '怪力 A+': 1 },
+  '154': { '信仰の加護 A+++': 2 },
+  '158': { '怪力 B': 2 },
+  '160': { '魔力放出 A': 1, '直感 A': 2 },
+  '161': { '仕切り直し C': 2 },
+  '163': { '加虐体質 A': 2 },
+  '166': { '自己改造 EX': 3 },
+  '170': { '拷問技術 A': 1 },
+  '171': { 'カリスマ B': 1 },
+  '186': { '宗和の心得 B': 1 },
+  '189': { '変化 A+': 1 },
+  '191': { '無辜の怪獣 EX': 1, 'オーバーロード改 C': 2, 'ファイナルエリチャン C': 3 },
+  '192': { '高速神言 B': 1 },
+  '207': { '心眼（真） A': 1 },
+  '210': { '心眼（偽） C': 2 },
+  '211': { 'カリスマ C+': 1 },
+  '220': { '自己改造 EX': 1 },
+  '230': { '吸血 C': 3 },
+  '234': { '心眼（偽） A': 1 },
+  '257': { '嵐の航海者 A+': 1 },
+  '261': { 'アクセルターン B': 1 },
+  '293': { '心眼（真） B': 2 }
+}
+
 const derrivedSkill = {
   "誉れ堅き雪花の壁": "今は脆き雪花の壁",    //s1
   "アマルガムゴート D": "時に煙る白亜の壁",  //s2
@@ -222,7 +305,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
       hp: { min: Number.parseInt(String(servant.minHP).replace(/,/,"")), max: Number.parseInt(String(servant.maxHP).replace(/,/,"")) },
       attack: { min: Number.parseInt(String(servant.minAtk).replace(/,/,"")), max: Number.parseInt(String(servant.maxAtk).replace(/,/,"")) },
       npType: servant.npType,
-      skills: {np: [], active: [], passive: []},
+      skills: {np: [], active: [-1, -1, -1], passive: []},
       items: {
         ascension: [
           parseItems(servant.ascension1),
@@ -352,21 +435,32 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
       type: skillType,
       effects: effects,
     }
+    if (skillType == "active" && owners.length > 1) {
+      owners.slice(1).forEach((owner) => {
+        if (skillNoMap[owner] && skillNoMap[owner][name] ) {
+        } else {
+          if (!skillNoMap[owner]) {
+            skillNoMap[owner] = {}
+          }
+          skillNoMap[owner][name] = 0
+          console.log("skillNoMap should be updated", servantNames[owner], name)
+        }
+      })
+    }
     owners.forEach((owner) => {
       if (skillType == "np") {
         servantList[owner].skills[skillType] = [ skillId ]
       } else if (skillType == "active") {
-        if (servantList[owner].skills.active.length >= 3) {
-          if (isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[0]]))
+        const skillNo = skillNoMap[owner] && skillNoMap[owner][name] || servantList[owner].skills[skillType].findIndex((v) => (v < 0)) + 1
+        if (skillNo == 0) {
+          if (servantList[owner].skills.active[0] >= 0 && isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[0]]))
             servantList[owner].skills.active[0] = skillId
-          else if (isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[1]]))
+          else if (servantList[owner].skills.active[1] >= 0 && isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[1]]))
             servantList[owner].skills.active[1] = skillId
-          else if (isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[2]]))
+          else if (servantList[owner].skills.active[2] >= 0 && isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[2]]))
             servantList[owner].skills.active[2] = skillId
-          else
-            servantList[owner].skills[skillType].push(skillId)
         } else {
-          servantList[owner].skills[skillType].push(skillId)
+          servantList[owner].skills[skillType][skillNo - 1] = skillId
         }
       } else {
         servantList[owner].skills[skillType].push(skillId)
