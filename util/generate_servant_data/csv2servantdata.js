@@ -337,7 +337,9 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
     if (skill.SkillName == "文明接触 D") {
       skill.CT = null
     }
+    skill.PreText = skill.PreText.replace(/＆〔1177〕/g, "または〔妖精〕")
     skill.PreText = skill.PreText.replace(/〔2730〕/g, "〔虚数空間〕")
+    skill.Target2 = skill.Target2.replace(/＆〔1177〕/g, "または〔妖精〕")
     skill.Target2 = skill.Target2.replace(/〔2730〕/g, "〔虚数空間〕")
     skill.Target2 = skill.Target2.replace(/〔2731〕/g, "〔領域外の生命〕")
     if (skill.SkillName.match("狂瀾怒濤・悪霊左府 B")) {
