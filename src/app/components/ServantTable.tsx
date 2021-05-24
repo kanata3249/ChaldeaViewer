@@ -1,5 +1,6 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
+import { isAndroid } from 'react-device-detect'
 
 import { Grid, Button, TextField, FormControlLabel, Checkbox } from '@material-ui/core'
 import { VariableSizeGrid } from 'react-window'
@@ -464,7 +465,9 @@ export const ServantTable: FC<Prop> = (props) => {
     const resizeObserver = new ResizeObserver((entries) => {
       const width = entries[0].contentRect.width
       const height = entries[0].contentRect.height - 48
-      setTableSize([width, height])
+      if (!(isAndroid && document.activeElement.nodeName == 'INPUT')) {
+        setTableSize([width, height])
+      }
     })
 
     myRef.current && resizeObserver.observe(myRef.current.parentElement)
