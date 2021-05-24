@@ -1,11 +1,15 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const TerserPlugin = require("terser-webpack-plugin")
 
 module.exports = {
-  entry: `${__dirname}/src/index.tsx`,
+  entry: {
+    dummy: `${__dirname}/src/dummy.tsx`,
+    main: `${__dirname}/src/index.tsx`
+  },
   target: 'web',
   output: {
     path: `${__dirname}/dist/`,
-    filename: 'main.js',
+    filename: '[name].js',
     libraryTarget: 'umd'
   },
   resolve: {
@@ -28,9 +32,27 @@ module.exports = {
       }
     ]
   },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          format: {
+            comments: false,
+          },
+        },
+        extractComments: false,
+      }),
+    ],
+    splitChunks: {
+      name: 'fgo_data',
+      chunks: 'initial',
+    }
+  },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'src/index.html'
+      template: 'src/index.html',
+      excludeChunks: [ 'dummy' ]
     })
   ]
 }
