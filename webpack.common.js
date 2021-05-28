@@ -2,10 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const TerserPlugin = require("terser-webpack-plugin")
 
 module.exports = {
-  entry: {
-    dummy: `${__dirname}/src/dummy.tsx`,
-    main: `${__dirname}/src/index.tsx`
-  },
+  entry: `${__dirname}/src/index.tsx`,
   target: 'web',
   output: {
     path: `${__dirname}/dist/`,
@@ -45,14 +42,13 @@ module.exports = {
       }),
     ],
     splitChunks: {
-      name: 'fgo_data',
-      chunks: 'initial',
+      name: 'lib',
+      chunks: 'all',
     }
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'src/index.html',
-      excludeChunks: [ 'dummy' ]
+      template: 'src/index.html'
     })
   ]
 }
