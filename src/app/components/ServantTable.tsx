@@ -601,8 +601,8 @@ export const ServantTable: FC<Prop> = (props) => {
           editableCell(columnIndex, rowIndex)
         : column.button ?
           <DialogProviderContext.Consumer>
-            {({showServantItemsDialog}) =>
-              <Button size="small" onClick={() => showServantItemsDialog(tableData[rowIndex].servant, props.getInventoryStatus())} variant="outlined" >{column.buttonLabel}</Button>
+            {({showServantInfoDialog}) =>
+              <Button size="small" onClick={() => showServantInfoDialog(tableData[rowIndex].servant, props.getInventoryStatus(), "items")} variant="outlined" >{column.buttonLabel}</Button>
             }
           </DialogProviderContext.Consumer>
         : charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>

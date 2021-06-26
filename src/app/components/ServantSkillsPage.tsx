@@ -1,26 +1,16 @@
 import React, { FC, useState } from 'react'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core'
 import { List, ListItem, ListItemText, Grid, Divider } from '@material-ui/core'
-
 
 import { Servant, servantNames, servantClassNames, servantSkills, skillTypeNames } from '../../fgo/servants'
 
 type Prop = {
   servant: Servant
-
-  open: boolean
-  onClose(): void
 }
 
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
-    title: {
-      margin: 0,
-      paddingTop: 2,
-      paddingBottom: 2,
-    },
     skillDescription: {
       paddingLeft: 8,
       fontSize: "smaller"
@@ -68,14 +58,10 @@ const createServantSkillsTableData = (servant: Servant): ServantSkillsTableData[
   }, [])
 }
 
-export const ServantSkillsDialog: FC<Prop> = (props) => {
+export const ServantSkillsPage: FC<Prop> = (props) => {
   const classes = useStyles()
-  const [ tableSize, setTableSize ] = useState([600, 200])
+  const [ tableSize, setTableSize ] = useState([480, 400])
   const tableData: ServantSkillsTableData[] = createServantSkillsTableData(props.servant)
-
-  const handleClose = () => {
-    props.onClose()
-  }
 
   const listItem = (row: ServantSkillsTableData, index: number) => {
     return (
@@ -123,22 +109,12 @@ export const ServantSkillsDialog: FC<Prop> = (props) => {
 
   return (
     <div>
-      <Dialog open={props.open} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle className={classes.title} id="form-dialog-title">{`スキル${props.servant ? ` - ${servantNames[props.servant.id]} (${servantClassNames[props.servant.spec.class]})` : ""}`}</DialogTitle>
-        <DialogContent>
-          {props.servant && (
-            <>
-              <List>
-                {tableData.map((row, index) => listItem(row, index))}
-              </List>
-            </>)}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} variant="outlined">
-            閉じる
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {props.servant && (
+        <div style={{width: tableSize[0], height: tableSize[1], overflowY: "auto"}}>
+          <List>
+            {tableData.map((row, index) => listItem(row, index))}
+          </List>
+        </div>)}
     </div>
   )
 }

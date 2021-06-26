@@ -1,7 +1,6 @@
 import React, { FC, useState } from 'react'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core'
 import { VariableSizeGrid } from 'react-window'
 
 
@@ -11,18 +10,10 @@ import { InventoryStatus, itemNames } from '../../fgo/inventory'
 type Prop = {
   servant: Servant
   inventoryStatus: InventoryStatus
-
-  open: boolean
-  onClose(): void
 }
 
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
-    title: {
-      margin: 0,
-      paddingTop: 2,
-      paddingBottom: 2,
-    },
     head: {
       padding: 4,
       paddingTop: 8
@@ -125,16 +116,12 @@ const createServantItemsTableData = (servant: Servant, inventoryStatus: Inventor
   })
 }
 
-export const ServantItemsDialog: FC<Prop> = (props) => {
+export const ServantItemsPage: FC<Prop> = (props) => {
   const classes = useStyles()
   const [ sortBy, setSortBy ] = useState(columns.length - 1)
   const [ sortOrder, setSortOrder ] = useState(-1)
-  const [ tableSize, setTableSize ] = useState([480, 200])
+  const [ tableSize, setTableSize ] = useState([480, 400])
   const tableData: ServantItemsTableData[] = sort(createServantItemsTableData(props.servant, props.inventoryStatus), sortBy, sortOrder)
-
-  const handleClose = () => {
-    props.onClose()
-  }
 
   const handleClickColumn = (column: number) => {
     let newSortOrder = -sortOrder
@@ -167,30 +154,20 @@ export const ServantItemsDialog: FC<Prop> = (props) => {
   }
 
   return (
-    <div>
-      <Dialog open={props.open} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle className={classes.title} id="form-dialog-title">{`必要素材${props.servant ? ` - ${servantNames[props.servant.id]} (${servantClassNames[props.servant.spec.class]})` : ""}`}</DialogTitle>
-        <DialogContent>
-          {props.servant && (
-            <>
-              <VariableSizeGrid width={tableSize[0]} height={30}
-                columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
-                rowCount={1} rowHeight={() => (30)} >
-                {headerCell}
-              </VariableSizeGrid>
-              <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 30}
-                columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
-                rowCount={tableData.length} rowHeight={() => (30)} >
-                {cell}
-              </VariableSizeGrid>
-            </>)}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} variant="outlined">
-            閉じる
-          </Button>
-        </DialogActions>
-      </Dialog>
+    <div style={{width: tableSize[0], height: tableSize[1], overflowY: "auto"}}>
+      {props.servant && (
+        <>
+          <VariableSizeGrid width={tableSize[0]} height={30}
+            columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
+            rowCount={1} rowHeight={() => (30)} >
+            {headerCell}
+          </VariableSizeGrid>
+          <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 30}
+            columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
+            rowCount={tableData.length} rowHeight={() => (30)} >
+            {cell}
+          </VariableSizeGrid>
+        </>)}
     </div>
   )
 }

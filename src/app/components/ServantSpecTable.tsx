@@ -779,8 +779,8 @@ export const ServantSpecTable: FC<Prop> = (props) => {
         )}
         {column.button && (
           <DialogProviderContext.Consumer>
-            {({showServantSkillsDialog}) =>
-              <Button size="small" onClick={() => showServantSkillsDialog(tableData[rowIndex].servant)} variant="outlined" >{column.buttonLabel}</Button>
+            {({showServantInfoDialog}) =>
+              <Button size="small" onClick={() => showServantInfoDialog(tableData[rowIndex].servant, props.getInventoryStatus(), "skills")} variant="outlined" >{column.buttonLabel}</Button>
             }
           </DialogProviderContext.Consumer>
         )}

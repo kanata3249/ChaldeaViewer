@@ -2,8 +2,7 @@ import React, { FC, useState } from 'react'
 
 import { MSExchangeDialog } from './MSExchangeDialog'
 import { FilterDialog, FilterDefinition, FilterValues } from './FilterDialog'
-import { ServantItemsDialog } from './ServantItemsDialog'
-import { ServantSkillsDialog } from './ServantSkillsDialog'
+import { ServantInfoDialog } from './ServantInfoDialog'
 
 import { Servant } from '../../fgo/servants'
 import { InventoryStatus } from '../../fgo/inventory'
@@ -28,6 +27,13 @@ type FilterDialogState = {
   onCloseFilterDialog: onCloseFilterDialog
 }
 
+type ServantInfoDialogState = {
+  openFlag: boolean
+  servant: Servant
+  inventoryStatus: InventoryStatus
+  page: "skills" | "items"
+}
+
 type ServantItemsDialogState = {
   openFlag: boolean
   servant: Servant
@@ -48,9 +54,7 @@ type DialogProviderContext = {
                    defaultFilterValues: FilterValues,
                    filterDefinition: FilterDefinition[],
                    onClose: onCloseFilterDialog): void
-  showServantItemsDialog(servant: Servant,
-                         inventoryStatus: InventoryStatus): void
-  showServantSkillsDialog(servant: Servant): void
+  showServantInfoDialog(servant: Servant, inventoryStatus: InventoryStatus, page: "skills" | "items"): void
 }
 
 export const DialogProviderContext = React.createContext<DialogProviderContext>(null)
@@ -81,7 +85,7 @@ export const DialogProvider: FC<Prop> = (props) => {
   }
 
   // FilterDialog
-  const initialFilterDialogState = {
+  const initialFilterDialogState: FilterDialogState = {
     openFlag: false,
     filterValues: {},
     defaultFilterValues: {},
@@ -105,50 +109,33 @@ export const DialogProvider: FC<Prop> = (props) => {
     setFilterDialogState(initialFilterDialogState)
   }
 
-  // ServantItemsDialog
-  const initialServantItemsDialogState = {
+  // ServantInfoDialog
+  const initialServantInfoDialogState: ServantInfoDialogState = {
     openFlag: false,
     servant: null,
     inventoryStatus: [],
+    page: "skills"
   }
-  const [servantItemsDialogState, setServantItemsDialogState] = useState<ServantItemsDialogState>(initialServantItemsDialogState)
+  const [servantInfoDialogState, setServantInfoDialogState] = useState<ServantInfoDialogState>(initialServantInfoDialogState)
   
-  const showServantItemsDialog = (servant: Servant, inventoryStatus: InventoryStatus) => {
-    const newServantItemsDialogState = {
+  const showServantInfoDialog = (servant: Servant, inventoryStatus: InventoryStatus, page: "skills" | "items") => {
+    const newServantInfoDialogState = {
       openFlag: true,
       servant,
-      inventoryStatus
+      inventoryStatus,
+      page,
     }
-    setServantItemsDialogState(newServantItemsDialogState)
+    setServantInfoDialogState(newServantInfoDialogState)
   }
-  const hideServantItemsDialog = () => {
-    setServantItemsDialogState(initialServantItemsDialogState)
-  }
-
-  // ServantSkillsDialog
-  const initialServantSkillsDialogState = {
-    openFlag: false,
-    servant: null,
-  }
-  const [servantSkillsDialogState, setServantSkillsDialogState] = useState<ServantSkillsDialogState>(initialServantSkillsDialogState)
-  
-  const showServantSkillsDialog = (servant: Servant) => {
-    const newServantSkillsDialogState = {
-      openFlag: true,
-      servant,
-    }
-    setServantSkillsDialogState(newServantSkillsDialogState)
-  }
-  const hideServantSkillsDialog = () => {
-    setServantSkillsDialogState(initialServantSkillsDialogState)
+  const hideServantInfoDialog = () => {
+    setServantInfoDialogState(initialServantInfoDialogState)
   }
 
   // Context
   const controllerContext: DialogProviderContext = {
     showMSExchangeDialog,
     showFilterDialog,
-    showServantItemsDialog,
-    showServantSkillsDialog
+    showServantInfoDialog,
   }
 
   return (
@@ -171,16 +158,10 @@ export const DialogProvider: FC<Prop> = (props) => {
       </DialogProviderContext.Consumer>
       <DialogProviderContext.Consumer>
         {(context) => (
-          servantItemsDialogState.openFlag
-           && <ServantItemsDialog open={servantItemsDialogState.openFlag} onClose={hideServantItemsDialog}
-                servant={servantItemsDialogState.servant} inventoryStatus={servantItemsDialogState.inventoryStatus}/>
-        )}
-      </DialogProviderContext.Consumer>
-      <DialogProviderContext.Consumer>
-        {(context) => (
-          servantSkillsDialogState.openFlag
-           && <ServantSkillsDialog open={servantSkillsDialogState.openFlag} onClose={hideServantSkillsDialog}
-                servant={servantSkillsDialogState.servant} />
+          servantInfoDialogState.openFlag
+           && <ServantInfoDialog open={servantInfoDialogState.openFlag} onClose={hideServantInfoDialog}
+                servant={servantInfoDialogState.servant} inventoryStatus={servantInfoDialogState.inventoryStatus}
+                page={servantInfoDialogState.page} />
         )}
       </DialogProviderContext.Consumer>
     </DialogProviderContext.Provider>
