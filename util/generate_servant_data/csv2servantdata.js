@@ -280,6 +280,15 @@ const isDerrivedSkill = (a, b) => {
   return false;
 }
 
+const nobleTraits2npType = (nobleTraits) => {
+  const traits = nobleTraits.split(/\n/)
+
+  if (traits.length) {
+    return `${traits[0].substring(0, 1)} ${traits[1]}`
+  }
+  return ""
+}
+
 Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
 .then(([servant_array, skill_array]) => {
 
@@ -306,7 +315,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
       characteristics: servant.attribute + " " + validateCharacteristics(servant.characteristics),
       hp: { min: Number.parseInt(String(servant.minHP).replace(/,/,"")), max: Number.parseInt(String(servant.maxHP).replace(/,/,"")) },
       attack: { min: Number.parseInt(String(servant.minAtk).replace(/,/,"")), max: Number.parseInt(String(servant.maxAtk).replace(/,/,"")) },
-      npType: servant.npType,
+      npTypes: [],
       skills: {np: [], active: [-1, -1, -1], passive: []},
       items: {
         ascension: [
@@ -353,6 +362,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
     }
     
     const skillType = skill.NobleTraits ? "np" : skill.CT ? "active" : "passive"
+    const npType = nobleTraits2npType(skill.NobleTraits)
     const name = skillType != "np" ? skill.SkillName : skill.SkillName.replace(/^(.*[A-Z\+]+).*$/, "$1")
     const owners = skill.Owners.split("\n").map((owner) => owner.replace(/s(\d+)/,"$1"))
     const effects = []
@@ -439,6 +449,10 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
       type: skillType,
       effects: effects,
     }
+    if (skillType == "np") {
+      skills[skillId].npType = npType
+    }
+
     if (skillType == "active" && owners.length > 1) {
       owners.slice(1).forEach((owner) => {
         if (skillNoMap[owner] && skillNoMap[owner][name] ) {
@@ -453,7 +467,16 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
     }
     owners.forEach((owner) => {
       if (skillType == "np") {
-        servantList[owner].skills[skillType] = [ skillId ]
+        const oldNpIndex = servantList[owner].skills[skillType].findIndex((npId) => (skills[npId].npType == npType))
+        if (oldNpIndex >= 0) {
+          servantList[owner].skills[skillType][oldNpIndex] = [ skillId ]
+        } else {
+          servantList[owner].npTypes = [ ...servantList[owner].npTypes, npType ]
+          servantList[owner].skills[skillType] = [ ...servantList[owner].skills[skillType], skillId ]
+          if (servantList[owner].skills[skillType].length > 1) {
+            console.log(`second np for ${servantNames[owner]}`)
+          }
+        }
       } else if (skillType == "active") {
         const skillNo = skillNoMap[owner] && skillNoMap[owner][name] || servantList[owner].skills[skillType].findIndex((v) => (v < 0)) + 1
         if (skillNo == 0) {

@@ -30,6 +30,7 @@ type ServantSkillsTableData = {
   id: number
   name: string
   type: string
+  npType?: string
   targets: string[]
   effects: string[]
   grows: string[]
@@ -48,6 +49,7 @@ const createServantSkillsTableData = (servant: Servant): ServantSkillsTableData[
           id: skillId,
           name: skillSpec.name,
           type: type,
+          npType: skillSpec.npType,
           targets: skillSpec.effects.map((effect) => effect.target),
           effects: skillSpec.effects.map((effect) => effect.text),
           grows: skillSpec.effects.map((effect) => effect.grow),
@@ -70,7 +72,8 @@ export const ServantSkillsPage: FC<Prop> = (props) => {
         <ListItem alignItems="flex-start" >
           <Grid container direction="column">
             <Grid item>
-              <ListItemText primary={row.name + " - " + skillTypeNames[row.type]} />
+              {row.type == "np" && <ListItemText primary={row.name + " - " + row.npType + skillTypeNames[row.type]} />}
+              {row.type != "np" && <ListItemText primary={row.name + " - " + skillTypeNames[row.type]} />}
             </Grid>
             <Grid item className={classes.skillDescription} >
               <table>

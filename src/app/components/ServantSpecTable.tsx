@@ -199,8 +199,9 @@ const getTableData = (servantTableData: ServantSpecTableData, columnIndex: numbe
       return attributeNames[row.servant.spec[key]]
     case 'rare':
     case 'gender':
+      return row.servant.spec[key]
     case 'npType':
-        return row.servant.spec[key]
+        return row.servant.spec.npTypes.join(' / ')
     case 'characteristics':
       if (row.servant.spec.gender != "-")
         return attributeNames[row.servant.spec.attributes] + " " + row.servant.spec.gender + " " + row.servant.spec[key]
@@ -572,7 +573,7 @@ const filterAndSort = (servantTableData: ServantSpecTableData[], filters: Filter
         case "npType":
         case "npEffect":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
-            return enabled && (row.servant.spec.npType.match(filterKey))
+            return enabled && (row.servant.spec.npTypes.some((npType) => npType.match(filterKey)))
           })
         case "npLevel":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
@@ -598,7 +599,7 @@ const filterAndSort = (servantTableData: ServantSpecTableData[], filters: Filter
           })
         case "npType":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
-            return enabled && (row.servant.spec.npType.match(filterKey))
+            return enabled && (row.servant.spec.npTypes.some((npType) => npType.match(filterKey)))
           })
         default:
           return false

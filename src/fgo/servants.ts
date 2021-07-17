@@ -5,6 +5,7 @@ export type ServantSkillSpec = {
   id: number
   name: string
   type: "np" | "active" | "passive"
+  npType?: string
   effects: {
     target: string
     text: string
@@ -32,7 +33,7 @@ export type ServantSpec = {
   characteristics: string
   hp: { min: number, max: number }
   attack: { min: number, max: number }
-  npType: string
+  npTypes: string[]
   skills: ServantSkills
   items: {
     ascension: { [id: number]: number }[]
