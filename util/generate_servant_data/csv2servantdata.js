@@ -469,7 +469,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
       if (skillType == "np") {
         const oldNpIndex = servantList[owner].skills[skillType].findIndex((npId) => (skills[npId].npType == npType))
         if (oldNpIndex >= 0) {
-          servantList[owner].skills[skillType][oldNpIndex] = [ skillId ]
+          servantList[owner].skills[skillType][oldNpIndex] = skillId
         } else {
           servantList[owner].npTypes = [ ...servantList[owner].npTypes, npType ]
           servantList[owner].skills[skillType] = [ ...servantList[owner].skills[skillType], skillId ]
