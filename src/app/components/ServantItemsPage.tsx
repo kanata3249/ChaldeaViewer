@@ -99,10 +99,8 @@ const createServantItemsTableData = (servant: Servant, inventoryStatus: Inventor
     const required = Object.values(counts.required).reduce((acc, value) => acc + value)
     const used = Object.values(counts.used).reduce((acc, value) => acc + value)
     const reserved = Object.values(counts.reserved).reduce((acc, value) => acc + value)
-    const shortage = Object.keys(counts.reserved).reduce((acc, key) => (
-      acc + Math.max(0, counts.required[key] - counts.used[key] - (counts.reserved[key] ? Math.max(0, inventoryStatus[itemId].stock)
-                                                                                        : Math.max(0, inventoryStatus[itemId].free)))
-    ), 0)
+    const shortage = Math.max(0, required - used - Math.max(0, reserved +  inventoryStatus[itemId].free))
+
     return {
       id: Number.parseInt(itemId),
       name: itemNames[itemId],

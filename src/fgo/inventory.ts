@@ -151,9 +151,9 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants): I
         const skill = counts.required.skill - counts.used.skill
         if (skill) {
           if (counts.reserved.skill)
-            servant.totalItemsForMax.skill += Math.max(0, skill - Math.max(inventoryStatus[itemId].stock, 0))
+            servant.totalItemsForMax.skill += Math.max(0, ascension + skill - Math.max(inventoryStatus[itemId].stock, 0))
           else
-            servant.totalItemsForMax.skill += Math.max(0, skill - Math.max(inventoryStatus[itemId].free, 0))
+            servant.totalItemsForMax.skill += Math.max(0, ascension + skill - Math.max(inventoryStatus[itemId].free, 0))
         }
       })
     }
