@@ -50,6 +50,8 @@ export type Servant = {
   maxAscension: number
   skillLevel: number[]
   maxSkillLevel: number[]
+  appendSkillLevel: number[]
+  maxAppendSkillLevel: number[]
 
   npLevel: number
   level: number
@@ -122,6 +124,7 @@ const generateCleanServants = () => {
     { id: servant.id,
       ascension: 0, maxAscension: 4,
       skillLevel: [1, 1, 1], maxSkillLevel: [10, 10, 10],
+      appendSkillLevel: [0, 0, 0], maxAppendSkillLevel: [0, 0, 0],
       npLevel: 0, level: 1, hpMod: 0, attackMod: 0,
       spec: servant,
       itemCounts: {},
@@ -177,9 +180,11 @@ export const validateServants = (servants: Servants): Servants =>
     result.forEach((servant, index) => {
       const servantIndex = servants.findIndex((item) => (item.id == servant.id))
       if (servantIndex >= 0) {
-        const { id, ascension, maxAscension, skillLevel, maxSkillLevel, npLevel, level, hpMod, attackMod } = servants[servantIndex]
+        servants[servantIndex].appendSkillLevel = servants[servantIndex].appendSkillLevel || result[index].appendSkillLevel
+        servants[servantIndex].maxAppendSkillLevel = servants[servantIndex].maxAppendSkillLevel || result[index].maxAppendSkillLevel
+        const { id, ascension, maxAscension, skillLevel, maxSkillLevel, appendSkillLevel, maxAppendSkillLevel, npLevel, level, hpMod, attackMod } = servants[servantIndex]
 
-        result[index] = { id, ascension, maxAscension, skillLevel, maxSkillLevel, npLevel, level, hpMod, attackMod,
+        result[index] = { id, ascension, maxAscension, skillLevel, maxSkillLevel, appendSkillLevel, maxAppendSkillLevel, npLevel, level, hpMod, attackMod,
                           spec: servantSpecs[servant.id],
                           totalItemsForMax: { ascension: 0, skill: 0, dress: 0, sound: 0 },
                           itemCounts: {}

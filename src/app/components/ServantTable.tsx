@@ -76,6 +76,41 @@ const parseSkillLevel = (text: string) => {
   return result
 }
 
+const parseAppendSkillLevel = (text: string) => {
+  const result = [ -1, -1, -1 ]
+
+  const values = text.match(/(\d+)\s*\/(\d+)\s*\/(\d+)/) || [ "", "", "", "" ]
+  if (values[0].length) {
+    result[0] = Number.parseInt(values[1])
+    result[1] = Number.parseInt(values[2])
+    result[2] = Number.parseInt(values[3])
+  } else {
+    let value = Number.parseInt(text)
+    if (value >= 0 && value <= 101010) {
+      if ((value % 10) != 0) {
+        result[2] = value % 10
+        value = (value / 10) >> 0
+      } else {
+        result[2] = value % 100
+        value = (value / 100) >> 0
+      }
+      if ((value % 10) != 0) {
+        result[1] = value % 10
+        value = (value / 10) >> 0
+      } else {
+        result[1] = value % 100
+        value = (value / 100) >> 0
+      }
+      result[0] = value
+    }
+  }
+  result.forEach((value, index) => {
+    if (value > 10 || value < 0)
+      result[index] = 0
+  })
+  return result
+}
+
 const columns : TableColumnInfo[] = [
   { label: 'ID', key: 'id', align: "center", width: 80},
   { label: '名称', key: 'name', align: "left", width: 240},
@@ -87,6 +122,8 @@ const columns : TableColumnInfo[] = [
   { label: '(予定)', key: 'maxAscension', align: "center", width: 80, editable: true, type: "number", min: 0, max: 4},
   { label: 'スキル', key: 'skillLevel', align: "center", width: 80, editable: true, type: "string"},
   { label: '(予定)', key: 'maxSkillLevel', align: "center", width: 80, editable: true, type: "string"},
+  { label: 'Aスキル', key: 'appendSkillLevel', align: "center", width: 80, editable: true, type: "string"},
+  { label: '(予定)', key: 'maxAppendSkillLevel', align: "center", width: 80, editable: true, type: "string"},
   { label: 'Atk+', key: 'attackMod', align: "center", width: 80, editable: true, type: "number", min: 0, max: 2000, step: 10},
   { label: 'HP+', key: 'hpMod', align: "center", width: 80, editable: true, type: "number", min: 0, max: 2000, step: 10},
   { label: '育成中', key: 'leveling', align: "center", width: 80},
@@ -103,6 +140,8 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
       return row[key]
     case 'skillLevel':
     case 'maxSkillLevel':
+    case 'appendSkillLevel':
+    case 'maxAppendSkillLevel':
       if (sort)
         return row.servant[key].reduce((acc, level) => acc * level)
       return `${row.servant[key][0]}/${row.servant[key][1]}/${row.servant[key][2]}`
@@ -173,6 +212,24 @@ const updateInventoryForSkill = (servantSpec: ServantSpec, newSkillLevel: number
   return updated
 }
 
+const updateInventoryForAppendSkill = (servantSpec: ServantSpec, newAppendSkillLevel: number[], oldAppendSkillLevel: number[], inventoryStatus: InventoryStatus) => {
+  const skillNos = [ 0, 1, 2 ]
+  let updated = false
+
+  skillNos.forEach((skillNo: number) => {
+    const [ min, max ] = [ Math.min(newAppendSkillLevel[skillNo], oldAppendSkillLevel[skillNo]), Math.max(newAppendSkillLevel[skillNo], oldAppendSkillLevel[skillNo]) ]
+    const inc = min == newAppendSkillLevel[skillNo]
+
+    for (let appendSkillLevel = Math.max(min - 1, 0); appendSkillLevel < max - 1; appendSkillLevel++) {
+      updated = true
+      Object.entries(servantSpec.items.appendSkill[appendSkillLevel]).forEach(([id, count]) => {
+        inventoryStatus[id].stock += (inc ? 1 : -1) * count
+      })
+    }
+  })
+  return updated
+}
+
 
 const setTableData = (servantTableData: ServantTableData, columnIndex: number, value: string, props: Prop, modifyInventory: boolean) => {
   const key = columns[columnIndex].key
@@ -219,6 +276,24 @@ const setTableData = (servantTableData: ServantTableData, columnIndex: number, v
           row.servant.maxSkillLevel[0] = Math.max(row.servant.skillLevel[0], row.servant.maxSkillLevel[0])
           row.servant.maxSkillLevel[1] = Math.max(row.servant.skillLevel[1], row.servant.maxSkillLevel[1])
           row.servant.maxSkillLevel[2] = Math.max(row.servant.skillLevel[2], row.servant.maxSkillLevel[2])
+        }
+      }
+      break
+    case 'appendSkillLevel':
+    case 'maxAppendSkillLevel':
+      {
+        const newValues = parseAppendSkillLevel(value)
+        if (newValues && newValues[0] >= 0) {
+          if (key == 'appendSkillLevel' && modifyInventory) {
+            const inventoryStatus = props.getInventoryStatus()
+            if (updateInventoryForAppendSkill(row.servant.spec, newValues, row.servant.appendSkillLevel, inventoryStatus)) {
+              props.setInventoryStatus(inventoryStatus)
+            }
+          }
+          row.servant[key] = newValues
+          row.servant.maxAppendSkillLevel[0] = Math.max(row.servant.appendSkillLevel[0], row.servant.maxAppendSkillLevel[0])
+          row.servant.maxAppendSkillLevel[1] = Math.max(row.servant.appendSkillLevel[1], row.servant.maxAppendSkillLevel[1])
+          row.servant.maxAppendSkillLevel[2] = Math.max(row.servant.appendSkillLevel[2], row.servant.maxAppendSkillLevel[2])
         }
       }
       break
@@ -493,7 +568,7 @@ export const ServantTable: FC<Prop> = (props) => {
     isChanged && setTableData(row, columnIndex, e.target.value, props, modifyInventory)
     e.target.value = getTableData(row, columnIndex)
     if (isChanged) {
-      if (columns[columnIndex].key == 'ascension' || columns[columnIndex].key == 'skillLevel') {
+      if (columns[columnIndex].key == 'ascension' || columns[columnIndex].key == 'skillLevel' || columns[columnIndex].key == 'appendSkillLevel') {
         bodyRef.current.resetAfterColumnIndex(columnIndex)
         columns.forEach((columnInfo, index) => {
           if (columnInfo.editable) {
