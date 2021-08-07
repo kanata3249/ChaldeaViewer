@@ -39,6 +39,7 @@ export type ServantSpec = {
   items: {
     ascension: { [id: number]: number }[]
     skill: { [id: number]: number }[]
+    appendSkill: { [id: number]: number }[]
   }
 }
 

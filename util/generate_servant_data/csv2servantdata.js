@@ -105,10 +105,32 @@ const itemNames = {
 800: "伝承結晶",
 }
 
+itemAliasNames = {
+  "剣ピース": "セイバーピース",
+  "弓ピース": "アーチャーピース",
+  "槍ピース": "ランサーピース",
+  "騎ピース": "ライダーピース",
+  "術ピース": "キャスターピース",
+  "殺ピース": "アサシンピース",
+  "狂ピース": "バーサーカーピース",
+  
+  "剣モニュメント": "セイバーモニュメント",
+  "弓モニュメント": "アーチャーモニュメント",
+  "槍モニュメント": "ランサーモニュメント",
+  "騎モニュメント": "ライダーモニュメント",
+  "術モニュメント": "キャスターモニュメント",
+  "殺モニュメント": "アサシンモニュメント",
+  "狂モニュメント": "バーサーカーモニュメント",
+}
+
 const itemName2Id = Object.keys(itemNames).reduce((acc, id) => {
   acc[itemNames[id]] = id
   return acc
 }, {})
+
+Object.entries(itemAliasNames).forEach(([alias, itemName]) => {
+  itemName2Id[alias] = itemName2Id[itemName]
+})
 
 const className2Id = {
   "剣": 0,
@@ -135,10 +157,12 @@ const power2Id = {
 }
 
 const parseItems = (itemsText) => {
-  return itemsText.split(",").reduce((acc, itemText) => {
-    if (itemText != "") {
-      const [item, count] = itemText.split(":")
-      acc[itemName2Id[item]] = Number(count)
+  return itemsText.split("\n").reduce((acc, itemText) => {
+    const [item, count] = itemText.split("x")
+    if (count) {
+      if (itemName2Id[item]) {
+        acc[itemName2Id[item]] = Number(count)
+      }
     }
     return acc
   },{})
@@ -289,8 +313,8 @@ const nobleTraits2npType = (nobleTraits) => {
   return ""
 }
 
-Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
-.then(([servant_array, skill_array]) => {
+Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2])])
+.then(([servant_array, skill_array, items_array]) => {
 
   const servantId2msId = {}
   const servantList = {}
@@ -317,25 +341,6 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
       attack: { min: Number.parseInt(String(servant.minAtk).replace(/,/,"")), max: Number.parseInt(String(servant.maxAtk).replace(/,/,"")) },
       npTypes: [],
       skills: {np: [], active: [-1, -1, -1], passive: []},
-      items: {
-        ascension: [
-          parseItems(servant.ascension1),
-          parseItems(servant.ascension2),
-          parseItems(servant.ascension3),
-          parseItems(servant.ascension4),
-        ],
-        skill: [
-          parseItems(servant.skill1),
-          parseItems(servant.skill2),
-          parseItems(servant.skill3),
-          parseItems(servant.skill4),
-          parseItems(servant.skill5),
-          parseItems(servant.skill6),
-          parseItems(servant.skill7),
-          parseItems(servant.skill8),
-          parseItems(servant.skill9),
-        ]
-      }
     }
   })
 
@@ -510,6 +515,44 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
     })
     return acc
   }, {})
+
+  // items.csv
+  items_array.forEach((servant) => {
+    const items = {
+      ascension: [
+        parseItems(servant["再臨素材 1"]),
+        parseItems(servant["再臨素材 2"]),
+        parseItems(servant["再臨素材 3"]),
+        parseItems(servant["再臨素材 4"]),
+      ],
+      skill: [
+        parseItems(servant["スキル素材 1"]),
+        parseItems(servant["スキル素材 2"]),
+        parseItems(servant["スキル素材 3"]),
+        parseItems(servant["スキル素材 4"]),
+        parseItems(servant["スキル素材 5"]),
+        parseItems(servant["スキル素材 6"]),
+        parseItems(servant["スキル素材 7"]),
+        parseItems(servant["スキル素材 8"]),
+        parseItems(servant["スキル素材 9"]),
+      ],
+      appendSkill: [
+        parseItems(servant["APスキル素材 1"]),
+        parseItems(servant["APスキル素材 2"]),
+        parseItems(servant["APスキル素材 3"]),
+        parseItems(servant["APスキル素材 4"]),
+        parseItems(servant["APスキル素材 5"]),
+        parseItems(servant["APスキル素材 6"]),
+        parseItems(servant["APスキル素材 7"]),
+        parseItems(servant["APスキル素材 8"]),
+        parseItems(servant["APスキル素材 9"]),
+      ]
+
+    }
+    const servantId = servant["No."]
+    servantList[servantId].items = items
+    //    console.log("items for servant id: ", servant.id, items)
+  })
 
   try {
     fs.writeFileSync("servantdata.json",  JSON.stringify(servantList))
