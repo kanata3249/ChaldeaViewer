@@ -7,6 +7,7 @@ export type Inventory = {
 export type ItemPerUsage = {
   ascension: number
   skill: number
+  appendSkill: number
   dress: number
   sound: number
 }
@@ -42,6 +43,7 @@ export const itemNames: {
 const emptyItemUsage = {
   ascension: 0,
   skill: 0,
+  appendSkill: 0,
   dress: 0,
   sound: 0
 }
@@ -135,7 +137,9 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants): I
   }, {})
 
   servants.forEach((servant) => {
-    if (servant.ascension < 4 || servant.skillLevel[0] < 9 || servant.skillLevel[1] < 9 || servant.skillLevel[2] < 9) {
+    if (servant.ascension < 4
+       || servant.skillLevel[0] < 9 || servant.skillLevel[1] < 9 || servant.skillLevel[2] < 9
+       || servant.appendSkillLevel[0] < 9 || servant.appendSkillLevel[1] < 9 || servant.appendSkillLevel[2] < 9) {
       Object.entries(servant.itemCounts).forEach(([itemId, counts]) => {
         if (itemId == "800")
           return
@@ -155,6 +159,14 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants): I
           else
             servant.totalItemsForMax.skill += Math.max(0, ascension + skill - Math.max(inventoryStatus[itemId].free, 0))
         }
+
+        const appendSkill = counts.required.appendSkill - counts.used.appendSkill
+        if (appendSkill) {
+          if (counts.reserved.appendSkill)
+            servant.totalItemsForMax.appendSkill += Math.max(0, ascension + appendSkill - Math.max(inventoryStatus[itemId].stock, 0))
+          else
+            servant.totalItemsForMax.appendSkill += Math.max(0, ascension + appendSkill - Math.max(inventoryStatus[itemId].free, 0))
+        }
       })
     }
   })
@@ -168,9 +180,12 @@ const itemsForServant = (servant: Servant) => {
   const reservedAscensionLevel = servant.maxAscension
   const currentSkillLevel = servant.skillLevel
   const reservedSkillLevel = servant.maxSkillLevel
+  const currentAppendSkillLevel = servant.appendSkillLevel
+  const reservedAppendSkillLevel = servant.maxAppendSkillLevel
 
   const ascensionItems = servant.spec.items.ascension
   const skillItems = servant.spec.items.skill
+  const appendSkillItems = servant.spec.items.appendSkill
 
   const servantItemCounts = {}
 
@@ -208,6 +223,27 @@ const itemsForServant = (servant: Servant) => {
           } else {
             if (reservedSkillLevel[skillNo] > skillLevel + 1) {
               counts.reserved.skill += count
+            }
+          }
+        }
+      })
+    })
+  })
+
+  skillNos.forEach((skillNo) => {
+    appendSkillItems.forEach((items, skillLevel) => {
+      Object.entries(items).forEach(([itemId, count]) => {
+        const counts = servantItemCounts[itemId] || JSON.parse(JSON.stringify(itemCountsTemplate))
+
+        servantItemCounts[itemId] = counts
+        counts.required.appendSkill += count
+        if (isSummoned) {
+          counts.summoned.appendSkill += count
+          if (currentAppendSkillLevel[skillNo] > skillLevel + 1) {
+            counts.used.appendSkill += count
+          } else {
+            if (reservedAppendSkillLevel[skillNo] > skillLevel + 1) {
+              counts.reserved.appendSkill += count
             }
           }
         }
