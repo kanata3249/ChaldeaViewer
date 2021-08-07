@@ -452,6 +452,9 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1])])
     if (skillType == "np") {
       skills[skillId].npType = npType
     }
+    if (skill.CT) {
+      skills[skillId].ct = skill.CT
+    }
 
     if (skillType == "active" && owners.length > 1) {
       owners.slice(1).forEach((owner) => {
