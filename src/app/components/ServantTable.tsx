@@ -122,12 +122,13 @@ const columns : TableColumnInfo[] = [
   { label: '(予定)', key: 'maxAscension', align: "center", width: 80, editable: true, type: "number", min: 0, max: 4},
   { label: 'スキル', key: 'skillLevel', align: "center", width: 80, editable: true, type: "string"},
   { label: '(予定)', key: 'maxSkillLevel', align: "center", width: 80, editable: true, type: "string"},
-  { label: 'Aスキル', key: 'appendSkillLevel', align: "center", width: 80, editable: true, type: "string"},
+  { label: 'APスキル', key: 'appendSkillLevel', align: "center", width: 80, editable: true, type: "string"},
   { label: '(予定)', key: 'maxAppendSkillLevel', align: "center", width: 80, editable: true, type: "string"},
   { label: 'Atk+', key: 'attackMod', align: "center", width: 80, editable: true, type: "number", min: 0, max: 2000, step: 10},
   { label: 'HP+', key: 'hpMod', align: "center", width: 80, editable: true, type: "number", min: 0, max: 2000, step: 10},
   { label: '育成中', key: 'leveling', align: "center", width: 80},
   { label: '残素材数', key: 'items', align: "center", width: 80 },
+  { label: 'AP残数', key: 'itemsForAP', align: "center", width: 80 },
   { label: '素材確認', key: 'checkItems', align: "center", width: 80, button: true, buttonLabel: "素材" }
 ]
 
@@ -162,7 +163,9 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
     case 'leveling':
       if ((row.servant.npLevel > 0)
           && (row.servant.ascension < row.servant.maxAscension || row.servant.skillLevel[0] < row.servant.maxSkillLevel[0]
-              || row.servant.skillLevel[1] < row.servant.maxSkillLevel[1] || row.servant.skillLevel[2] < row.servant.maxSkillLevel[2]))
+              || row.servant.skillLevel[1] < row.servant.maxSkillLevel[1] || row.servant.skillLevel[2] < row.servant.maxSkillLevel[2])
+              || row.servant.appendSkillLevel[0] < row.servant.maxAppendSkillLevel[0] || row.servant.appendSkillLevel[1] < row.servant.maxAppendSkillLevel[1]
+              || row.servant.appendSkillLevel[2] < row.servant.maxAppendSkillLevel[2])
         return "育成中"
       return ""
     case 'items':
@@ -170,6 +173,12 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
         if (!sort && row.servant.ascension < 4)
           return row.servant.totalItemsForMax.ascension + " + " + row.servant.totalItemsForMax.skill
         return row.servant.totalItemsForMax.skill
+      } else {
+        return ""
+      }
+    case 'itemsForAP':
+      if (row.servant.appendSkillLevel[0] < 9 || row.servant.appendSkillLevel[1] < 9 || row.servant.appendSkillLevel[2] < 9) {
+        return row.servant.totalItemsForMax.appendSkill
       } else {
         return ""
       }
