@@ -38,28 +38,43 @@ const columns : TableColumnInfo[] = [
   { label: '使用予定', key: 'reserved', align: "right", width: 110 },
   { label: '使用可能', key: 'free', align: "right", width: 110 },
   { label: '使用済み', key: 'used', align: "right", width: 110 },
+  { label: '必要数A(全)', key: 'requiredForAP', align: "right", width: 110 },
   { label: '必要数(全)', key: 'required', align: "right", width: 110 },
+  { label: '必要数A(召)', key: 'summonedForAP', align: "right", width: 110 },
   { label: '必要数(召)', key: 'summoned', align: "right", width: 110 },
+  { label: '残必要数A込(全)', key: 'remainForAP', align: "right", width: 110 },
   { label: '残必要数(全)', key: 'remain', align: "right", width: 110 },
+  { label: '残必要数A込(召)', key: 'remainSummonedForAP', align: "right", width: 110 },
   { label: '残必要数(召)', key: 'remainSummoned', align: "right", width: 110 },
 ]
 
 const getTableData = (inventoryTableData: InventoryTableData, columnIndex: number) => {
   const key = columns[columnIndex].key
+  const sumExAP = (key: string) => Object.values<number>(inventoryTableData.item[key]).reduce((acc, value) => acc + value) - inventoryTableData.item[key].appendSkill
+  const sumForAP = (key: string) => inventoryTableData.item[key].appendSkill
   const sum = (key: string) => Object.values<number>(inventoryTableData.item[key]).reduce((acc, value) => acc + value)
 
   switch (key) {
     case 'id':
     case 'name':
       return inventoryTableData[key]
-    case 'required':
-    case 'summoned':
     case 'used':
     case 'reserved':
       return sum(key)
+    case 'required':
+    case 'summoned':
+      return sumExAP(key)
+    case 'requiredForAP':
+      return sumForAP('required')
+    case 'summonedForAP':
+      return sumForAP('summoned')
     case 'remain':
-      return Math.max(sum('required') - sum('used') - inventoryTableData.item.stock, 0)
+      return Math.max(sumExAP('required') - sumExAP('used') - inventoryTableData.item.stock, 0)
     case 'remainSummoned':
+      return Math.max(sumExAP('summoned') - sumExAP('used') - inventoryTableData.item.stock, 0)
+    case 'remainForAP':
+      return Math.max(sum('required') - sum('used') - inventoryTableData.item.stock, 0)
+    case 'remainSummonedForAP':
       return Math.max(sum('summoned') - sum('used') - inventoryTableData.item.stock, 0)
     default:
       return inventoryTableData.item[key]
@@ -211,6 +226,7 @@ export const InventoryTable: FC<Prop> = (props) => {
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("InventoryTable")))
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcInventoryTableData(props.getInventoryStatus()), filterValues, sortBy, sortOrder)
+  console.log(tableData)
 
   const refs = {}
 
