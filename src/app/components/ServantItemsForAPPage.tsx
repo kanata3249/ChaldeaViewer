@@ -97,9 +97,9 @@ const createServantItemsTableData = (servant: Servant, inventoryStatus: Inventor
   return Object.entries(servant.itemCounts)
             .filter(([itemId, counts]) => itemId != "800")
             .map<ServantItemsTableData>(([itemId, counts]) => {
-    const required = counts.required.ascension + counts.required.skill
-    const used = counts.used.ascension + counts.used.skill
-    const reserved = counts.reserved.ascension + counts.required.skill
+    const required = counts.required.appendSkill
+    const used = counts.used.appendSkill
+    const reserved = counts.reserved.appendSkill
     const shortage = Math.max(0, required - used - Math.max(0, reserved +  inventoryStatus[itemId].free))
 
     return {
@@ -115,7 +115,7 @@ const createServantItemsTableData = (servant: Servant, inventoryStatus: Inventor
   }).filter((itemCount) => itemCount.required > 0)
 }
 
-export const ServantItemsPage: FC<Prop> = (props) => {
+export const ServantItemsForAPPage: FC<Prop> = (props) => {
   const classes = useStyles()
   const [ sortBy, setSortBy ] = useState(columns.length - 1)
   const [ sortOrder, setSortOrder ] = useState(-1)
