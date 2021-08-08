@@ -69,9 +69,9 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
     case 'summonedForAP':
       return sumForAP('summoned')
     case 'remain':
-      return Math.max(sumExAP('required') - sumExAP('used') - inventoryTableData.item.stock, 0)
+      return Math.max(sumExAP('required') + sumForAP('reserved') - sumExAP('used') - inventoryTableData.item.stock, 0)
     case 'remainSummoned':
-      return Math.max(sumExAP('summoned') - sumExAP('used') - inventoryTableData.item.stock, 0)
+      return Math.max(sumExAP('summoned') + sumForAP('reserved')  - sumExAP('used') - inventoryTableData.item.stock, 0)
     case 'remainForAP':
       return Math.max(sum('required') - sum('used') - inventoryTableData.item.stock, 0)
     case 'remainSummonedForAP':
