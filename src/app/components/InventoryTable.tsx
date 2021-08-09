@@ -35,8 +35,10 @@ const columns : TableColumnInfo[] = [
   { label: 'ID', key: 'id', align: "center", width: 80 },
   { label: '名称', key: 'name', align: "left", width: 150 },
   { label: '所持数', key: 'stock', align: "right", width: 110, editable: true },
+  { label: '使用予定A', key: 'reservedForAP', align: "right", width: 110 },
   { label: '使用予定', key: 'reserved', align: "right", width: 110 },
   { label: '使用可能', key: 'free', align: "right", width: 110 },
+  { label: '使用済みA', key: 'usedForAP', align: "right", width: 110 },
   { label: '使用済み', key: 'used', align: "right", width: 110 },
   { label: '必要数A(全)', key: 'requiredForAP', align: "right", width: 110 },
   { label: '必要数(全)', key: 'required', align: "right", width: 110 },
@@ -60,7 +62,11 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
       return inventoryTableData[key]
     case 'used':
     case 'reserved':
-      return sum(key)
+      return sumExAP(key)
+    case 'usedForAP':
+      return sumForAP('used')
+    case 'reservedForAP':
+      return sumForAP('reserved')
     case 'required':
     case 'summoned':
       return sumExAP(key)
