@@ -144,7 +144,7 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
     case 'appendSkillLevel':
     case 'maxAppendSkillLevel':
       if (sort)
-        return row.servant[key].reduce((acc, level) => acc * level)
+        return row.servant[key].reduce((acc, level) => acc * (level + 1), 1)
       return `${row.servant[key][0]}/${row.servant[key][1]}/${row.servant[key][2]}`
     case 'class':
       if (sort)
