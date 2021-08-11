@@ -85,7 +85,8 @@ export const servantClassNames = {
   9: "分",
   10: "月",
   11: "降",
-  12: "盾",
+  12: "詐",
+  20: "盾",
 }
 
 export const attributeNames = {

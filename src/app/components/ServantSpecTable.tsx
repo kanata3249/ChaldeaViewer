@@ -273,6 +273,7 @@ const filterDefinition: FilterDefinition[] = [
       { label: "アルターエゴ", key: "分" },
       { label: "ムーンキャンサー", key: "月" },
       { label: "フォーリナー", key: "降" },
+      { label: "プリテンダー", key: "詐" },
       { label: 'シールダー', key: "盾" },
     ]
   },
