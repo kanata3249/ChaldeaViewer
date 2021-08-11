@@ -232,7 +232,6 @@ export const InventoryTable: FC<Prop> = (props) => {
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("InventoryTable")))
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcInventoryTableData(props.getInventoryStatus()), filterValues, sortBy, sortOrder)
-  console.log(tableData)
 
   const refs = {}
 

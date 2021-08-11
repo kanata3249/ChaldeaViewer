@@ -93,14 +93,13 @@ const sort = (tableData: ServantItemsTableData[], sortColumn: number, sortOrder:
 const createServantItemsTableData = (servant: Servant, inventoryStatus: InventoryStatus): ServantItemsTableData[] => {
   if (!servant)
     return []
-    console.log(servant)
   return Object.entries(servant.itemCounts)
             .filter(([itemId, counts]) => itemId != "800")
             .map<ServantItemsTableData>(([itemId, counts]) => {
     const required = counts.required.ascension + counts.required.skill
     const used = counts.used.ascension + counts.used.skill
     const reserved = counts.reserved.ascension + counts.required.skill
-    const shortage = Math.max(0, required - used - Math.max(0, reserved +  inventoryStatus[itemId].free))
+    const shortage = Math.max(0, required - used - Math.max(0, Math.min(reserved + inventoryStatus[itemId].free, inventoryStatus[itemId].stock)))
 
     return {
       id: Number.parseInt(itemId),
