@@ -314,8 +314,8 @@ const nobleTraits2npType = (nobleTraits) => {
   return ""
 }
 
-Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2])])
-.then(([servant_array, skill_array, items_array]) => {
+Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(csvs[3])])
+.then(([servant_array, skill_array, items_array, appendskill_array]) => {
 
   const servantId2msId = {}
   const servantList = {}
@@ -553,6 +553,59 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2])])
     const servantId = servant["No."]
     servantList[servantId].items = items
     //    console.log("items for servant id: ", servant.id, items)
+  })
+
+  skillId = 10000
+  const appendSkills = {}
+  skills2[skillId] = {
+    id: skillId,
+    name: "追撃技巧向上",
+    type: "append",
+    effects: [{
+      target: "自身",
+      text: "Extraカード性能アップ",
+      grow: "Lv",
+      values: [
+        "30%", "32%", "34%", "36%", "38%", "40%", "42%", "44%", "46%", "50%"
+      ]
+    }],
+  }
+  skillId++
+  skills2[skillId] = {
+    id: skillId,
+    name: "魔力装填",
+    type: "append",
+    effects: [{
+      target: "自身",
+      text: "NP 獲得",
+      grow: "Lv",
+      values: [
+        "10%", "11%", "12%", "13%", "14%", "15%", "16%", "17%", "18%", "20%"
+      ]
+    }],
+  }
+  skillId++
+  appendskill_array.forEach((servant) => {
+    const name = servant["アペンドスキル 3"]
+    if (!appendSkills[name]) {
+      const text = name.replace(/対(.*)攻撃適性/, "対$1攻撃力アップ").replace(/対(.*)クリティカル発生耐性/, "$1からのクリティカル発生耐性アップ")
+      skillId++
+      skills2[skillId] = {
+        id: skillId,
+        name: name,
+        type: "append",
+        effects: [{
+          target: "自身",
+          text: text,
+          grow: "Lv",
+          values: [
+            "20%", "21%", "22%", "23%", "24%", "25%", "26%", "27%", "28%", "30%"
+          ]
+        }],
+      }
+      appendSkills[name] = skillId
+    }
+    servantList[servant["No."]].skills.append = [ 10000, 10001, appendSkills[name] ]
   })
 
   try {
