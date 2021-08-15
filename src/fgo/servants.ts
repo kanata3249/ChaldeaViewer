@@ -4,7 +4,7 @@ import pako from 'pako'
 export type ServantSkillSpec = {
   id: number
   name: string
-  type: "np" | "active" | "passive"
+  type: "np" | "active" | "passive" | "append"
   npType?: string
   ct?: number
   effects: {
@@ -23,6 +23,7 @@ export type ServantSkills = {
   np: number[]
   passive: number[]
   active: number[]
+  append: number[]
 }
 
 export type ServantSpec = {
@@ -101,6 +102,7 @@ export const skillTypeNames = {
   "np": "宝具",
   "active": "スキル",
   "passive": "クラススキル",
+  "append": "アペンドスキル",
 }
 
 export const estimatedLevelByAscensionAndRare = [

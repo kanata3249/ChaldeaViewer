@@ -77,6 +77,7 @@ export const ServantSkillsPage: FC<Prop> = (props) => {
               {row.type == "np" && <ListItemText primary={row.name + " - " + row.npType + skillTypeNames[row.type]} />}
               {row.type == "active" && <ListItemText primary={row.name + ` ct${row.ct}～${row.ct-2} - ` + skillTypeNames[row.type]} />}
               {row.type == "passive" && <ListItemText primary={row.name + " - " + skillTypeNames[row.type]} />}
+              {row.type == "append" && <ListItemText primary={row.name + " - " + skillTypeNames[row.type]} />}
             </Grid>
             <Grid item className={classes.skillDescription} >
               <table>
@@ -94,7 +95,8 @@ export const ServantSkillsPage: FC<Prop> = (props) => {
                         return (<tr key={index}><td colSpan={11} >{`${row.targets[index]} ${text} ${row.values[index][0]}～${row.values[index][9]}`}</td></tr>)
                       else
                         return (<tr key={index}><td colSpan={11} >{`${row.targets[index]} ${text} ${row.values[index][0]}`}</td></tr>)
-                    }
+                    case "append":
+                      return (<tr key={index}><td colSpan={11} >{`${text}  ${row.values[index][0]}～${row.values[index][9]}`}</td></tr>)                    }
                   })}
                   {row.type == "np" && (<tr><th></th><th></th>{row.values[0].map((value, index) => (<th key={index}>{index + 1}</th>))}</tr>)}
                   {row.type == "np" && row.effects.map((text, index) => (
