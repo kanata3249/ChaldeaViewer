@@ -103,6 +103,8 @@ const itemNames = {
 616: "バーサーカーモニュメント",
 
 800: "伝承結晶",
+
+900: "QP",
 }
 
 itemAliasNames = {
@@ -164,6 +166,8 @@ const parseItems = (itemsText) => {
       if (itemName2Id[item]) {
         acc[itemName2Id[item]] = Number(count)
       }
+    } else {
+      acc[itemName2Id["QP"]] = parseInt(itemText)
     }
     return acc
   },{})
