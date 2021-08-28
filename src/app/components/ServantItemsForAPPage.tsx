@@ -94,7 +94,7 @@ const createServantItemsTableData = (servant: Servant, inventoryStatus: Inventor
   if (!servant)
     return []
   return Object.entries(servant.itemCounts)
-            .filter(([itemId, counts]) => itemId != "800")
+            .filter(([itemId, counts]) => Number(itemId) < 800)
             .map<ServantItemsTableData>(([itemId, counts]) => {
     const required = counts.required.appendSkill
     const used = counts.used.appendSkill

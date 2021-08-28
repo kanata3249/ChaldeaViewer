@@ -96,6 +96,7 @@ const filterDefinition: FilterDefinition[] = [
       { label: "素材(銅)", key: "cupperItems" },
       { label: "モニュメント・ピース", key: "essentials" },
       { label: "秘石等", key: "gems" },
+      { label: "QP", key: "qp" },
     ]
   },
   {
@@ -192,6 +193,8 @@ const filterAndSort = (inventoryTableData: InventoryTableData[], filters: Filter
                   return (row.id < 300 || row.id == 800)
                 case 'essentials':
                   return (row.id >= 600 && row.id < 700)
+                case 'qp':
+                  return row.id == 900
               }
             }
           })

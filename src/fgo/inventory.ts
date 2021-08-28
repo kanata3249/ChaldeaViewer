@@ -141,7 +141,7 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants): I
        || servant.skillLevel[0] < 9 || servant.skillLevel[1] < 9 || servant.skillLevel[2] < 9
        || servant.appendSkillLevel[0] < 9 || servant.appendSkillLevel[1] < 9 || servant.appendSkillLevel[2] < 9) {
       Object.entries(servant.itemCounts).forEach(([itemId, counts]) => {
-        if (itemId == "800")
+        if (Number(itemId) >= 800)
           return
 
         const ascension = counts.required.ascension - counts.used.ascension
@@ -212,6 +212,9 @@ const itemsForServant = (servant: Servant) => {
   skillNos.forEach((skillNo) => {
     skillItems.forEach((items, skillLevel) => {
       Object.entries(items).forEach(([itemId, count]) => {
+        if (Number(itemId) == 900 && skillLevel + 1 == 9) {
+          return
+        }
         const counts = servantItemCounts[itemId] || JSON.parse(JSON.stringify(itemCountsTemplate))
 
         servantItemCounts[itemId] = counts
@@ -233,6 +236,9 @@ const itemsForServant = (servant: Servant) => {
   skillNos.forEach((skillNo) => {
     appendSkillItems.forEach((items, skillLevel) => {
       Object.entries(items).forEach(([itemId, count]) => {
+        if (Number(itemId) == 900 && skillLevel + 1 == 9) {
+          return
+        }
         const counts = servantItemCounts[itemId] || JSON.parse(JSON.stringify(itemCountsTemplate))
 
         servantItemCounts[itemId] = counts
