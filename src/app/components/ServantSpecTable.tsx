@@ -530,6 +530,7 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 const calcServantTableData = (servants: Servants): ServantSpecTableData[] => {
+  const sortkey = (row) => (row.servant.spec.class * 10000 + (10 - row.servant.spec.rare) * 1000 + (1000 - row.id))
   return servants.map((servant, index) => (
     { id: servant.id, name: servantNames[servant.id], index, servant: servant,
       buffSkill: {
@@ -542,7 +543,9 @@ const calcServantTableData = (servants: Servants): ServantSpecTableData[] => {
         specialAttack: findSkill(servant, "〔(?!Arts).*〕威力アップ")
       }
     } 
-  ))
+  )).sort((a, b) => {
+    return sortkey(a) - sortkey(b)
+  })
 }
 
 const filterAndSort = (servantTableData: ServantSpecTableData[], filters: FilterValues, skillFilters: FilterValues, charFilters: FilterValues,
