@@ -99,7 +99,7 @@ const createServantItemsTableData = (servant: Servant, inventoryStatus: Inventor
     const required = counts.required.appendSkill
     const used = counts.used.appendSkill
     const reserved = counts.reserved.appendSkill
-    const shortage = Math.max(0, required - used - Math.max(0, Math.min(reserved + inventoryStatus[itemId].free, inventoryStatus[itemId].stock)))
+    const shortage = Math.max(0, required - used - Math.max(0, Math.min(reserved + Math.max(0, inventoryStatus[itemId].free), inventoryStatus[itemId].stock)))
 
     return {
       id: Number.parseInt(itemId),

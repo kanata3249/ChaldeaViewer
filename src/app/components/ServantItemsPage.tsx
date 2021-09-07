@@ -98,8 +98,8 @@ const createServantItemsTableData = (servant: Servant, inventoryStatus: Inventor
             .map<ServantItemsTableData>(([itemId, counts]) => {
     const required = counts.required.ascension + counts.required.skill
     const used = counts.used.ascension + counts.used.skill
-    const reserved = counts.reserved.ascension + counts.required.skill
-    const shortage = Math.max(0, required - used - Math.max(0, Math.min(reserved + inventoryStatus[itemId].free, inventoryStatus[itemId].stock)))
+    const reserved = counts.reserved.ascension + counts.reserved.skill
+    const shortage = Math.max(0, required - used - Math.max(0, Math.min(reserved + Math.max(0, inventoryStatus[itemId].free), inventoryStatus[itemId].stock)))
 
     return {
       id: Number.parseInt(itemId),
