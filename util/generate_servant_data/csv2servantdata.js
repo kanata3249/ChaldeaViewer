@@ -283,6 +283,10 @@ const skillNoMap = {
   '293': { '心眼（真） B': 2 }
 }
 
+const burnResistanceSkills = {
+  "アテナル・サマースイーツ A": true,
+}
+
 const derrivedSkill = {
   "誉れ堅き雪花の壁": "今は脆き雪花の壁",    //s1
   "アマルガムゴート D": "時に煙る白亜の壁",  //s2
@@ -441,7 +445,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
     }
 
     target.forEach((v, index) => {
-      if (mainText[index].match("やけど無効") && index > 0) {
+      if (mainText[index].match("やけど無効") && index > 0 && !burnResistanceSkills[name] ) {
         console.log("remove やけど無効 from", name, owners.reduce(((names, o) => names += " " + servantNames[o]), ""))
         return
       }
