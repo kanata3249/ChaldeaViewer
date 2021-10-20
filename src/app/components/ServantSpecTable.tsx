@@ -459,6 +459,7 @@ const charFilterDefinition: FilterDefinition[] = [
       { label: "神霊", key: "神霊" },
       { label: "人類の脅威", key: "人類の脅威" },
       { label: "超巨大", key: "超巨大" },
+      { label: "童話", key: "童話" },
       { label: "信長", key: "信長" },
       { label: "魔性", key: "魔性" },
       { label: "猛獣", key: "猛獣" },
