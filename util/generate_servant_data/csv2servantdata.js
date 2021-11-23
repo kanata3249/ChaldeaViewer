@@ -161,6 +161,7 @@ const power2Id = {
 
 const parseItems = (itemsText) => {
   return itemsText.split("\n").reduce((acc, itemText) => {
+    if (itemText.length) {
     const [item, count] = itemText.split("x")
     if (count) {
       if (itemName2Id[item]) {
@@ -168,6 +169,7 @@ const parseItems = (itemsText) => {
       }
     } else {
       acc[itemName2Id["QP"]] = parseInt(itemText)
+    }
     }
     return acc
   },{})
@@ -211,18 +213,23 @@ const skillNoMap = {
   '24': { '戦闘続行 A': 3 },
   '26': { '戦闘続行 A': 2 },
   '28': { 'カリスマ C': 1 },
+  '30': { '奇蹟 D+': 2 },
   '38': { '仕切り直し C': 3 },
+  '39': { '宗和の心得 B' : 3 },
   '41': { '吸血 C': 1, '魅惑の美声 A': 2 },
   '44': { '精神汚染 A': 3, '無辜の怪物 D': 1 },
   '46': { '吸血 C': 1, '拷問技術 A': 2 },
-  '47': { '戦闘続行 A': 3 },
-  '52': { '戦闘続行 A': 3 },
+  '47': { '心眼（偽） B': 2, '戦闘続行 A': 3 },
+  '49': { '反骨の相 B': 2 },
+  '51': { '動物会話 C': 2, '天性の肉体 A': 3 },
+  '52': { '変化 C': 2, '戦闘続行 A': 3 },
+  '54': { '皇帝特権 A': 2 },
   '55': { '仕切り直し A': 2, '黄金律 B': 1, '戦闘続行 A': 3 },
   '56': { '変化 C': 1 },
   '57': { '戦闘続行 B': 2 },
   '58': { '怪力 B': 1 },
   '63': { 'カリスマ B': 3 },
-  '65': { '黄金律 B': 2 },
+  '65': { '星の開拓者 EX': 3, '黄金律 B': 2 },
   '67': { '高速神言 A': 1 },
   '68': { '心眼（偽） A': 3 },
   '71': { '心眼（真） B': 1 },
@@ -232,14 +239,15 @@ const skillNoMap = {
   '77': { '星の開拓者 EX': 3 },
   '78': { 'カリスマ E': 3 },
   '85': { '魔力放出（炎） A': 2 },
-  '89': { '直感 B': 2, '戦闘続行 B': 3 },
+  '89': { '直感 B': 2, '戦闘続行 B': 3, '堅忍の老境 A': 3 },
   '92': { '心眼（偽） A': 2 },
   '93': { '啓示 A': 1 },
   '95': { 'カリスマ A+': 1, '黄金律 A': 3 },
-  '96': { '黄金律 A': 1 },
-  '98': { '戦闘続行 A': 3 },
+  '96': { '黄金律 A': 2 },
+  '98': { '矢避けの加護 C': 2, '戦闘続行 A': 3 },
   '99': { 'カリスマ B': 2, '魅惑の美声 C': 3 },
   '101': { 'カリスマ B': 2 },
+  '100': { 'マハトマ A++': 2 },
   '103': { '変化 C': 1 },
   '108': { '軍略 B': 2 },
   '109': { '魔術 B': 1 },
@@ -255,6 +263,7 @@ const skillNoMap = {
   '127': { '星の開拓者 EX': 3 },
   '131': { 'ビーチフラワー A+': 1 },
   '137': { '心眼（偽） B': 1 },
+  '138': { '真紅の勇者伝説・劇場版 EX': 3 },
   '139': { '皇帝特権 A': 1 },
   '140': { '軍略 B': 2 },
   '144': { 'カリスマ A+': 1 },
@@ -272,12 +281,14 @@ const skillNoMap = {
   '189': { '変化 A+': 1 },
   '191': { '無辜の怪獣 EX': 1, 'オーバーロード改 C': 2, 'ファイナルエリチャン C': 3, 'オーバーロード改 C+': 2, },
   '192': { '高速神言 B': 1 },
+  '204': { 'おぞましき燎原の火 A+': 3 },
   '207': { '心眼（真） A': 1 },
   '210': { '心眼（偽） C': 2 },
   '211': { 'カリスマ C+': 1 },
   '220': { '自己改造 EX': 1 },
   '230': { '吸血 C': 3 },
   '234': { '心眼（偽） A': 1 },
+  '241': { '至上礼装・月霊髄液 EX': 3 },
   '257': { '嵐の航海者 A+': 1 },
   '261': { 'アクセルターン B': 1 },
   '293': { '心眼（真） B': 2 }
@@ -349,7 +360,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
       hp: { min: Number.parseInt(String(servant.minHP).replace(/,/,"")), max: Number.parseInt(String(servant.maxHP).replace(/,/,"")) },
       attack: { min: Number.parseInt(String(servant.minAtk).replace(/,/,"")), max: Number.parseInt(String(servant.maxAtk).replace(/,/,"")) },
       npTypes: [],
-      skills: {np: [], active: [-1, -1, -1], passive: []},
+      skills: {np: [], active: [-1, -1, -1], passive: [], append: []},
     }
   })
 
@@ -377,7 +388,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
     
     const skillType = skill.NobleTraits ? "np" : skill.CT ? "active" : "passive"
     const npType = nobleTraits2npType(skill.NobleTraits)
-    const name = skillType != "np" ? skill.SkillName : skill.SkillName.replace(/^(.*[A-Z\+]+).*$/, "$1")
+    const name = skillType != "np" ? skill.SkillName : skill.SkillName.replace(/^(.*[A-Z\+\-－]+).*$/, "$1")
     const owners = skill.Owners.split("\n").map((owner) => owner.replace(/s(\d+)/,"$1"))
     const effects = []
 
@@ -512,6 +523,14 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
     })
   })
 
+  Object.values(servantList).forEach((servant) => {
+    if (servant.skills.active[0] < 0
+      || servant.skills.active[1] < 0
+      || servant.skills.active[2] < 0) {
+        servant.skills.active = []
+      }
+  })
+
   skills2 = Object.values(servantList).reduce((acc, servant) => {
     servant.skills.np.forEach((skillId) => {
       acc[skillId] = skills[skillId]
@@ -623,6 +642,18 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
     fs.writeFileSync("servantnames.json", JSON.stringify(servantNames))
     fs.writeFileSync("skills.json",  JSON.stringify(skills2))
     fs.writeFileSync("skills.json.gz", pako.deflate(JSON.stringify(skills2)))
+  } catch (e) {
+    console.log(e)
+  }
+
+  Object.values(servantList).forEach((servant) => {
+    servant.skills.np = servant.skills.np.map((id) => skills2[id].name)
+    servant.skills.active = servant.skills.active.map((id) => skills2[id].name)
+    servant.skills.passive = servant.skills.passive.map((id) => skills2[id].name)
+    servant.skills.append = servant.skills.append.map((id) => skills2[id].name)
+  })
+  try {
+    fs.writeFileSync("servantdata.old.json",  JSON.stringify(servantList))
   } catch (e) {
     console.log(e)
   }
