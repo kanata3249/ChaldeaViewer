@@ -116,7 +116,7 @@ const columns : TableColumnInfo[] = [
   { label: '名称', key: 'name', align: "left", width: 240},
   { label: 'クラス', key: 'class', align: "center", width: 80},
   { label: 'レア', key: 'rare', align: "center", width: 80},
-  { label: 'レベル', key: 'level', align: "center", width: 80, editable: true, type: "number", min: 1, max: 100},
+  { label: 'レベル', key: 'level', align: "center", width: 80, editable: true, type: "number", min: 1, max: 120},
   { label: '宝具', key: 'npLevel', align: "center", width: 80, editable: true, type: "number", min: 0, max: 5},
   { label: '再臨', key: 'ascension', align: "center", width: 80, editable: true, type: "number", min: 0, max: 4},
   { label: '(予定)', key: 'maxAscension', align: "center", width: 80, editable: true, type: "number", min: 0, max: 4},
