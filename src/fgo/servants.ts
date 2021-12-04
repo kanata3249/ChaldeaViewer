@@ -126,7 +126,7 @@ const generateCleanServants = () => {
   return Object.values(servantSpecs).map((servant) => (
     { id: servant.id,
       ascension: 0, maxAscension: 4,
-      skillLevel: [1, 1, 1], maxSkillLevel: [10, 10, 10],
+      skillLevel: [1, 1, 1], maxSkillLevel: [9, 9, 9],
       appendSkillLevel: [0, 0, 0], maxAppendSkillLevel: [0, 0, 0],
       npLevel: 0, level: 1, hpMod: 0, attackMod: 0,
       spec: servant,
