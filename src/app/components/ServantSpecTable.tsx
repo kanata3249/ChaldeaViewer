@@ -414,6 +414,24 @@ const skillFilterDefinition: FilterDefinition[] = [
       { label: "Q 補助", key: "Q 補助" },
     ]
   },
+  {
+    name: "アペンドスキル攻撃適性", key: "appendSkill", type: "check",
+    buttons: [
+      { label: "セイバー攻撃適性", key: "セイバー攻撃適性" },
+      { label: "アーチャー攻撃適性", key: "アーチャー攻撃適性" },
+      { label: "ランサー攻撃適性", key: "ランサー攻撃適性" },
+      { label: "ライダー攻撃適性", key: "ライダー攻撃適性" },
+      { label: "キャスター攻撃適性", key: "キャスター攻撃適性" },
+      { label: "アサシン攻撃適性", key: "アサシン攻撃適性" },
+      { label: "バーサーカー攻撃適性", key: "バーサーカー攻撃適性" },
+      { label: "ルーラー攻撃適性", key: "ルーラー攻撃適性" },
+      { label: "アヴェンジャー攻撃適性", key: "アヴェンジャー攻撃適性" },
+      { label: "アルターエゴ攻撃適性", key: "アルターエゴ攻撃適性" },
+      { label: "ムーンキャンサー攻撃適性", key: "ムーンキャンサー攻撃適性" },
+      { label: "フォーリナー攻撃適性", key: "フォーリナー攻撃適性" },
+      { label: "プリテンダー攻撃適性", key: "プリテンダー攻撃適性" },
+    ]
+  },
 ]
 
 const defaultSkillFilterValues: FilterValues = Object.values(skillFilterDefinition).reduce((acc, group) => {
@@ -605,6 +623,10 @@ const filterAndSort = (servantTableData: ServantSpecTableData[], filters: Filter
         case "npType":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
             return enabled && (row.servant.spec.npTypes.some((npType) => npType.match(filterKey)))
+          })
+        case "appendSkill":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (servantSkills[row.servant.spec.skills.append[2]].name.match(filterKey))
           })
         default:
           return false

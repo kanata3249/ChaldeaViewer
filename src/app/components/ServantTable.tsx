@@ -384,6 +384,8 @@ const filterDefinition: FilterDefinition[] = [
       { label: "未スキルマ", key: "0" },
       { label: "スキルマ(偽)", key: "1" },
       { label: "スキルマ", key: "2" },
+      { label: "アペンドマ(偽)", key: "3" },
+      { label: "アペンドマ", key: "4" },
     ]
   }
 ]
@@ -507,6 +509,11 @@ const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterVal
                              && row.servant.skillLevel.reduce((acc, value) => acc * value) != 1000
             case '2':
               return enabled && (row.servant.skillLevel[0] == 10 && row.servant.skillLevel[1] == 10 && row.servant.skillLevel[2] == 10)
+            case '3':
+              return enabled && (row.servant.appendSkillLevel[0] >= 9 && row.servant.appendSkillLevel[1] >= 9 && row.servant.appendSkillLevel[2] >= 9)
+                              && row.servant.appendSkillLevel.reduce((acc, value) => acc * value) != 1000
+            case '4':
+              return enabled && (row.servant.appendSkillLevel[0] == 10 && row.servant.appendSkillLevel[1] == 10 && row.servant.appendSkillLevel[2] == 10)
             default:
               return false
             }
