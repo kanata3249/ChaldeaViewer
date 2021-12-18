@@ -5,7 +5,7 @@ import { isAndroid } from 'react-device-detect'
 import { Grid, Button, TextField, FormControlLabel, Checkbox } from '@material-ui/core'
 import { VariableSizeGrid } from 'react-window'
 
-import { Servants, Servant, ServantSpec, servantNames, servantClassNames, attributeNames, estimatedLevelByAscensionAndRare } from '../../fgo/servants'
+import { Servants, Servant, ServantSpec, servantNames, servantClassNames, attributeNames, estimatedLevelByAscensionAndRare, servantSkills } from '../../fgo/servants'
 import { InventoryStatus } from '../../fgo/inventory'
 
 import { DialogProviderContext } from './DialogProvider'
@@ -39,6 +39,78 @@ type ServantTableData = {
   index: number
   name: string
   servant: Servant
+}
+
+type FindSkillResult = {
+  id: number
+  name: string
+  effect: string
+  effectIndex: number
+  sort: string
+}
+
+const findSkill = (servant: Servant, effectText: string, option = {} ): FindSkillResult => {
+  const { type, target } = { type: "active,np", target: "(全体|単体)", ...option }
+  const result: FindSkillResult = {
+    id: 0,
+    effectIndex: -1,
+    name: "",
+    effect: "",
+    sort: ""
+  }
+
+  if (type.match("active")) {
+    servant.spec.skills.active.some((skillId) => {
+      const skillSpec = servantSkills[skillId]
+
+      return skillSpec.effects.some((effect, effectIndex) => {
+        if (effect.text.match(effectText)) {
+          if (effect.target.match(target)) {
+            result.id = skillId
+            result.effectIndex = effectIndex
+            return true
+          }
+        }
+        return false
+      })
+    })
+  }
+
+  if (type.match("np")) {
+    if (result.id == 0) {
+      servant.spec.skills.np.some((skillId) => {
+        const skillSpec = servantSkills[skillId]
+
+        return skillSpec.effects.some((effect, effectIndex) => {
+          if (effect.text.match(effectText)) {
+            if (effect.target.match(target)) {
+              result.id = skillId
+              result.effectIndex = effectIndex
+              return true
+            }
+          }
+          return false
+        })
+      })
+    }
+  }
+
+  if (result.id > 0) {
+    const skillSpec = servantSkills[result.id]
+    const effect = skillSpec.effects[result.effectIndex]
+    const min = effect.values[0]
+    const max = skillSpec.type == "np" ? effect.values[4] : effect.values[9]
+
+    const prefix = effect.target.match(/単体/) ? "単 " : skillSpec.type == "np" ? "宝 " : ""
+    result.name = skillSpec.name
+    if (min != max)
+      result.effect = prefix + min + "～" + max + " " + effect.text.replace(/^.*(\(.*)$/, "$1").replace(/NP増加/,"")
+    else
+      result.effect = prefix + min + " " + effect.text.replace(/^.*(\(.*)$/, "$1").replace(/NP増加/,"")
+    result.sort = ((Number.parseFloat(min) * 100) >> 0).toString().padStart(8, "0")
+  }
+
+  return result
 }
 
 const parseSkillLevel = (text: string) => {
@@ -410,6 +482,97 @@ const validateFilter = (values: FilterValues): FilterValues => {
   },{})
 }
 
+const skillFilterDefinition: FilterDefinition[] = [
+  {
+    name: "スキル効果", key: "active", type: "check",
+    buttons: [
+      { label: "攻撃力アップ付与", key: "攻撃力アップ" },
+      { label: "Bバフ付与", key: "Busterカード性能アップ" },
+      { label: "Aバフ付与", key: "Artsカード性能アップ" },
+      { label: "Qバフ付与", key: "Quickカード性能アップ" },
+      { label: "宝具威力アップ付与", key: "宝具威力アップ" },
+      { label: "特攻付与", key: "〔(?!Arts).*〕威力アップ" },
+      { label: "特攻", key: "〔(?!Arts).*〕威力アップ,自身" },
+      { label: "NP付与", key: "(NP増加|NP獲得\\()" },
+      { label: "強化解除", key: "強化〕状態を解除" },
+      { label: "弱体解除", key: "弱体〕状態を解除" },
+      { label: "強化解除耐性", key: "強化解除耐性" },
+      { label: "弱体耐性", key: "弱体耐性アップ" },
+      { label: "弱体無効", key: "弱体無効" },
+    ]
+  },
+  {
+    name: "宝具効果", key: "np", type: "check",
+    buttons: [
+      { label: "攻撃力アップ付与", key: "攻撃力アップ" },
+      { label: "Bバフ付与", key: "Busterカード性能アップ" },
+      { label: "Aバフ付与", key: "Artsカード性能アップ" },
+      { label: "Qバフ付与", key: "Quickカード性能アップ" },
+      { label: "宝具威力アップ付与", key: "宝具威力アップ" },
+      { label: "特攻", key: "特攻宝具攻撃" },
+      { label: "NP付与", key: "(NP増加|NP獲得\\()" },
+      { label: "強化解除", key: "強化〕状態を解除" },
+      { label: "弱体解除", key: "弱体〕状態を解除" },
+      { label: "強化解除耐性", key: "強化解除耐性" },
+      { label: "弱体耐性", key: "弱体耐性アップ" },
+      { label: "弱体無効", key: "弱体無効" },
+    ]
+  },
+  {
+    name: "宝具タイプ", key: "npType", type: "check",
+    buttons: [
+      { label: "B 全体", key: "B 全体" },
+      { label: "B 単体", key: "B 単体" },
+      { label: "B 補助", key: "B 補助" },
+      { label: "A 全体", key: "A 全体" },
+      { label: "A 単体", key: "A 単体" },
+      { label: "A 補助", key: "A 補助" },
+      { label: "Q 全体", key: "Q 全体" },
+      { label: "Q 単体", key: "Q 単体" },
+      { label: "Q 補助", key: "Q 補助" },
+    ]
+  },
+  {
+    name: "アペンドスキル攻撃適性", key: "appendSkill", type: "check",
+    buttons: [
+      { label: "セイバー攻撃適性", key: "セイバー攻撃適性" },
+      { label: "アーチャー攻撃適性", key: "アーチャー攻撃適性" },
+      { label: "ランサー攻撃適性", key: "ランサー攻撃適性" },
+      { label: "ライダー攻撃適性", key: "ライダー攻撃適性" },
+      { label: "キャスター攻撃適性", key: "キャスター攻撃適性" },
+      { label: "アサシン攻撃適性", key: "アサシン攻撃適性" },
+      { label: "バーサーカー攻撃適性", key: "バーサーカー攻撃適性" },
+      { label: "ルーラー攻撃適性", key: "ルーラー攻撃適性" },
+      { label: "アヴェンジャー攻撃適性", key: "アヴェンジャー攻撃適性" },
+      { label: "アルターエゴ攻撃適性", key: "アルターエゴ攻撃適性" },
+      { label: "ムーンキャンサー攻撃適性", key: "ムーンキャンサー攻撃適性" },
+      { label: "フォーリナー攻撃適性", key: "フォーリナー攻撃適性" },
+      { label: "プリテンダー攻撃適性", key: "プリテンダー攻撃適性" },
+    ]
+  },
+]
+
+const defaultSkillFilterValues: FilterValues = Object.values(skillFilterDefinition).reduce((acc, group) => {
+  acc[group.key] = group.buttons.reduce((acc, button) => {
+      acc[button.key] = false
+      return acc
+    },{})
+    return acc
+  },{}
+)
+
+const validateSkillFilter = (values: FilterValues): FilterValues => {
+  return Object.values(skillFilterDefinition).reduce((acc, group) => {
+    acc[group.key] = group.buttons.reduce((acc, button) => {
+      acc[button.key] = defaultSkillFilterValues[group.key][button.key]
+      if (values && values[group.key])
+        acc[button.key] = values[group.key][button.key]
+      return acc
+    },{})
+    return acc
+  },{})
+}
+
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
     container: {
@@ -464,7 +627,9 @@ const calcServantSummary = (servants: Servants) => {
   }, { servants: 0, summoned: 0, maxAscension: 0, maxSkill: 0 })
 }
 
-const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterValues, sortColumn: number, sortOrder: number) => {
+const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterValues, skillFilters: FilterValues, sortColumn: number, sortOrder: number) => {
+  const isSkillFilterUsed = Object.values(skillFilters).some((group) => Object.values(group).some((value) => value))
+
   return sesrvantTableData.filter((row) => {
     return Object.entries(filters).every(([groupKey, groupValues]) => {
       switch(groupKey) {
@@ -522,6 +687,32 @@ const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterVal
           return false
       }
     })
+  }).filter((row) => {
+    if (!isSkillFilterUsed)
+      return true
+    return Object.entries(skillFilters).some(([groupKey, groupValues]) => {
+      switch(groupKey) {
+        case "active":
+        case "np":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            const findOption: { type: string, target?: string } = { type: groupKey }
+            const [ filter, target ] = filterKey.split(",")
+            if (target)
+              findOption.target = target
+            return enabled && (findSkill(row.servant, filter, findOption ).id > 0)
+          })
+        case "npType":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (row.servant.spec.npTypes.some((npType) => npType.match(filterKey)))
+          })
+        case "appendSkill":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (servantSkills[row.servant.spec.skills.append[2]].name.match(filterKey))
+          })
+        default:
+          return false
+      }
+    })
   }).sort((a, b) => {
     let aValue = getTableData(a, sortColumn, true)
     let bValue = getTableData(b, sortColumn, true)
@@ -550,8 +741,9 @@ export const ServantTable: FC<Prop> = (props) => {
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("ServantTable")))
+  const [ skillFilterValues, setSkillFilterValues ] = useState<FilterValues>(validateSkillFilter(loadFilter("ServantTable/skill")))
   const [ tableSize, setTableSize ] = useState([1000, 800])
-  const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, sortBy, sortOrder)
+  const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, skillFilterValues, sortBy, sortOrder)
   const summary = calcServantSummary(props.servants)
   let modifyInventory = loadModifyInventory()
 
@@ -631,6 +823,11 @@ export const ServantTable: FC<Prop> = (props) => {
   const handleCloseFilter = (newFilterValues: FilterValues) => {
     setFilterValues(newFilterValues)
     saveFilter("ServantTable", newFilterValues)
+  }
+
+  const handleCloseSkillFilter = (newFilterValues: FilterValues) => {
+    setSkillFilterValues(newFilterValues)
+    saveFilter("ServantTable/skill", newFilterValues)
   }
 
   const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -723,6 +920,16 @@ export const ServantTable: FC<Prop> = (props) => {
         </Grid>
         <Grid item>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
+        </Grid>
+        <Grid item>
+          <DialogProviderContext.Consumer>
+            {({showFilterDialog}) =>
+              <Button onClick={() => showFilterDialog(skillFilterValues, defaultSkillFilterValues, skillFilterDefinition, handleCloseSkillFilter)}
+                variant="contained"  color={Object.values(skillFilterValues).some((group) => Object.values(group).some((value) => value)) ? "secondary" : "default"} >
+                スキルフィルタ
+              </Button>
+            }
+          </DialogProviderContext.Consumer>
         </Grid>
         <Grid item>
           <DialogProviderContext.Consumer>
