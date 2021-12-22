@@ -622,9 +622,10 @@ const calcServantSummary = (servants: Servants) => {
     servant.npLevel > 0 && acc.summoned++
     servant.ascension == 4 && acc.maxAscension++
     (servant.skillLevel[0] >= 9 && servant.skillLevel[1] >= 9 && servant.skillLevel[2] >= 9) && acc.maxSkill++
+    (servant.appendSkillLevel[0] >= 9 && servant.appendSkillLevel[1] >= 9 && servant.appendSkillLevel[2] >= 9) && acc.maxAppendSkill++
 
     return acc
-  }, { servants: 0, summoned: 0, maxAscension: 0, maxSkill: 0 })
+  }, { servants: 0, summoned: 0, maxAscension: 0, maxSkill: 0, maxAppendSkill: 0, })
 }
 
 const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterValues, skillFilters: FilterValues, sortColumn: number, sortOrder: number) => {
@@ -909,7 +910,7 @@ export const ServantTable: FC<Prop> = (props) => {
     <div className={classes.container} ref={myRef}>
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
         <Grid item className={classes.summary} >
-          {`実装: ${summary.servants} 召喚: ${summary.summoned} 最終再臨: ${summary.maxAscension} スキルマ(含偽): ${summary.maxSkill} フィルタ: ${tableData.length}`}
+          {`実装: ${summary.servants} 召喚: ${summary.summoned} 最終再臨: ${summary.maxAscension} スキルマ(含偽): ${summary.maxSkill} アペンドマ(含偽): ${summary.maxAppendSkill} フィルタ: ${tableData.length}`}
         </Grid>
         <Grid item>
           <Button onClick={handleClickRecalc} variant="outlined" >再計算</Button>
