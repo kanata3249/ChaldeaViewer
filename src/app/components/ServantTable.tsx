@@ -456,8 +456,16 @@ const filterDefinition: FilterDefinition[] = [
       { label: "未スキルマ", key: "0" },
       { label: "スキルマ(偽)", key: "1" },
       { label: "スキルマ", key: "2" },
-      { label: "アペンドマ(偽)", key: "3" },
-      { label: "アペンドマ", key: "4" },
+    ]
+  },
+  {
+    name: "アペンド育成状態", key: "appendGrowthStatus", type: "check",
+    buttons: [
+      { label: "未解放有り", key: "notOpen" },
+      { label: "育成中", key: "0" },
+      { label: "未解放有りスキルマ(偽含)", key: "1" },
+      { label: "全スキルマ(偽)", key: "2" },
+      { label: "全スキルマ", key: "3" },
     ]
   }
 ]
@@ -665,21 +673,37 @@ const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterVal
             switch (filterKey) {
             case 'leveling':
               return enabled && (row.servant.npLevel > 0)
-                             && (row.servant.ascension < row.servant.maxAscension || row.servant.skillLevel[0] < row.servant.maxSkillLevel[0]
+                              && (row.servant.ascension < row.servant.maxAscension || row.servant.skillLevel[0] < row.servant.maxSkillLevel[0]
                                 || row.servant.skillLevel[1] < row.servant.maxSkillLevel[1] || row.servant.skillLevel[2] < row.servant.maxSkillLevel[2]
                                 || row.servant.appendSkillLevel[0] < row.servant.maxAppendSkillLevel[0] || row.servant.appendSkillLevel[1] < row.servant.maxAppendSkillLevel[1] || row.servant.appendSkillLevel[2] < row.servant.maxAppendSkillLevel[2])
             case '0':
               return enabled && (row.servant.skillLevel[0] < 9 || row.servant.skillLevel[1] < 9 || row.servant.skillLevel[2] < 9)
             case '1':
               return enabled && (row.servant.skillLevel[0] >= 9 && row.servant.skillLevel[1] >= 9 && row.servant.skillLevel[2] >= 9)
-                             && row.servant.skillLevel.reduce((acc, value) => acc * value) != 1000
+                              && row.servant.skillLevel.reduce((acc, value) => acc * value) != 1000
             case '2':
               return enabled && (row.servant.skillLevel[0] == 10 && row.servant.skillLevel[1] == 10 && row.servant.skillLevel[2] == 10)
+            default:
+              return false
+            }
+          })
+        case 'appendGrowthStatus':
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            const allClose = row.servant.appendSkillLevel.every((value) => value == 0)
+            const allOpen = row.servant.appendSkillLevel.every((value) => value > 0)
+            const nineOver = row.servant.appendSkillLevel.every((value) => value == 0 || value >= 9)
+            const maxLevel = row.servant.appendSkillLevel.every((value) => value == 10)
+            switch (filterKey) {
+            case 'notOpen':
+              return enabled && !allOpen
+            case '0':
+              return enabled && !nineOver
+            case '1':
+              return enabled && !allClose && !allOpen && nineOver
+            case '2':
+              return enabled && allOpen && nineOver && !maxLevel
             case '3':
-              return enabled && (row.servant.appendSkillLevel[0] >= 9 && row.servant.appendSkillLevel[1] >= 9 && row.servant.appendSkillLevel[2] >= 9)
-                              && row.servant.appendSkillLevel.reduce((acc, value) => acc * value) != 1000
-            case '4':
-              return enabled && (row.servant.appendSkillLevel[0] == 10 && row.servant.appendSkillLevel[1] == 10 && row.servant.appendSkillLevel[2] == 10)
+              return enabled && maxLevel
             default:
               return false
             }
