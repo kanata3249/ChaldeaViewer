@@ -462,7 +462,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
       }
       effects.push( {
         target: target[index] + target2[index].replace(/^-$/,""),
-        text: (preText[index] != "-" ? preText[index] + " " : "") + mainText[index] + postText[index],
+        text: (preText[index] != "-" ? preText[index] + " " : "") + mainText[index] + (postText[index] != "-" ? postText[index] : ""),
         grow: grow[index] == "-" ? "" : grow[index],
         values: values.map((value) => value[index] == "-" ? "" : value[index])
       })
@@ -604,7 +604,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
     type: "append",
     effects: [{
       target: "自身",
-      text: "NP 獲得",
+      text: "NP増加",
       grow: "Lv",
       values: [
         "10%", "11%", "12%", "13%", "14%", "15%", "16%", "17%", "18%", "20%"
@@ -642,18 +642,6 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
     fs.writeFileSync("servantnames.json", JSON.stringify(servantNames))
     fs.writeFileSync("skills.json",  JSON.stringify(skills2))
     fs.writeFileSync("skills.json.gz", pako.deflate(JSON.stringify(skills2)))
-  } catch (e) {
-    console.log(e)
-  }
-
-  Object.values(servantList).forEach((servant) => {
-    servant.skills.np = servant.skills.np.map((id) => skills2[id].name)
-    servant.skills.active = servant.skills.active.map((id) => skills2[id].name)
-    servant.skills.passive = servant.skills.passive.map((id) => skills2[id].name)
-    servant.skills.append = servant.skills.append.map((id) => skills2[id].name)
-  })
-  try {
-    fs.writeFileSync("servantdata.old.json",  JSON.stringify(servantList))
   } catch (e) {
     console.log(e)
   }
