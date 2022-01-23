@@ -131,7 +131,7 @@ const generateCleanServants = () => {
       npLevel: 0, level: 1, hpMod: 0, attackMod: 0,
       spec: servant,
       itemCounts: {},
-      totalItemsForMax: { ascension: 0, skill: 0, appendSkill: 0, dress: 0, sound: 0 }
+      totalItemsForMax: { ascension: 0, skill: 0, appendSkill: 0, dress: 0, bgm: 0 }
     }
   ))
 }
@@ -189,7 +189,7 @@ export const validateServants = (servants: Servants): Servants =>
 
         result[index] = { id, ascension, maxAscension, skillLevel, maxSkillLevel, appendSkillLevel, maxAppendSkillLevel, npLevel, level, hpMod, attackMod,
                           spec: servantSpecs[servant.id],
-                          totalItemsForMax: { ascension: 0, skill: 0, appendSkill: 0, dress: 0, sound: 0 },
+                          totalItemsForMax: { ascension: 0, skill: 0, appendSkill: 0, dress: 0, bgm: 0 },
                           itemCounts: {}
                         } 
       }

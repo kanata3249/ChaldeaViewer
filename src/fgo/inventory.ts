@@ -1,4 +1,5 @@
 import { Servants, Servant } from './servants'
+import { Bgms, Bgm } from './bgms'
 
 export type Inventory = {
   [itemId: number]: number
@@ -9,7 +10,7 @@ export type ItemPerUsage = {
   skill: number
   appendSkill: number
   dress: number
-  sound: number
+  bgm: number
 }
 
 export type ItemStatus = {
@@ -45,7 +46,7 @@ const emptyItemUsage = {
   skill: 0,
   appendSkill: 0,
   dress: 0,
-  sound: 0
+  bgm: 0
 }
 
 const emptyItemStatus = {
@@ -109,7 +110,7 @@ export const validateInventory = (inventory: Inventory): Inventory =>
   }, {})
 }
 
-export const calcInventoryStatus = (inventory: Inventory, servants: Servants): InventoryStatus =>
+export const calcInventoryStatus = (inventory: Inventory, servants: Servants, bgms: Bgms): InventoryStatus =>
 {
   const totalItemCounts = servants.reduce((acc, servant) => {
     servant.itemCounts = itemsForServant(servant)
@@ -124,6 +125,24 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants): I
     })
     return acc
   }, {})
+
+  bgms.forEach((bgm) => {
+    Object.entries(bgm.spec.items).forEach(([id, count]) => {
+      totalItemCounts[id].required.bgm += count
+      if (bgm.onsale) {
+        totalItemCounts[id].summoned.bgm += count
+
+        if (bgm.purchased) {
+          totalItemCounts[id].used.bgm += count
+        } else {
+          if (bgm.reserved) {
+            totalItemCounts[id].reserved.bgm += count
+          }
+        }
+      }
+    })
+  })
+  
   const inventoryStatus = Object.entries<ItemCounts>(totalItemCounts).reduce((acc, [itemId, counts]) => {
     acc[itemId] = {
       required: counts.required,

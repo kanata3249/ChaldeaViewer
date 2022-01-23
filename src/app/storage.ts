@@ -1,5 +1,6 @@
 import { Inventory, validateInventory, itemNames } from './../fgo/inventory'
 import { Servants, validateServants } from './../fgo/servants'
+import { Bgms, validateBgms } from './../fgo/bgms'
 import { FilterValues } from './components/FilterDialog'
 
 const defaultConfiguration = {
@@ -12,14 +13,15 @@ const makeKey = (name: string) => {
 
 export const createBackup = () => {
   const backup = {
-    version: 1,
+    version: 2,
     servants: loadServants()
                 .filter((servant) => servant.npLevel > 0)
                 .map(({ spec, itemCounts, totalItemsForMax, ...info } ) => ({ ...info })),
     inventory: Object.entries(loadInventory()).reduce((acc, [id, count]) => {
                 acc[itemNames[id]] = count
                 return acc
-               },{})
+               },{}),
+    bgms: loadBgms().map(({ spec, ...info}) => ({ ...info }))
   }
   return JSON.stringify(backup)
 }
@@ -46,6 +48,15 @@ export const restoreBackup = (backupData: string) => {
         }, {})))
         return true
       }
+      case 2:
+        saveServants(validateServants(backup.servants))
+        saveBgms(validateBgms(backup.bgms))
+        saveInventory(validateInventory(Object.entries(itemNames).reduce((acc, [itemId, name]) => {
+          acc[itemId] = backup.inventory[name]
+          return acc
+        }, {})))
+        return true
+
     }
     return false
   } catch (e) {
@@ -77,6 +88,14 @@ export const saveServants = (servants: Servants) => {
   localStorage.setItem(makeKey("servants"), JSON.stringify(servants.map(({ spec, itemCounts, totalItemsForMax, ...info } ) => ({ ...info }))))
 }
 
+export const loadBgms = () => {
+  return validateBgms(JSON.parse(localStorage.getItem(makeKey("bgms"))))
+}
+
+export const saveBgms = (bgms: Bgms) => {
+  localStorage.setItem(makeKey("bgms"), JSON.stringify(bgms.map(({ spec, ...info } ) => ({ ...info }))))
+}
+
 export const loadFilter = (key: string): FilterValues => {
   return JSON.parse(localStorage.getItem(makeKey(`filterValues/${key}`)))
 }
@@ -85,15 +104,29 @@ export const saveFilter = (key: string, filterValues: FilterValues) => {
   localStorage.setItem(makeKey(`filterValues/${key}`), JSON.stringify(filterValues))
 }
 
-export const loadModifyInventory = (): boolean => {
+export const loadModifyInventory = (table: string): boolean => {
   const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
 
-  return configuration.modifyInventory
+  switch (table) {
+    case 'ServantTable':
+      return configuration.modifyInventory
+    case 'BgmTable':
+      return configuration.modifyInventoryOnBgmTable
+  }
+  return false
 }
 
-export const saveModifyInventory = (value: boolean) => {
+export const saveModifyInventory = (table: string, value: boolean) => {
   const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
 
-  configuration.modifyInventory = value
+  switch (table) {
+    case 'ServantTable':
+      configuration.modifyInventory = value
+      break
+    case 'BgmTable':
+      configuration.modifyInventoryOnBgmTable = value
+      break
+  }
+  
   localStorage.setItem(makeKey('configuration'), JSON.stringify(configuration))
 }

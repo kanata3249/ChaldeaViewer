@@ -770,7 +770,7 @@ export const ServantTable: FC<Prop> = (props) => {
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, skillFilterValues, sortBy, sortOrder)
   const summary = calcServantSummary(props.servants)
-  let modifyInventory = loadModifyInventory()
+  let modifyInventory = loadModifyInventory('ServantTable')
 
   const refs = {}
 
@@ -872,7 +872,7 @@ export const ServantTable: FC<Prop> = (props) => {
 
   const handleModifyInventory = (e: React.ChangeEvent<HTMLInputElement>) => {
     modifyInventory = e.target.checked
-    saveModifyInventory(modifyInventory)
+    saveModifyInventory('ServantTable', modifyInventory)
   }
 
   const headerCell = ({columnIndex, rowIndex, style }) => {
