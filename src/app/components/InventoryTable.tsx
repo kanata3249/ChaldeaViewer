@@ -31,30 +31,45 @@ type InventoryTableData = {
   item: ItemStatus
 }
 
-const columns : TableColumnInfo[] = [
+const countColumnWidth = 64
+const fullColumns : TableColumnInfo[] = [
   { label: 'ID', key: 'id', align: "center", width: 80 },
   { label: '名称', key: 'name', align: "left", width: 150 },
-  { label: '所持数', key: 'stock', align: "right", width: 110, editable: true },
-  { label: '使用予定A', key: 'reservedForAP', align: "right", width: 110 },
-  { label: '使用予定', key: 'reserved', align: "right", width: 110 },
-  { label: '使用可能', key: 'free', align: "right", width: 110 },
-  { label: '使用済みA', key: 'usedForAP', align: "right", width: 110 },
-  { label: '使用済み', key: 'used', align: "right", width: 110 },
-  { label: '必要数A(全)', key: 'requiredForAP', align: "right", width: 110 },
-  { label: '必要数(全)', key: 'required', align: "right", width: 110 },
-  { label: '必要数A(召)', key: 'summonedForAP', align: "right", width: 110 },
-  { label: '必要数(召)', key: 'summoned', align: "right", width: 110 },
-  { label: '残必要数A込(全)', key: 'remainForAP', align: "right", width: 110 },
-  { label: '残必要数(全)', key: 'remain', align: "right", width: 110 },
-  { label: '残必要数A込(召)', key: 'remainSummonedForAP', align: "right", width: 110 },
-  { label: '残必要数(召)', key: 'remainSummoned', align: "right", width: 110 },
+  { label: '所持数', key: 'stock', align: "right", width: 70, editable: true },
+  { label: '使用予定(BGM)', key: 'reservedForBGM', align: "right", width: countColumnWidth },
+  { label: '使用予定(衣)', key: 'reservedForCostume', align: "right", width: countColumnWidth },
+  { label: '使用予定(AS)', key: 'reservedForAP', align: "right", width: countColumnWidth },
+  { label: '使用予定', key: 'reserved', align: "right", width: countColumnWidth },
+  { label: '使用可能', key: 'free', align: "right", width: countColumnWidth },
+  { label: '使用済み(BGM)', key: 'usedForBGM', align: "right", width: countColumnWidth },
+  { label: '使用済み(衣)', key: 'usedForCostume', align: "right", width: countColumnWidth },
+  { label: '使用済み(AS)', key: 'usedForAP', align: "right", width: countColumnWidth },
+  { label: '使用済み', key: 'used', align: "right", width: countColumnWidth },
+  { label: '必要数(全BGM)', key: 'requiredForBGM', align: "right", width: countColumnWidth },
+  { label: '必要数(全衣)', key: 'requiredForCostume', align: "right", width: countColumnWidth },
+  { label: '必要数(全AS)', key: 'requiredForAP', align: "right", width: countColumnWidth },
+  { label: '必要数(全)', key: 'required', align: "right", width: countColumnWidth },
+  { label: '必要数(可BGM)', key: 'summonedForBGM', align: "right", width: countColumnWidth },
+  { label: '必要数(可衣)', key: 'summonedForCostume', align: "right", width: countColumnWidth },
+  { label: '必要数(召AS)', key: 'summonedForAP', align: "right", width: countColumnWidth },
+  { label: '必要数(召)', key: 'summoned', align: "right", width: countColumnWidth },
+  { label: '残必要数(全BGM)', key: 'remainForBGM', align: "right", width: countColumnWidth },
+  { label: '残必要数(全衣)', key: 'remainForCostume', align: "right", width: countColumnWidth },
+  { label: '残必要数(全AS込)', key: 'remainForAP', align: "right", width: countColumnWidth },
+  { label: '残必要数(全)', key: 'remain', align: "right", width: countColumnWidth },
+  { label: '残必要数(可BGM)', key: 'remainSummonedForBGM', align: "right", width: countColumnWidth },
+  { label: '残必要数(可衣)', key: 'remainSummonedForCostume', align: "right", width: countColumnWidth },
+  { label: '残必要数(召AS込)', key: 'remainSummonedForAP', align: "right", width: countColumnWidth },
+  { label: '残必要数(召)', key: 'remainSummoned', align: "right", width: countColumnWidth },
 ]
 
-const getTableData = (inventoryTableData: InventoryTableData, columnIndex: number) => {
+const getTableData = (inventoryTableData: InventoryTableData, columnIndex: number, columns: TableColumnInfo[]) => {
   const key = columns[columnIndex].key
   const sumExAP = (key: string) => Object.values<number>(inventoryTableData.item[key]).reduce((acc, value) => acc + value) - inventoryTableData.item[key].appendSkill
   const sumForAP = (key: string) => inventoryTableData.item[key].appendSkill
-  const sum = (key: string) => Object.values<number>(inventoryTableData.item[key]).reduce((acc, value) => acc + value)
+  const sumExBGM = (key: string) => Object.values<number>(inventoryTableData.item[key]).reduce((acc, value) => acc + value) - inventoryTableData.item[key].bgm
+  const sumForBGM = (key: string) => inventoryTableData.item[key].bgm
+  const sumForCostume = (key: string) => inventoryTableData.item[key].dress
 
   switch (key) {
     case 'id':
@@ -67,6 +82,14 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
       return sumForAP('used')
     case 'reservedForAP':
       return sumForAP('reserved')
+    case 'usedForCostume':
+      return sumForCostume('used')
+    case 'reservedForCostume':
+      return sumForCostume('reserved')
+    case 'usedForBGM':
+      return sumForBGM('used')
+    case 'reservedForBGM':
+      return sumForBGM('reserved')
     case 'required':
     case 'summoned':
       return sumExAP(key)
@@ -74,14 +97,30 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
       return sumForAP('required')
     case 'summonedForAP':
       return sumForAP('summoned')
+    case 'requiredForCostume':
+      return sumForCostume('required')
+    case 'summonedForCostume':
+      return sumForCostume('summoned')
+    case 'requiredForBGM':
+      return sumForBGM('required')
+    case 'summonedForBGM':
+      return sumForBGM('summoned')
     case 'remain':
       return Math.max(sumExAP('required') + sumForAP('reserved') - sumExAP('used') - inventoryTableData.item.stock, 0)
     case 'remainSummoned':
       return Math.max(sumExAP('summoned') + sumForAP('reserved')  - sumExAP('used') - inventoryTableData.item.stock, 0)
     case 'remainForAP':
-      return Math.max(sum('required') - sum('used') - inventoryTableData.item.stock, 0)
+      return Math.max(sumExBGM('required') - sumExBGM('used') - inventoryTableData.item.stock, 0)
     case 'remainSummonedForAP':
-      return Math.max(sum('summoned') - sum('used') - inventoryTableData.item.stock, 0)
+      return Math.max(sumExBGM('summoned') - sumExBGM('used') - inventoryTableData.item.stock, 0)
+    case 'remainForCostume':
+      return Math.max(sumForCostume('required') - sumForCostume('used') - inventoryTableData.item.stock, 0)
+    case 'remainSummonedForCostume':
+      return Math.max(sumForCostume('summoned') - sumForCostume('used') - inventoryTableData.item.stock, 0)
+    case 'remainForBGM':
+      return Math.max(sumForBGM('required') - sumForBGM('used') - inventoryTableData.item.stock, 0)
+    case 'remainSummonedForBGM':
+      return Math.max(sumForBGM('summoned') - sumForBGM('used') - inventoryTableData.item.stock, 0)
     default:
       return inventoryTableData.item[key]
   }
@@ -175,7 +214,7 @@ const calcInventoryTableData = (inventoryStatus: InventoryStatus): InventoryTabl
   ))
 }
 
-const filterAndSort = (inventoryTableData: InventoryTableData[], filters: FilterValues, sortColumn: number, sortOrder: number) => {
+const filterAndSort = (inventoryTableData: InventoryTableData[], filters: FilterValues, sortColumn: number, sortOrder: number, columns: TableColumnInfo[]) => {
   return inventoryTableData.filter((row) => {
     return Object.entries(filters).every(([groupKey, groupValues]) => {
       switch(groupKey) {
@@ -214,8 +253,8 @@ const filterAndSort = (inventoryTableData: InventoryTableData[], filters: Filter
       return false
     })
   }).sort((a, b) => {
-    const aValue = getTableData(a, sortColumn)
-    const bValue = getTableData(b, sortColumn)
+    const aValue = getTableData(a, sortColumn, columns)
+    const bValue = getTableData(b, sortColumn, columns)
     if (aValue == bValue)
       return 0
     if (bValue > aValue)
@@ -234,7 +273,8 @@ export const InventoryTable: FC<Prop> = (props) => {
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("InventoryTable")))
   const [ tableSize, setTableSize ] = useState([1000, 800])
-  const tableData = filterAndSort(calcInventoryTableData(props.getInventoryStatus()), filterValues, sortBy, sortOrder)
+  const columns = fullColumns
+  const tableData = filterAndSort(calcInventoryTableData(props.getInventoryStatus()), filterValues, sortBy, sortOrder, columns)
 
   const refs = {}
 
@@ -266,7 +306,7 @@ export const InventoryTable: FC<Prop> = (props) => {
 
   const handleLostFocus = (rowIndex: number, columnIndex: number, e: React.FocusEvent<HTMLInputElement>) => {
     const row = tableData[rowIndex]
-    if (getTableData(row, columnIndex) != e.target.value) {
+    if (getTableData(row, columnIndex, columns) != e.target.value) {
       const value = Number.parseInt(e.target.value)
       tableData[rowIndex].item.free += (value - tableData[rowIndex].item.stock)
       tableData[rowIndex].item.stock = value
@@ -310,7 +350,7 @@ export const InventoryTable: FC<Prop> = (props) => {
 
     lines.push(columns.reduce((acc, column) => (acc + "\t" + column.label),""))
     tableData.forEach((data) => {
-      lines.push(columns.reduce((acc, column, columnIndex) => (acc + "\t" + getTableData(data, columnIndex)),""))
+      lines.push(columns.reduce((acc, column, columnIndex) => (acc + "\t" + getTableData(data, columnIndex, columns)),""))
     })
 
     navigator.clipboard?.writeText(lines.reduce((acc, line) => (acc + line.slice(1) + '\n'),""))
@@ -318,17 +358,24 @@ export const InventoryTable: FC<Prop> = (props) => {
 
   const headerCell = ({columnIndex, rowIndex, style }) => {
     const column = columns[columnIndex]
+    const labels = column.label.split(/\(/)
 
     return (
-      <div style={{...style, textAlign: column.align}} className={classes.head} onClick={() => handleClickColumn(columnIndex)}>
-        {(sortBy == columnIndex) ? ((sortOrder == 1) ? column.label + "▲" : column.label + "▼") : column.label}
+      <div style={{...style, textAlign: column.align == "right" ? "center" : column.align }} className={classes.head} onClick={() => handleClickColumn(columnIndex)}>
+        {labels.map((label, index) => {
+          if (index == 0 && sortBy == columnIndex) {
+            return (sortOrder == 1) ? label + "▲" : label + "▼"
+          } else {
+            return index ? <span key={`inventoryTable-header-${columnIndex}-${index}`}><br />{'(' + label}</span> : label
+          }
+        })}
       </div>
     )
   }
 
   const cell = ({columnIndex, rowIndex, style }) => {
     const column = columns[columnIndex]
-    const cellData = getTableData(tableData[rowIndex], columnIndex)
+    const cellData = getTableData(tableData[rowIndex], columnIndex, columns)
     const [matchWord, charMain, charSub] = ((typeof(cellData) == 'string') && cellData.match(/^([^\s]+\s+[^\s]+)\s+(.*)$/)) || [ "", cellData, ""]
     if (column.editable)
       refs[rowIndex + "-" + columnIndex] = useRef()
@@ -369,12 +416,12 @@ export const InventoryTable: FC<Prop> = (props) => {
           </DialogProviderContext.Consumer>
         </Grid>
       </Grid>
-      <VariableSizeGrid width={tableSize[0]} height={30} ref={headerRef}
+      <VariableSizeGrid width={tableSize[0]} height={50} ref={headerRef}
         columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
         rowCount={1} rowHeight={() => (30)} style={{overflowX: "hidden", overflowY: "scroll"}}>
         {headerCell}
       </VariableSizeGrid>
-      <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 30} ref={bodyRef}
+      <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 50} ref={bodyRef}
         columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
         rowCount={tableData.length} rowHeight={() => (30)} onScroll={({scrollLeft}) => {headerRef.current.scrollTo({scrollLeft: scrollLeft, scrollTop: 0})}} >
         {cell}
