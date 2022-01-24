@@ -122,6 +122,28 @@ const msId2servantId = Object.keys(servantId2msId).reduce((acc, id) => {
   return acc
 }, {})
 
+export type Costume = {
+  id: number
+  spec: CostumeSpec
+
+  onsale: boolean
+  reserved: boolean
+  purchased: boolean
+}
+
+export type Costumes = Costume[]
+
+type CostumeSpec = {
+  id: number
+  servantId: number
+  name: string
+  items: { [id: number]: number }
+}
+
+const costumeSpecs: {
+  [id: number]: CostumeSpec
+} = require('./costumes.json')
+
 const generateCleanServants = () => {
   return Object.values(servantSpecs).map((servant) => (
     { id: servant.id,
@@ -132,6 +154,17 @@ const generateCleanServants = () => {
       spec: servant,
       itemCounts: {},
       totalItemsForMax: { ascension: 0, skill: 0, appendSkill: 0, dress: 0, bgm: 0 }
+    }
+  ))
+}
+
+const generateCleanCostumes = () => {
+  return Object.values(costumeSpecs).map((costumeSpec) => (
+    { id: costumeSpec.id,
+      spec: costumeSpec,
+      onsale: true,
+      reserved: false,
+      purchased: false,
     }
   ))
 }
@@ -203,6 +236,24 @@ export const validateServants = (servants: Servants): Servants =>
   }
   return result
 }
+
+
+export const validateCostumes = (costumes: Costumes): Costumes =>
+{
+  const result = generateCleanCostumes()
+  if (costumes) {
+    result.forEach((resultCostume, index) => {
+      const costumeIndex = costumes.findIndex((item) => (item.id == resultCostume.id))
+      if (costumeIndex >= 0) {
+        result[index].onsale = costumes[costumeIndex].onsale
+        result[index].reserved = costumes[costumeIndex].reserved
+        result[index].purchased = costumes[costumeIndex].purchased
+      }
+    })
+  }
+  return result
+}
+
 
 export const calcServantAttack = (spec: ServantSpec, level: number) =>
 {

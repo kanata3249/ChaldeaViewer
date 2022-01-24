@@ -1,5 +1,5 @@
 import { Inventory, validateInventory, itemNames } from './../fgo/inventory'
-import { Servants, validateServants } from './../fgo/servants'
+import { Servants, validateServants, Costumes, validateCostumes } from './../fgo/servants'
 import { Bgms, validateBgms } from './../fgo/bgms'
 import { FilterValues } from './components/FilterDialog'
 
@@ -21,6 +21,7 @@ export const createBackup = () => {
                 acc[itemNames[id]] = count
                 return acc
                },{}),
+    costumes: loadCostumes().map(({ spec, ...info}) => ({ ...info })),
     bgms: loadBgms().map(({ spec, ...info}) => ({ ...info }))
   }
   return JSON.stringify(backup)
@@ -50,6 +51,7 @@ export const restoreBackup = (backupData: string) => {
       }
       case 2:
         saveServants(validateServants(backup.servants))
+        saveCostumes(validateCostumes(backup.costumes))
         saveBgms(validateBgms(backup.bgms))
         saveInventory(validateInventory(Object.entries(itemNames).reduce((acc, [itemId, name]) => {
           acc[itemId] = backup.inventory[name]
@@ -88,6 +90,14 @@ export const saveServants = (servants: Servants) => {
   localStorage.setItem(makeKey("servants"), JSON.stringify(servants.map(({ spec, itemCounts, totalItemsForMax, ...info } ) => ({ ...info }))))
 }
 
+export const loadCostumes = () => {
+  return validateCostumes(JSON.parse(localStorage.getItem(makeKey("costumes"))))
+}
+
+export const saveCostumes = (costumes: Costumes) => {
+  localStorage.setItem(makeKey("costumes"), JSON.stringify(costumes.map(({ spec, ...info } ) => ({ ...info }))))
+}
+
 export const loadBgms = () => {
   return validateBgms(JSON.parse(localStorage.getItem(makeKey("bgms"))))
 }
@@ -110,9 +120,11 @@ export const loadModifyInventory = (table: string): boolean => {
   switch (table) {
     case 'ServantTable':
       return configuration.modifyInventory
+    case 'CostumeTable':
+      return configuration.modifyInventoryOnCostumeTable
     case 'BgmTable':
       return configuration.modifyInventoryOnBgmTable
-  }
+    }
   return false
 }
 
@@ -123,10 +135,13 @@ export const saveModifyInventory = (table: string, value: boolean) => {
     case 'ServantTable':
       configuration.modifyInventory = value
       break
+    case 'CostumeTable':
+      configuration.modifyInventoryOnCostumeTable = value
+      break
     case 'BgmTable':
       configuration.modifyInventoryOnBgmTable = value
       break
-  }
+    }
   
   localStorage.setItem(makeKey('configuration'), JSON.stringify(configuration))
 }

@@ -1,4 +1,4 @@
-import { Servants, Servant } from './servants'
+import { Servants, Servant, Costumes } from './servants'
 import { Bgms, Bgm } from './bgms'
 
 export type Inventory = {
@@ -110,7 +110,7 @@ export const validateInventory = (inventory: Inventory): Inventory =>
   }, {})
 }
 
-export const calcInventoryStatus = (inventory: Inventory, servants: Servants, bgms: Bgms): InventoryStatus =>
+export const calcInventoryStatus = (inventory: Inventory, servants: Servants, costumes: Costumes, bgms: Bgms): InventoryStatus =>
 {
   const totalItemCounts = servants.reduce((acc, servant) => {
     servant.itemCounts = itemsForServant(servant)
@@ -142,7 +142,24 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants, bg
       }
     })
   })
-  
+
+  costumes.forEach((costume) => {
+    Object.entries(costume.spec.items).forEach(([id, count]) => {
+      totalItemCounts[id].required.dress += count
+      if (costume.onsale && servants.find((servant) => servant.id == costume.spec.servantId).npLevel > 0) {
+        totalItemCounts[id].summoned.dress += count
+
+        if (costume.purchased) {
+          totalItemCounts[id].used.dress += count
+        } else {
+          if (costume.reserved) {
+            totalItemCounts[id].reserved.dress += count
+          }
+        }
+      }
+    })
+  })
+
   const inventoryStatus = Object.entries<ItemCounts>(totalItemCounts).reduce((acc, [itemId, counts]) => {
     acc[itemId] = {
       required: counts.required,

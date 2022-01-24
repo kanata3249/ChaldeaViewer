@@ -9,7 +9,7 @@
     "gen-data": "node csv2servantdata.js 1_servants.csv 2_skills.csv 3_items.csv 4_appendSkill.csv",
     "get-bgm-data": "curl -o 6_bgm.json https://api.atlasacademy.io/export/JP/nice_bgm.json",
     "gen-bgm-data": "node genbgm.js 6_bgm.json",
-    "apply-data": "cp servantdata.json.gz skills.json.gz servantid2msid.json servantnames.json bgms.json ../../src/fgo"
+    "apply-data": "cp servantdata.json.gz skills.json.gz servantid2msid.json servantnames.json costumes.json bgms.json ../../src/fgo"
   },
   "devDependencies": {
     "csvtojson": "^2.0.10",

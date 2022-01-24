@@ -9,13 +9,14 @@ import MenuIcon from '@material-ui/icons/Menu'
 import { InventoryTable } from './../components/InventoryTable'
 import { ServantTable } from './../components/ServantTable'
 import { ServantSpecTable } from './../components/ServantSpecTable'
+import { CostumeTable } from './../components/CostumeTable'
 import { BgmTable } from './../components/BgmTable'
 import { DialogProvider, DialogProviderContext } from '../components/DialogProvider'
 
 import { Inventory, InventoryStatus, importMSInventory, exportMSInventory, calcInventoryStatus } from './../../fgo/inventory'
-import { Servants, importMSServants, exportMSServants } from './../../fgo/servants'
+import { Servants, importMSServants, exportMSServants, Costumes } from './../../fgo/servants'
 import { Bgms } from '../../fgo/bgms'
-import { createBackup, restoreBackup, saveSelectedInfo, loadSelectedInfo, saveServants, loadServants, saveBgms, loadBgms, saveInventory, loadInventory } from '../storage'
+import { createBackup, restoreBackup, saveSelectedInfo, loadSelectedInfo, saveServants, loadServants, saveCostumes, loadCostumes, saveBgms, loadBgms, saveInventory, loadInventory } from '../storage'
 
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
@@ -46,6 +47,7 @@ export const TopPage: FC = () => {
   const [ anchorEl, setAnchorEl ] = useState<null | HTMLElement>(null)
   const [ inventoryTableKey, setInventoryTableKey ] = useState(0)
   const [ servantTableKey, setServantTableKey ] = useState(0)
+  const [ costumeTableKey, setCostumeTableKey ] = useState(0)
   const [ bgmTableKey, setBgmTableKey ] = useState(0)
   const [ selectedInfo, setSelectedInfo ] = useState(loadSelectedInfo())
   const [ openMSExchangeDialog, setOpenMSExchangeDialog ] = useState(false)
@@ -55,6 +57,9 @@ export const TopPage: FC = () => {
   }
   const updateServantTable = () => {
     setServantTableKey(servantTableKey + 1)
+  }
+  const updateCostumeTable = () => {
+    setCostumeTableKey(costumeTableKey + 1)
   }
   const updateBgmTable = () => {
     setBgmTableKey(bgmTableKey + 1)
@@ -73,16 +78,22 @@ export const TopPage: FC = () => {
   const servants: Servants = loadServants()
   const handleServantChanged = (servants) => {
     saveServants(servants)
-    inventoryStatus = calcInventoryStatus(inventory, servants, bgms)
+    inventoryStatus = calcInventoryStatus(inventory, servants, costumes, bgms)
+  }
+
+  const costumes: Costumes = loadCostumes()
+  const handleCostumesChanged = (costumes) => {
+    saveCostumes(costumes)
+    inventoryStatus = calcInventoryStatus(inventory, servants, costumes, bgms)
   }
 
   const bgms: Bgms = loadBgms()
   const handleBgmsChanged = (bgms) => {
     saveBgms(bgms)
-    inventoryStatus = calcInventoryStatus(inventory, servants, bgms)
+    inventoryStatus = calcInventoryStatus(inventory, servants, costumes, bgms)
   }
 
-  let inventoryStatus: InventoryStatus = calcInventoryStatus(inventory, servants, bgms)
+  let inventoryStatus: InventoryStatus = calcInventoryStatus(inventory, servants, costumes, bgms)
   const getInventoryStatus = () => inventoryStatus
   const setInventoryStatus = (newInventoryStatus: InventoryStatus) => {
     const newInventory = Object.entries(newInventoryStatus).reduce<Inventory>((acc, [id, status]) => {
@@ -91,7 +102,7 @@ export const TopPage: FC = () => {
     },{})
     saveInventory(newInventory)
     Object.assign(inventory, newInventory)
-    inventoryStatus = calcInventoryStatus(inventory, servants, bgms)
+    inventoryStatus = calcInventoryStatus(inventory, servants, costumes, bgms)
   }
 
   const handleImportServants = (json: string) => {
@@ -146,6 +157,7 @@ export const TopPage: FC = () => {
         if (restoreBackup(reader.result as string)) {
           updateInventoryTable()
           updateServantTable()
+          updateCostumeTable()
           updateBgmTable()
         }
       })
@@ -199,6 +211,7 @@ export const TopPage: FC = () => {
                 <MenuItem value={"Inventory"}>所持アイテム</MenuItem>
                 <MenuItem value={"Servants"}>サーヴァント育成</MenuItem>
                 <MenuItem value={"ServantsSpec"}>サーヴァント性能</MenuItem>
+                <MenuItem value={"Costumes"}>霊衣</MenuItem>
                 <MenuItem value={"Bgms"}>サウンドプレイヤー</MenuItem>
               </Select>
             </Toolbar>
@@ -208,6 +221,7 @@ export const TopPage: FC = () => {
           {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} getInventoryStatus={getInventoryStatus} />}
           {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} setInventoryStatus={setInventoryStatus} />}
           {selectedInfo == "ServantsSpec" && <ServantSpecTable key={`servantSpecTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
+          {selectedInfo == "Costumes" && <CostumeTable key={`costumeTable-${costumeTableKey}`} onChange={handleCostumesChanged} costumes={costumes} getInventoryStatus={getInventoryStatus} setInventoryStatus={setInventoryStatus} />}
           {selectedInfo == "Bgms" && <BgmTable key={`bgmTable-${bgmTableKey}`} onChange={handleBgmsChanged} bgms={bgms} getInventoryStatus={getInventoryStatus} setInventoryStatus={setInventoryStatus} />}
         </div>
         <div className={classes.notice}>
