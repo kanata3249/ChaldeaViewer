@@ -211,7 +211,7 @@ const calcSummary = (costumes: Costumes) => {
     acc.costumes++
     costume.onsale && acc.onsale++
     costume.reserved && !costume.purchased && acc.reserved++
-    costume.purchased && acc.purchased++
+    (costume.purchased || Object.keys(costume.spec.items).length == 0) && acc.purchased++
 
     return acc
   }, { costumes: 0, onsale: 0, reserved: 0, purchased: 0 })
