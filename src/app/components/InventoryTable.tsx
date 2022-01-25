@@ -65,11 +65,11 @@ const fullColumns : TableColumnInfo[] = [
 
 const getTableData = (inventoryTableData: InventoryTableData, columnIndex: number, columns: TableColumnInfo[]) => {
   const key = columns[columnIndex].key
-  const sumExAP = (key: string) => Object.values<number>(inventoryTableData.item[key]).reduce((acc, value) => acc + value) - inventoryTableData.item[key].appendSkill
-  const sumForAP = (key: string) => inventoryTableData.item[key].appendSkill
-  const sumExBGM = (key: string) => Object.values<number>(inventoryTableData.item[key]).reduce((acc, value) => acc + value) - inventoryTableData.item[key].bgm
+  const sumForAscensionAndSkill = (key: string) => inventoryTableData.item[key].ascension + inventoryTableData.item[key].skill
+  const SumForAppendSkill = (key: string) => inventoryTableData.item[key].appendSkill
   const sumForBGM = (key: string) => inventoryTableData.item[key].bgm
   const sumForCostume = (key: string) => inventoryTableData.item[key].dress
+  const sumExBGMCostume = (key: string) => sumForAscensionAndSkill(key) + SumForAppendSkill(key)
 
   switch (key) {
     case 'id':
@@ -77,11 +77,11 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
       return inventoryTableData[key]
     case 'used':
     case 'reserved':
-      return sumExAP(key)
+      return sumForAscensionAndSkill(key)
     case 'usedForAP':
-      return sumForAP('used')
+      return SumForAppendSkill('used')
     case 'reservedForAP':
-      return sumForAP('reserved')
+      return SumForAppendSkill('reserved')
     case 'usedForCostume':
       return sumForCostume('used')
     case 'reservedForCostume':
@@ -92,11 +92,11 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
       return sumForBGM('reserved')
     case 'required':
     case 'summoned':
-      return sumExAP(key)
+      return sumForAscensionAndSkill(key)
     case 'requiredForAP':
-      return sumForAP('required')
+      return SumForAppendSkill('required')
     case 'summonedForAP':
-      return sumForAP('summoned')
+      return SumForAppendSkill('summoned')
     case 'requiredForCostume':
       return sumForCostume('required')
     case 'summonedForCostume':
@@ -106,13 +106,13 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
     case 'summonedForBGM':
       return sumForBGM('summoned')
     case 'remain':
-      return Math.max(sumExAP('required') + sumForAP('reserved') - sumExAP('used') - inventoryTableData.item.stock, 0)
+      return Math.max(sumForAscensionAndSkill('required') + SumForAppendSkill('reserved') - sumForAscensionAndSkill('used') - inventoryTableData.item.stock, 0)
     case 'remainSummoned':
-      return Math.max(sumExAP('summoned') + sumForAP('reserved')  - sumExAP('used') - inventoryTableData.item.stock, 0)
+      return Math.max(sumForAscensionAndSkill('summoned') + SumForAppendSkill('reserved')  - sumForAscensionAndSkill('used') - inventoryTableData.item.stock, 0)
     case 'remainForAP':
-      return Math.max(sumExBGM('required') - sumExBGM('used') - inventoryTableData.item.stock, 0)
+      return Math.max(sumExBGMCostume('required') - sumExBGMCostume('used') - inventoryTableData.item.stock, 0)
     case 'remainSummonedForAP':
-      return Math.max(sumExBGM('summoned') - sumExBGM('used') - inventoryTableData.item.stock, 0)
+      return Math.max(sumExBGMCostume('summoned') - sumExBGMCostume('used') - inventoryTableData.item.stock, 0)
     case 'remainForCostume':
       return Math.max(sumForCostume('required') - sumForCostume('used') - inventoryTableData.item.stock, 0)
     case 'remainSummonedForCostume':
