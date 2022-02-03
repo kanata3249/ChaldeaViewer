@@ -616,12 +616,9 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 const calcServantTableData = (servants: Servants): ServantTableData[] => {
-  const sortkey = (row) => (row.servant.spec.class * 10000 + (10 - row.servant.spec.rare) * 1000 + (1000 - row.id))
   return servants.map((servant, index) => (
     { id: servant.id, name: servantNames[servant.id], index, servant: servant } 
-  )).sort((a, b) => {
-    return sortkey(a) - sortkey(b)
-  })
+  ))
 }
 
 const calcServantSummary = (servants: Servants) => {
@@ -636,10 +633,13 @@ const calcServantSummary = (servants: Servants) => {
   }, { servants: 0, summoned: 0, maxAscension: 0, maxSkill: 0, maxAppendSkill: 0, })
 }
 
-const filterAndSort = (sesrvantTableData: ServantTableData[], filters: FilterValues, skillFilters: FilterValues, sortColumn: number, sortOrder: number) => {
+const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValues, skillFilters: FilterValues, sortColumn: number, sortOrder: number) => {
   const isSkillFilterUsed = Object.values(skillFilters).some((group) => Object.values(group).some((value) => value))
+  const preSortkey = (row) => ((sortOrder > 0 ? 100 - row.servant.spec.class : row.servant.spec.class) * 10000 + (10 - row.servant.spec.rare) * 1000 + (1000 - row.id))
 
-  return sesrvantTableData.filter((row) => {
+  return servantTableData.sort((a, b) => {
+    return preSortkey(a) - preSortkey(b)
+  }).filter((row) => {
     return Object.entries(filters).every(([groupKey, groupValues]) => {
       switch(groupKey) {
         case "class":
