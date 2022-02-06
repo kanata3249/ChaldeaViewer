@@ -633,11 +633,13 @@ const calcServantSummary = (servants: Servants) => {
   }, { servants: 0, summoned: 0, maxAscension: 0, maxSkill: 0, maxAppendSkill: 0, })
 }
 
-const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValues, skillFilters: FilterValues, sortColumn: number, sortOrder: number) => {
+const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValues, skillFilters: FilterValues, filterString: string, sortColumn: number, sortOrder: number) => {
   const isSkillFilterUsed = Object.values(skillFilters).some((group) => Object.values(group).some((value) => value))
   const preSortkey = (row) => ((sortOrder > 0 ? 100 - row.servant.spec.class : row.servant.spec.class) * 10000 + (10 - row.servant.spec.rare) * 1000 + (1000 - row.id))
 
-  return servantTableData.sort((a, b) => {
+  return servantTableData.filter((row) => {
+    return row.name.match(filterString)
+  }).sort((a, b) => {
     return preSortkey(a) - preSortkey(b)
   }).filter((row) => {
     return Object.entries(filters).every(([groupKey, groupValues]) => {
@@ -767,8 +769,9 @@ export const ServantTable: FC<Prop> = (props) => {
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("ServantTable")))
   const [ skillFilterValues, setSkillFilterValues ] = useState<FilterValues>(validateSkillFilter(loadFilter("ServantTable/skill")))
+  const [ filterString, setFilterString ] = useState("")
   const [ tableSize, setTableSize ] = useState([1000, 800])
-  const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, skillFilterValues, sortBy, sortOrder)
+  const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, skillFilterValues, filterString, sortBy, sortOrder)
   const summary = calcServantSummary(props.servants)
   let modifyInventory = loadModifyInventory('ServantTable')
 
@@ -853,6 +856,21 @@ export const ServantTable: FC<Prop> = (props) => {
   const handleCloseSkillFilter = (newFilterValues: FilterValues) => {
     setSkillFilterValues(newFilterValues)
     saveFilter("ServantTable/skill", newFilterValues)
+  }
+
+  const handleFilterStringChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value == "") {
+      setFilterString("")
+    } else {
+      // aplly when Enter pressed
+    }
+  }
+  const handleFilterStringKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.target instanceof HTMLInputElement) {
+      if (e.key == "Enter") {
+        setFilterString(e.target.value)
+      }
+    }
   }
 
   const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -945,6 +963,14 @@ export const ServantTable: FC<Prop> = (props) => {
         </Grid>
         <Grid item>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
+        </Grid>
+        <Grid item>
+          <TextField defaultValue={filterString} size="small"
+            placeholder="サーヴァント名フィルタ"
+            inputProps={{ type: "search" }}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterStringChanged(e)}
+            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => handleFilterStringKeyPress(e)}
+            />
         </Grid>
         <Grid item>
           <DialogProviderContext.Consumer>

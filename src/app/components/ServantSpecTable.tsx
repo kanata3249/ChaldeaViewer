@@ -564,13 +564,15 @@ const calcServantTableData = (servants: Servants): ServantSpecTableData[] => {
   ))
 }
 
-const filterAndSort = (servantTableData: ServantSpecTableData[], filters: FilterValues, skillFilters: FilterValues, charFilters: FilterValues,
+const filterAndSort = (servantTableData: ServantSpecTableData[], filters: FilterValues, skillFilters: FilterValues, charFilters: FilterValues, filterString: string,
                        sortColumn: number, sortOrder: number) => {
   const isSkillFilterUsed = Object.values(skillFilters).some((group) => Object.values(group).some((value) => value))
   const isCharFilterUsed = Object.values(charFilters).some((group) => Object.values(group).some((value) => value))
   const preSortkey = (row) => ((sortOrder > 0 ? 100 - row.servant.spec.class : row.servant.spec.class) * 10000 + (10 - row.servant.spec.rare) * 1000 + (1000 - row.id))
 
-  return servantTableData.sort((a, b) => {
+  return servantTableData.filter((row) => {
+    return row.name.match(filterString)
+  }).sort((a, b) => {
     return preSortkey(a) - preSortkey(b)
   }).filter((row) => {
     return Object.entries(filters).every(([groupKey, groupValues]) => {
@@ -671,8 +673,9 @@ export const ServantSpecTable: FC<Prop> = (props) => {
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("ServantSpecTable")))
   const [ skillFilterValues, setSkillFilterValues ] = useState<FilterValues>(validateSkillFilter(loadFilter("ServantSpecTable/skill")))
   const [ charFilterValues, setCharFilterValues ] = useState<FilterValues>(validateCharFilter(loadFilter("ServantSpecTable/char")))
+  const [ filterString, setFilterString ] = useState("")
   const [ tableSize, setTableSize ] = useState([1000, 800])
-  const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, skillFilterValues, charFilterValues, sortBy, sortOrder)
+  const tableData = filterAndSort(calcServantTableData(props.servants), filterValues, skillFilterValues, charFilterValues, filterString, sortBy, sortOrder)
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -722,6 +725,21 @@ export const ServantSpecTable: FC<Prop> = (props) => {
   const handleCloseCharFilter = (newFilterValues: FilterValues) => {
     setCharFilterValues(newFilterValues)
     saveFilter("ServantSpecTable/char", newFilterValues)
+  }
+
+  const handleFilterStringChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value == "") {
+      setFilterString("")
+    } else {
+      // aplly when Enter pressed
+    }
+  }
+  const handleFilterStringKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.target instanceof HTMLInputElement) {
+      if (e.key == "Enter") {
+        setFilterString(e.target.value)
+      }
+    }
   }
 
   const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -830,6 +848,14 @@ export const ServantSpecTable: FC<Prop> = (props) => {
         </Grid>
         <Grid item>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
+        </Grid>
+        <Grid item>
+          <TextField defaultValue={filterString} size="small"
+            placeholder="サーヴァント名フィルタ"
+            inputProps={{ type: "search" }}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterStringChanged(e)}
+            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => handleFilterStringKeyPress(e)}
+            />
         </Grid>
         <Grid item>
           <DialogProviderContext.Consumer>
