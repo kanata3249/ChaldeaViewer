@@ -144,7 +144,11 @@ Promise.all([csv2json(process.argv[3])]).then(([costume_array]) => {
                     return acc
                 }, {})
                 items[itemName2Id["QP"]] = servantData.costumeMaterials[aid].qp / 10000
-                costumes[aid2id[aid]].items = items
+                if (costumes[aid2id[aid]]) {
+                    costumes[aid2id[aid]].items = items
+                } else {
+                    console.log(`${id}\t${aid}\t${Object.keys(items).map((itemId) => `${itemNames[itemId]}\t${items[itemId]}`).join('\t')}`)
+                }
             })
         }
     })
