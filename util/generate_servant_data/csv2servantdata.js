@@ -461,11 +461,18 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
         console.log("remove やけど無効 from", name, owners.reduce(((names, o) => names += " " + servantNames[o]), ""))
         return
       }
+      if (mainText[index].match("ターゲット集中")) {
+        values.forEach((value, vindex) => {
+          if (!value[index].match(/%$/)) {
+            values[vindex][index] = `${parseInt(value[index]) / 10}%`
+          }
+        })
+      }
       effects.push( {
         target: target[index] + target2[index].replace(/^-$/,""),
         text: (preText[index] != "-" ? preText[index] + " " : "") + mainText[index] + (postText[index] != "-" ? postText[index] : ""),
         grow: grow[index] == "-" ? "" : grow[index],
-        values: values.map((value) => value[index] == "-" ? "" : value[index])
+        values: values.map((value) => value[index] == "-" ? "" : value[index].toString())
       })
     })
   
