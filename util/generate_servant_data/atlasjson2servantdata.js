@@ -27,6 +27,23 @@ const className2Id = {
     "shielder": 20,
 }
 
+const classId2Name = {
+    0: "剣",
+    1: "弓",
+    2: "槍",
+    3: "騎",
+    4: "術",
+    5: "殺",
+    6: "狂",
+    7: "裁",
+    8: "讐",
+    9: "分",
+    10: "月",
+    11: "降",
+    12: "詐",
+    20: "盾",
+  }
+
 const genderNames = {
     "male": "男",
     "female": "女",
@@ -41,6 +58,14 @@ const attribute2Id = {
     "beast": 4,
 }
 
+const attirbuteId2Name = {
+    0: "天",
+    1: "地",
+    2: "人",
+    3: "星",
+    4: "獣"
+}
+
 const traitnames =
 {
     "alignmentBalanced": "中庸",
@@ -51,6 +76,7 @@ const traitnames =
     "alignmentMadness": "狂",
     "alignmentNeutral": "中立",
     "alignmentSummer": "夏",
+    "100600": "花嫁",
     "arthur": "アーサー",
     "associatedToTheArgo": "アルゴノーツ",
     "atalante": "",
@@ -426,7 +452,7 @@ const traits2string = (traits) => {
 
 const traits2characteristics = (traits) => {
     const traitsString = traits.reduce((acc, trait) => {
-        const traitName = traitnames[trait.name]
+        const traitName = traitnames[trait.id] || traitnames[trait.name]
         if (traitName != null) {
             if (traitName && !acc.match(traitName)) {
                 acc += ` ${traitName}`
@@ -437,10 +463,10 @@ const traits2characteristics = (traits) => {
         return acc
     }, "").trim()
 
-    const traitsString2 = traitsString.replace(/(男性|女性|人型|サーヴァント) ?/g, "")
+    const traitsString2 = traitsString.replace(/(男性|女性|人型|サーヴァント) ?/g, "").trim()
     const traitsString3 = traitsString2.match(/エヌマ特攻有効/) ? traitsString2.replace(/ ?エヌマ特攻有効/, "") : `${traitsString2} エヌマ特攻無効`
 
-    return traitsString3
+    return traitsString3.trim()
 }
 
 const materials = ((materials) => {
@@ -550,7 +576,7 @@ const parseGrowthType = (values) => {
     }
 }
 
-const formatEffectValue = (value, rate, ratioHPLow, modifier, prefix, suffix) => {
+const formatEffectValue = (value, rate, ratioHPLow, useRate, modifier, prefix, suffix) => {
     let rateStr = null
     let valueStr = null
 
@@ -570,6 +596,9 @@ const formatEffectValue = (value, rate, ratioHPLow, modifier, prefix, suffix) =>
     }
     if (typeof rate !== "undefined") {
         rateStr = `rate:${parseInt(rate) / 10}%`
+    }
+    if (typeof useRate !== "undefined") {
+        rateStr = `proc:${parseInt(useRate) / 10}%`
     }
 
     if (valueStr) {
@@ -592,16 +621,19 @@ const parseEffectValues = (growthType, modifier, prefix, suffix, values) => {
         case "Lv":
             return values[0].map((value) => {
                 if (values[0][0].Rate != values[0][1].Rate) {
-                    return formatEffectValue(value.Value, value.Rate, value.RatioHPLow, modifier, prefix, suffix)
+                    return formatEffectValue(value.Value, value.Rate, value.RatioHPLow, undefined, modifier, prefix, suffix)
                 }
-                return formatEffectValue(value.Value, undefined, value.RatioHPLow, modifier, prefix, suffix)
+                if (values[0][0].UseRate != values[0][1].UseRate) {
+                    return formatEffectValue(value.Value, undefined, value.RatioHPLow, value.UseRate, modifier, prefix, suffix)
+                }
+                return formatEffectValue(value.Value, undefined, value.RatioHPLow, undefined, modifier, prefix, suffix)
             })
         case "OC":
             return values.map((value) => {
                 if (values[0][0].Rate != values[1][0].Rate) {
-                    return formatEffectValue(value[0].Value, value[0].Rate, value[0].RatioHPLow, modifier, prefix, suffix)
+                    return formatEffectValue(value[0].Value, value[0].Rate, value[0].RatioHPLow, undefined, modifier, prefix, suffix)
                 }
-                return formatEffectValue(value[0].Value, undefined, value[0].RatioHPLow, modifier, prefix, suffix)
+                return formatEffectValue(value[0].Value, undefined, value[0].RatioHPLow, undefined, modifier, prefix, suffix)
             })
         case "LvOC":
             if (values[0][0].Correction) {
@@ -612,7 +644,15 @@ const parseEffectValues = (growthType, modifier, prefix, suffix, values) => {
                     `${parseInt(values[0][3].Value) / 10}%(特攻:${parseInt(values[3][0].Correction) / 10}%)`,
                     `${parseInt(values[0][4].Value) / 10}%(特攻:${parseInt(values[4][0].Correction) / 10}%)`,
                 ]
-            } else {
+            } else if (values[0][0].Target) {
+                return [
+                    `${parseInt(values[0][0].Value) / 10}%(追加:${parseInt(values[0][0].Target) / 10}%)`,
+                    `${parseInt(values[0][1].Value) / 10}%(追加:${parseInt(values[1][0].Target) / 10}%)`,
+                    `${parseInt(values[0][2].Value) / 10}%(追加:${parseInt(values[2][0].Target) / 10}%)`,
+                    `${parseInt(values[0][3].Value) / 10}%(追加:${parseInt(values[3][0].Target) / 10}%)`,
+                    `${parseInt(values[0][4].Value) / 10}%(追加:${parseInt(values[4][0].Target) / 10}%)`,
+                ]
+            } {
                 return [
                     `${prefix}${parseInt(values[0][0].Value) / 10}%(rate:${parseInt(values[0][0].Rate) / 10}%)`,
                     `${prefix}${parseInt(values[1][0].Value) / 10}%(rate:${parseInt(values[0][1].Rate) / 10}%)`,
@@ -625,10 +665,13 @@ const parseEffectValues = (growthType, modifier, prefix, suffix, values) => {
     } else {
         return values[0].map((value) => {
             if (values[0][0].Rate != values[0][1].Rate) {
-                return formatEffectValue(value.Value, value.Rate, value.RatioHPLow, modifier, prefix, suffix)
+                return formatEffectValue(value.Value, value.Rate, value.RatioHPLow, undefined, modifier, prefix, suffix)
+            }
+            if (values[0][0].UseRate != values[0][1].UseRate) {
+                return formatEffectValue(value.Value, undefined, value.RatioHPLow, value.UseRate, modifier, prefix, suffix)
             }
             if (values[0][1].Value) {
-                return formatEffectValue(value.Value, undefined, value.RatioHPLow, modifier, prefix, suffix)
+                return formatEffectValue(value.Value, undefined, value.RatioHPLow, undefined, modifier, prefix, suffix)
             }
             return ""
         })
@@ -762,6 +805,20 @@ const parseEffectRate = (func) => {
     return ''
 }
 
+const parseEffectProc = (func) => {
+    if (func.svals2 && func.svals2[0].UseRate != func.svals[0].UseRate) {
+        return 'proc:OC変動'
+    }
+    if (func.svals[0].UseRate != func.svals[1].UseRate) {
+        return 'proc:LV変動'
+    }
+    if (func.svals[0].UseRate < 1000) {
+        return `proc:${Math.abs(func.svals[0].UseRate) / 10}%`
+    }
+
+    return ''
+}
+
 const parseEffectName = (func) => {
     const name = func.buffs[0] ? (effectNames[func.buffs[0].name] || func.buffs[0].name) : (effectNames[func.funcPopupText] || func.funcPopupText)
     const modname = name.replace(/(.*)(〔.*〕)/, "$2$1")
@@ -778,6 +835,10 @@ const parseEffectName = (func) => {
     const rate = parseEffectRate(func)
     if (rate.length) {
         add.push(rate)
+    }
+    const proc = parseEffectProc(func)
+    if (proc.length) {
+        add.push(proc)
     }
     const addStr = add.length ? `(${add.join("/")})` : ""
     return `${field}${cond}${modname}${addStr}`
@@ -996,6 +1057,20 @@ const parseDamageNpStateIndividualFix = (func) => {
     }
 }
 
+const parseDamageNpHpratioLow = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = "HP反比例宝具攻撃"
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = parseEffectValues(growthType, 10, prefixByEffectName(effectName), '%', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
 const parseHastenNpturn = (func) => {
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
     const effectName = "チャージ増加"
@@ -1076,6 +1151,7 @@ const functionParser = {
     "damageNpIndividual": parseDamageNpIndividual,
     "damageNpIndividualSum": parseDamageNpIndividualSum,
     "damageNpStateIndividualFix": parseDamageNpStateIndividualFix,
+    "damageNpHpratioLow": parseDamageNpHpratioLow,
 }
 
 const parseFunction = (func) => {
@@ -1172,8 +1248,82 @@ const parseAppendSkillsSpec = ((skills) => {
     }, [])
 })
 
+const growthCurve2Str = (v) => {
+    return [ "平均", "凹型", "凸型", "", "凹型弱", "凸型弱" ][(v - 1) / 5 >> 0]
+}
+
+const genServantCsv = (servantList, servantNames, atlasjson, debugServantId) => {
+    return atlasjson.reduce((acc, atlas) => {
+        const servant = servantList[atlas.collectionNo]
+        if (servant && servant.id >= debugServantId) {
+            const characteristics = servant.characteristics.split(" ")
+            const columns = [
+                servant.id, servantNames[servant.id], classId2Name[servant.class], servant.rare,
+                growthCurve2Str(atlas.growthCurve), servant.hp.min, servant.attack.min, servant.hp.max, servant.attack.max, 
+                attirbuteId2Name[servant.attributes],
+                atlas.noblePhantasms[0].npGain.np[0] / 100, atlas.noblePhantasms[0].npGain.defence[0] / 100,
+                atlas.starGen / 10, atlas.starAbsorb,
+                atlas.instantDeathChance / 10,
+                atlas.hitsDistribution.arts.length,
+                atlas.hitsDistribution.buster.length,
+                atlas.hitsDistribution.quick.length,
+                atlas.hitsDistribution.extra.length,
+                atlas.noblePhantasms[0].npDistribution.length,
+                atlas.cards.map((cartType) => cartType.slice(0, 1).toUpperCase()).join(' '),
+                genderNames[atlas.gender],
+                characteristics[0],
+                characteristics[1],
+                characteristics.slice(2).join(" "),
+                atlas.id,
+                servant.npTypes.map((npType) => npType.split(' ').reverse().join("")).join('\n')
+            ]
+
+            acc.push(
+                '"' + columns.join('","') + '"\n'
+            )
+        }
+        return acc
+    }, []).join("")
+}
+
+const genItemsCsv = (servantList, servantNames, debugServantId) => {
+    return Object.values(servantList).reduce((acc, servant) => {
+        if (servant.id >= debugServantId) {
+            const itemsCsv = [ ...servant.items.ascension, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, ...servant.items.skill, ...servant.items.appendSkill ].map((items) => {
+                const itemIds = Object.keys(items)
+        
+                itemIds.sort((a, b) => {
+                    const aa = a >= 600 ? -a : a
+                    const bb = b >= 600 ? -b : b
+                    return aa - bb
+                })
+                return itemIds.map((itemId) => {
+                    const itemName = itemNames[itemId]
+                    if (itemName == "QP") {
+                        return `${items[itemId]}万QP`
+                    } else {
+                        return `${itemName}x${items[itemId]}`
+                    }
+                }, []).join('\n')
+            })
+            acc.push(
+                `${servant.id},${servant.rare},"${servantNames[servant.id]}","${itemsCsv.join('","')}"\n`
+            )
+        }
+        return acc
+    }, []).join()
+}
+const genSkillsCsv = (servantList, servantNames, debugServantId) => {
+    return ""
+}
+const genAppendSkillsCsv = (servantList, servantNames, debugServantId) => {
+    return ""
+}
+
 const atlasjson = JSON.parse(fs.readFileSync(process.argv[2]))
-const debugServantId = process.argv[3]
+const gencsv = process.argv[3] == "gencsv"
+const gencsvStartNo = gencsv && process.argv[4]
+const debugServantId = process.argv[gencsv ? 5 : 3]
 
 const servantList = {}
 const servantNames = {}
@@ -1247,6 +1397,20 @@ atlasjson.forEach((servantData) => {
         }
     }
 })
+
+if (gencsv) {
+    const csv = [
+        genServantCsv(servantList, servantNames, atlasjson, gencsvStartNo),
+        genItemsCsv(servantList, servantNames, gencsvStartNo),
+//        genSkillsCsv(servantList, servantNames, gencsvStartNo),
+//        genAppendSkillsCsv(servantList, servantNames, gencsvStartNo),
+    ].join('\n')
+    try {
+        fs.writeFileSync("servantdata.csv", csv)
+    } catch(e) {
+        console.log(e)
+    }
+}
 
 try {
     fs.writeFileSync("servantdata.new.json", JSON.stringify(servantList))
