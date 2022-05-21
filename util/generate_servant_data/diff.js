@@ -5,14 +5,17 @@
 //   https://api.atlasacademy.io/export/JP/nice_servant.json
 //
 
-const { getConstantValue } = require('typescript')
-
 fs = require('fs')
 pako = require('pako')
+const { execSync } = require('child_process')
 
-const atlasjson = JSON.parse(fs.readFileSync("servantdata.new.json"))
-const old = JSON.parse(fs.readFileSync("servantdata.old.json"))
-const servantnames = JSON.parse(fs.readFileSync("servantnames.new.json"))
+const atlasjson = JSON.parse(fs.readFileSync("output/servantdata.new.json"))
+const atlasSkills = JSON.parse(fs.readFileSync("output/skills.new.json"))
+Object.values(atlasSkills).forEach((skill) => delete skill.id)
+const old = JSON.parse(fs.readFileSync("output/servantdata.json"))
+const oldSkills = JSON.parse(fs.readFileSync("output/skills.json"))
+Object.values(oldSkills).forEach((skill) => delete skill.id)
+const servantnames = JSON.parse(fs.readFileSync("output/servantnames.new.json"))
 
 const itemNames = {
     200: "剣の輝石",
@@ -136,74 +139,84 @@ const checkAndDelete = (a, b, key) => {
     }
 }
 
-const genCsv = (servant) => {
-    // servant spec
-
-    // items
-    const itemsCsv = [ ...servant.items.ascension, ...servant.items.skill, ...servant.items.appendSkill ].map((items) => {
-        const itemIds = Object.keys(items)
-
-        itemIds.sort((a, b) => {
-            const aa = a >= 600 ? -a : a
-            const bb = b >= 600 ? -b : b
-            return aa - bb
-        })
-        return itemIds.map((itemId) => {
-            const itemName = itemNames[itemId]
-            if (itemName == "QP") {
-                return `${items[itemId]}万QP`
-            } else {
-                return `${itemName}x${items[itemId]}`
+const diffAndDeleteSkill = (a, b, key) => {
+    if (a[key].length != b[key].length) {
+        console.log("length differ", a[key].length, b[key].length)
+    } else {
+        a[key].forEach((va, index) => {
+            if (va.effects) {
+                va.effects = va.effects.map((effect) => {
+                    effect.values = effect.values.map((value) => {
+                        return value.toString().replace(/(\.[0-9])0+%/, "$1%").replace(/^HP/, "")
+                    })
+                    return effect
+                })
             }
-        }, []).join('\n')
-    })
-    const itemCsvStr = `${servant.id},${servant.rare},"${servantnames[servant.id]}","${itemsCsv.join('","')}"\n`
-
-    try {
-        fs.writeFileSync(`items_${servant.id}.csv`, itemCsvStr)
-    } catch(e) {
-
+            if (b[key][index].effects) {
+                b[key][index].effects = b[key][index].effects.map((effect) => {
+                    effect.values = effect.values.map((value) => {
+                        return value.toString().replace(/(\.[0-9])0+\%/, "$1%").replace(/^HP/, "")
+                    })
+                    return effect
+                })
+            }
+            if (JSON.stringify(va) != JSON.stringify(b[key][index])) {
+                console.log(key, "differ[", index, "]")
+                console.log(JSON.stringify(va, null, 2))
+                console.log(JSON.stringify(b[key][index], null, 2))
+            }
+            delete va.effects
+            delete b[key][index].effects
+            if (JSON.stringify(va) != JSON.stringify(b[key][index])) {
+                console.log(JSON.stringify(va, null, 2))
+                console.log(JSON.stringify(b[key][index], null, 2))
+            }
+        })
     }
-
-    // skills
+    delete a[key]
+    delete b[key]
 }
 
+try {
+    fs.mkdirSync('./tmp')
+} catch(e) {
+
+}
 Object.values(atlasjson).forEach((atlas) => {
     const atwiki = old[atlas.id]
     if (!atwiki) {
         console.log(`servant id=${atlas.id} ${servantnames[atlas.id]} not found in old json.`)
-
-        genCsv(atlas)
     } else {
         atlas.characteristics = atlas.characteristics.split(' ').sort().join(' ').replace("騎乗スキル", "騎乗")
-        atlas.skills.passive = atlas.skills.passive.sort()
+        atlas.skills.passive = atlas.skills.passive.sort((a, b) => atlasSkills[a].name.localeCompare(atlasSkills[b].name))
+        atlas.skills.np = atlas.skills.np.map((id) => atlasSkills[id])
+        atlas.skills.active = atlas.skills.active.map((id) => atlasSkills[id])
+        atlas.skills.passive = atlas.skills.passive.map((id) => atlasSkills[id])
+        atlas.skills.append = atlas.skills.append.map((id) => atlasSkills[id])
         atwiki.characteristics = atwiki.characteristics.split(' ').sort().join(' ').replace("騎乗スキル", "騎乗").trim()
-        atwiki.skills.passive = atwiki.skills.passive.sort()
+        atwiki.skills.passive = atwiki.skills.passive.sort((a, b) => oldSkills[a].name.localeCompare(oldSkills[b].name))
+        atwiki.skills.np = atwiki.skills.np.map((id) => oldSkills[id])
+        atwiki.skills.active = atwiki.skills.active.map((id) => oldSkills[id])
+        atwiki.skills.passive = atwiki.skills.passive.map((id) => oldSkills[id])
+        atwiki.skills.append = atwiki.skills.append.map((id) => oldSkills[id])
+        if (atlas.rare == 2 || atlas.rare == 0) {
+            delete atlas.items
+            delete atwiki.items
+        }
         if (JSON.stringify(atlas) != JSON.stringify(atwiki)) {
-            if (atlas.rare == 2 || atlas.rare == 0) {
-                delete atlas.items
-                delete atwiki.items
-            } else {
-                checkAndDelete(atlas, atwiki, "items")
+            try {
+                fs.writeFileSync(`tmp/${atlas.id}-a.json`, JSON.stringify(atlas, null, 2).replace(/(\.[1-9]+)0+%/g, "$1%"))
+                fs.writeFileSync(`tmp/${atwiki.id}-w.json`, JSON.stringify(atwiki, null, 2).replace(/(\.[1-9]+)0+%/g, "$1%"))
+
+                try {
+                    const diffstr = execSync(`diff.exe -u tmp/${atlas.id}-a.json tmp/${atwiki.id}-w.json`)
+                    console.log(diffstr.toString())
+                } catch(e) {
+                    console.log(e.stdout.toString())
+                }
+            } catch(e) {
             }
-            checkAndDelete(atlas, atwiki, "class")
-            checkAndDelete(atlas, atwiki, "rare")
-            checkAndDelete(atlas, atwiki, "gender")
-            checkAndDelete(atlas, atwiki, "attributes")
-            checkAndDelete(atlas, atwiki, "characteristics")
-            checkAndDelete(atlas, atwiki, "hp")
-            checkAndDelete(atlas, atwiki, "attack")
-            checkAndDelete(atlas, atwiki, "npTypes")
-            checkAndDelete(atlas.skills, atwiki.skills, "np")
-            checkAndDelete(atlas.skills, atwiki.skills, "active")
-            checkAndDelete(atlas.skills, atwiki.skills, "passive")
-            checkAndDelete(atlas.skills, atwiki.skills, "append")
-            checkAndDelete(atlas, atwiki, "skills")
-            if (JSON.stringify(atlas) != JSON.stringify(atwiki)) {
-                console.log(`servant id=${atlas.id} ${servantnames[atlas.id]} differ.`)
-                console.log(atlas)
-                console.log(atwiki)
-            }
+
         }
     }
 })
