@@ -14,18 +14,21 @@ const genServantCsv = (servantList, servantNames, atlasjson, debugServantId) => 
         const servant = servantList[atlas.collectionNo]
         if (servant && servant.id >= debugServantId) {
             const characteristics = servant.characteristics.split(" ")
+            if (atlasJsonParser.genderNames[atlas.gender] == '-') {
+                characteristics.splice(0, 1)
+            }
             const columns = [
                 servant.id, servantNames[servant.id], atlasJsonParser.classId2Name[servant.class], servant.rare,
                 atlasJsonParser.growthCurve2Str(atlas.growthCurve), servant.hp.min, servant.attack.min, servant.hp.max, servant.attack.max, 
                 atlasJsonParser.attirbuteId2Name[servant.attributes],
-                atlas.noblePhantasms[0].npGain.np[0] / 100, atlas.noblePhantasms[0].npGain.defence[0] / 100,
+                atlas.noblePhantasms.slice(-1)[0].npGain.np[0] / 100, atlas.noblePhantasms.slice(-1)[0].npGain.defence[0] / 100,
                 atlas.starGen / 10, atlas.starAbsorb,
                 atlas.instantDeathChance / 10,
                 atlas.hitsDistribution.arts.length,
                 atlas.hitsDistribution.buster.length,
                 atlas.hitsDistribution.quick.length,
                 atlas.hitsDistribution.extra.length,
-                atlas.noblePhantasms[0].npDistribution.length,
+                servant.npTypes.slice(-1)[0].match(/補助/) ? 0 : atlas.noblePhantasms.slice(-1)[0].npDistribution.length,
                 atlas.cards.map((cartType) => cartType.slice(0, 1).toUpperCase()).join(' '),
                 atlasJsonParser.genderNames[atlas.gender],
                 characteristics[0],
@@ -64,11 +67,11 @@ const genItemsCsv = (servantList, servantNames, startServantId) => {
                 }, []).join('\n')
             })
             acc.push(
-                `${servant.id},${servant.rare},"${servantNames[servant.id]}","${itemsCsv.join('","')}"\n`
+                `${servant.id},${servant.rare},"${servantNames[servant.id]}","${itemsCsv.join('","')}"`
             )
         }
         return acc
-    }, []).join()
+    }, []).join('\n')
 }
 const genSkillsCsv = (servantList, servantNames, debugServantId) => {
     return ""
@@ -87,7 +90,7 @@ const { servants, servantNames, skills } = atlasJsonParser.parseServantsJson(atl
 if (gencsv) {
     const csv = [
         genServantCsv(servants, servantNames, atlasjson, gencsvStartNo),
-        genItemsCsv(servants, servantNames, gencsvStartNo),
+//        genItemsCsv(servants, servantNames, gencsvStartNo),
 //        genSkillsCsv(servantList, servantNames, gencsvStartNo),
 //        genAppendSkillsCsv(servantList, servantNames, gencsvStartNo),
     ].join('\n')
