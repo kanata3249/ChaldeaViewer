@@ -8,19 +8,23 @@
 fs = require('fs')
 pako = require('pako')
 atlasJsonParser = require('./atlasJsonParser')
+chaldeaIds = require('./chaldeaViewerIds')
 
-const genServantCsv = (servantList, servantNames, atlasjson, startServantId) => {
+const genServantCsv = (servantList, atlasjson, startServantId) => {
     return atlasjson.reduce((acc, atlas) => {
         const servant = servantList[atlas.collectionNo]
         if (servant && servant.id >= startServantId) {
             const characteristics = servant.characteristics.split(" ")
-            if (atlasJsonParser.genderNames[atlas.gender] == '-') {
-                characteristics.splice(0, 1)
+            if (servant.gender == '-') {
+                const genderUnknown = characteristics[0] 
+                characteristics[0] = characteristics[1]
+                characteristics[1] = characteristics[2]
+                characteristics[2] = genderUnknown
             }
             const columns = [
-                servant.id, servantNames[servant.id], atlasJsonParser.classId2Name[servant.class], servant.rare,
-                atlasJsonParser.growthCurve2Str(atlas.growthCurve), servant.hp.min, servant.attack.min, servant.hp.max, servant.attack.max, 
-                atlasJsonParser.attirbuteId2Name[servant.attributes],
+                servant.id, servant.name, servant.class, servant.rare,
+                servant.growthCurve, servant.hp.min, servant.attack.min, servant.hp.max, servant.attack.max, 
+                servant.attributes,
                 atlas.noblePhantasms.slice(-1)[0].npGain.np[0] / 100, atlas.noblePhantasms.slice(-1)[0].npGain.defence[0] / 100,
                 atlas.starGen / 10, atlas.starAbsorb,
                 atlas.instantDeathChance / 10,
@@ -30,7 +34,7 @@ const genServantCsv = (servantList, servantNames, atlasjson, startServantId) => 
                 atlas.hitsDistribution.extra.length,
                 servant.npTypes.slice(-1)[0].match(/補助/) ? 0 : atlas.noblePhantasms.slice(-1)[0].npDistribution.length,
                 atlas.cards.map((cartType) => cartType.slice(0, 1).toUpperCase()).join(' '),
-                atlasJsonParser.genderNames[atlas.gender],
+                servant.gender,
                 characteristics[0],
                 characteristics[1],
                 characteristics.slice(2).join(" "),
@@ -50,28 +54,27 @@ const genServantCsv = (servantList, servantNames, atlasjson, startServantId) => 
     }).join("")
 }
 
-const genItemsCsv = (servantList, servantNames, startServantId) => {
+const genItemsCsv = (servantList, startServantId) => {
     return Object.values(servantList).reduce((acc, servant) => {
         if (servant.id >= startServantId) {
             const itemsCsv = [ ...servant.items.ascension, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, ...servant.items.skill, ...servant.items.appendSkill ].map((items) => {
-                const itemIds = Object.keys(items)
-        
+                const itemIds = Object.keys(items).map((name) => chaldeaIds.itemName2Id[name]).filter((id) => id !== undefined)
                 itemIds.sort((a, b) => {
                     const aa = a >= 600 ? -a : a
                     const bb = b >= 600 ? -b : b
                     return aa - bb
                 })
                 return itemIds.map((itemId) => {
-                    const itemName = atlasJsonParser.itemNames[itemId]
+                    const itemName = chaldeaIds.itemNames[itemId]
                     if (itemName == "QP") {
-                        return `${items[itemId]}万QP`
+                        return `${items[itemName]}万QP`
                     } else {
-                        return `${itemName}x${items[itemId]}`
+                        return `${itemName}x${items[itemName]}`
                     }
                 }, []).join('\n')
             })
             acc.push(
-                `${servant.id},${servant.rare},"${servantNames[servant.id]}","${itemsCsv.join('","')}"`
+                `${servant.id},${servant.rare},"${servant.name}","${itemsCsv.join('","')}"`
             )
         }
         return acc
@@ -101,7 +104,7 @@ const splitSkillText = ((text) => {
     return [ result.preText, result.mainText, result.postText ]
 })
 
-const genSkillCsv = (servant, servantNames, skill) => {
+const genSkillCsv = (servant, skill) => {
     const npType = skill.npType?.split(/ /).join('\n') || ""
     const ct = skill.ct || ""
     const effects = skill.effects.reduce((acc, effect) => {
@@ -120,30 +123,30 @@ const genSkillCsv = (servant, servantNames, skill) => {
         })
         return acc
     },{})
-    return `,"${skill.name}",s${servant.id},"[[${servantNames[servant.id]}]]","${npType}",,,,,,,${ct},,,,,,`
+    return `,"${skill.name}",s${servant.id},"[[${servant.name}]]","${npType}",,,,,,,${ct},,,,,,`
             + `"${effects.applyUser?.join('\n')}","${effects.target?.join('\n')}","${effects.target2?.join('\n')}","${effects.pretext?.join('\n')}","${effects.mainText?.join('\n')}","${effects.postText?.join('\n')}"`
             + `,"${effects.grow?.join('\n')}",`
             + effects.values?.map((value) => `"${value.join('\n')}"`).join(',')
 }
 
-const genSkillsCsv = (servantList, servantNames, skills, startServantId) => {
+const genSkillsCsv = (servantList, startServantId) => {
     return Object.values(servantList).reduce((acc, servant) => {
         if (servant.id >= startServantId) {
-            servant.skills.np.forEach((id) => acc.push(genSkillCsv(servant, servantNames, skills[id])))
-            servant.skills.active.forEach((id) => acc.push(genSkillCsv(servant, servantNames, skills[id])))
-            servant.skills.passive.forEach((id) => acc.push(genSkillCsv(servant, servantNames, skills[id])))
+            servant.skills.np.forEach((skill) => acc.push(genSkillCsv(servant, skill)))
+            servant.skills.active.forEach((skill) => acc.push(genSkillCsv(servant, skill)))
+            servant.skills.passive.forEach((skill) => acc.push(genSkillCsv(servant, skill)))
         }
         return acc
     }, []).join('\n')
 }
 
-const genAppendSkillsCsv = (servantList, servantNames, skills, startServantId) => {
+const genAppendSkillsCsv = (servantList, startServantId) => {
     //"No.","Rare","Name","Class","アペンドスキル 1","アペンドスキル 2","アペンドスキル 3"
     return Object.values(servantList).reduce((acc, servant) => {
         if (servant.id >= startServantId) {
             acc.push(
-                `${servant.id},${servant.rare},"${servantNames[servant.id]}","${atlasJsonParser.classId2Name[servant.class]}",`
-                + `"${skills[servant.skills.append[0]].name}","${skills[servant.skills.append[1]].name}","${skills[servant.skills.append[2]].name}"`
+                `${servant.id},${servant.rare},"${servant.name}","${servant.class}",`
+                + `"${servant.skills.append[0].name}","${servant.skills.append[1].name}","${servant.skills.append[2].name}"`
             )
 }
         return acc
@@ -155,18 +158,65 @@ const gencsv = process.argv[3] == "gencsv"
 const gencsvStartNo = gencsv && process.argv[4] || 1
 const debugServantId = process.argv[gencsv ? 5 : 3]
 
-const { servants, servantNames, skills } = atlasJsonParser.parseServantsJson(atlasjson, debugServantId)
+const servants = atlasJsonParser.parseServantsJson(atlasjson, debugServantId)
 
 if (gencsv) {
     try {
-        fs.writeFileSync("91_servants.csv", genServantCsv(servants, servantNames, atlasjson, gencsvStartNo))
-        fs.writeFileSync("92_skills.csv", genSkillsCsv(servants, servantNames, skills, gencsvStartNo))
-        fs.writeFileSync("93_items.csv", genItemsCsv(servants, servantNames, gencsvStartNo))
-        fs.writeFileSync("94_appendskill.csv", genAppendSkillsCsv(servants, servantNames, skills, gencsvStartNo))
+        fs.writeFileSync("91_servants.csv", genServantCsv(servants, atlasjson, gencsvStartNo))
+        fs.writeFileSync("92_skills.csv", genSkillsCsv(servants, gencsvStartNo))
+        fs.writeFileSync("93_items.csv", genItemsCsv(servants, gencsvStartNo))
+        fs.writeFileSync("94_appendskill.csv", genAppendSkillsCsv(servants, gencsvStartNo))
     } catch(e) {
         console.log(e)
     }
 }
+
+const servantNames = {}
+const skills = {}
+const skillIds = {}
+
+const saveSkills = (skillArray) => {
+    return skillArray.map((skill) => {
+        const savedSkillId = skillIds[JSON.stringify(skill, null, 2)]
+        if (!savedSkillId) {
+            const newId = Object.keys(skills).length + 1
+            skillIds[JSON.stringify(skill, null, 2)] = newId
+            skill.id = newId
+            skills[newId] = skill
+            return skill.id
+        } else {
+            return savedSkillId
+        }
+    })
+}
+
+const converItemName2Id = (itemsArray) => {
+    return itemsArray.map((item) => {
+        return Object.keys(item).reduce((acc, name) => {
+            if (chaldeaIds.itemName2Id[name]) {
+                acc[chaldeaIds.itemName2Id[name]] = item[name]
+            }
+            return acc
+        },{})
+    })
+}
+
+Object.entries(servants).forEach(([servantId, servant]) => {
+    servantNames[servantId] = servant.name
+
+    servant.class = chaldeaIds.className2Id[servant.class]
+    servant.attributes = chaldeaIds.power2Id[servant.attributes]
+    servant.skills.np = saveSkills(servant.skills.np)
+    servant.skills.active = saveSkills(servant.skills.active)
+    servant.skills.passive = saveSkills(servant.skills.passive)
+    servant.skills.append = saveSkills(servant.skills.append)
+    servant.items.ascension = converItemName2Id(servant.items.ascension)
+    servant.items.skill = converItemName2Id(servant.items.skill)
+    servant.items.appendSkill = converItemName2Id(servant.items.appendSkill)
+
+    delete servant.growthCurve
+    delete servant.name
+})
 
 try {
     fs.writeFileSync("servantdata.new.json", JSON.stringify(servants))

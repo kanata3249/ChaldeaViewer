@@ -1,38 +1,21 @@
 
 
-const className2Id = {
-    "saber": 0,
-    "archer": 1,
-    "lancer": 2,
-    "rider": 3,
-    "caster": 4,
-    "assassin": 5,
-    "berserker": 6,
-    "ruler": 7,
-    "avenger": 8,
-    "alterEgo": 9,
-    "moonCancer": 10,
-    "foreigner": 11,
-    "pretender": 12,
-    "shielder": 20,
+const classNames = {
+    "saber": "剣",
+    "archer": "弓",
+    "lancer": "槍",
+    "rider": "騎",
+    "caster": "術",
+    "assassin": "殺",
+    "berserker": "狂",
+    "ruler": "裁",
+    "avenger": "讐",
+    "alterEgo": "分",
+    "moonCancer": "月",
+    "foreigner": "降",
+    "pretender": "詐",
+    "shielder": "盾",
 }
-
-const classId2Name = {
-    0: "剣",
-    1: "弓",
-    2: "槍",
-    3: "騎",
-    4: "術",
-    5: "殺",
-    6: "狂",
-    7: "裁",
-    8: "讐",
-    9: "分",
-    10: "月",
-    11: "降",
-    12: "詐",
-    20: "盾",
-  }
 
 const genderNames = {
     "male": "男",
@@ -40,20 +23,12 @@ const genderNames = {
     "unknown": "-"
 }
 
-const attribute2Id = {
-    "sky": 0,
-    "earth": 1,
-    "human": 2,
-    "star": 3,
-    "beast": 4,
-}
-
-const attirbuteId2Name = {
-    0: "天",
-    1: "地",
-    2: "人",
-    3: "星",
-    4: "獣"
+const attributeNames = {
+    "sky": "天",
+    "earth": "地",
+    "human": "人",
+    "star": "星",
+    "beast": "獣",
 }
 
 const traitnames =
@@ -319,109 +294,6 @@ const stateNames = {
 
 }
 
-const itemNames = {
-    200: "剣の輝石",
-    201: "弓の輝石",
-    202: "槍の輝石",
-    203: "騎の輝石",
-    204: "術の輝石",
-    205: "殺の輝石",
-    206: "狂の輝石",
-
-    210: "剣の魔石",
-    211: "弓の魔石",
-    212: "槍の魔石",
-    213: "騎の魔石",
-    214: "術の魔石",
-    215: "殺の魔石",
-    216: "狂の魔石",
-
-    220: "剣の秘石",
-    221: "弓の秘石",
-    222: "槍の秘石",
-    223: "騎の秘石",
-    224: "術の秘石",
-    225: "殺の秘石",
-    226: "狂の秘石",
-
-    300: "英雄の証",
-    301: "凶骨",
-    302: "竜の牙",
-    303: "虚影の塵",
-    304: "愚者の鎖",
-    305: "万死の毒針",
-    306: "魔術髄液",
-    307: "宵哭きの鉄杭",
-    308: "励振火薬",
-    309: "赦免の小鐘",
-
-    400: "世界樹の種",
-    401: "ゴーストランタン",
-    402: "八連双晶",
-    403: "蛇の宝玉",
-    404: "鳳凰の羽根",
-    405: "無間の歯車",
-    406: "禁断の頁",
-    407: "ホムンクルスベビー",
-    408: "隕蹄鉄",
-    409: "大騎士勲章",
-    410: "追憶の貝殻",
-    411: "枯淡勾玉",
-    412: "永遠結氷",
-    413: "巨人の指輪",
-    414: "オーロラ鋼",
-    415: "閑古鈴",
-    416: "禍罪の矢尻",
-    417: "光銀の冠",
-    418: "神脈霊子",
-    419: "虹の糸玉",
-    420: "夢幻の鱗粉",
-
-    500: "混沌の爪",
-    501: "蛮神の心臓",
-    502: "竜の逆鱗",
-    503: "精霊根",
-    504: "戦馬の幼角",
-    505: "血の涙石",
-    506: "黒獣脂",
-    507: "封魔のランプ",
-    508: "智慧のスカラベ",
-    509: "原初の産毛",
-    510: "呪獣胆石",
-    511: "奇奇神酒",
-    512: "暁光炉心",
-    513: "九十九鏡",
-    514: "真理の卵",
-    515: "煌星のカケラ",
-    516: "悠久の実",
-    517: "鬼炎鬼灯",
-
-    600: "セイバーピース",
-    601: "アーチャーピース",
-    602: "ランサーピース",
-    603: "ライダーピース",
-    604: "キャスターピース",
-    605: "アサシンピース",
-    606: "バーサーカーピース",
-
-    610: "セイバーモニュメント",
-    611: "アーチャーモニュメント",
-    612: "ランサーモニュメント",
-    613: "ライダーモニュメント",
-    614: "キャスターモニュメント",
-    615: "アサシンモニュメント",
-    616: "バーサーカーモニュメント",
-
-    800: "伝承結晶",
-
-    900: "QP",
-}
-
-const itemId = Object.keys(itemNames).reduce((acc, id) => {
-    acc[itemNames[id]] = id
-    return acc
-}, {})
-
 const unknownTraits = {}
 
 const traits2string = (traits) => {
@@ -462,13 +334,12 @@ const traits2characteristics = (traits) => {
 const materials = ((materials) => {
     return Object.keys(materials).sort((a, b) => a - b).map((level) => {
         const items = materials[level].items.reduce((acc, item) => {
-            const id = itemId[item.item.name]
-            if (id) {
-                acc[id] = item.amount
+            if (item.item.name) {
+                acc[item.item.name] = item.amount
             }
             return acc
         }, {})
-        items[itemId["QP"]] = materials[level].qp / 10000
+        items["QP"] = materials[level].qp / 10000
         return items
     })
 })
@@ -1244,24 +1115,6 @@ const growthCurve2Str = (v) => {
 
 const parseServantsJson = (json, servantId) => {
     const servants = {}
-    const servantNames = {}
-    const skills = {}
-    const skillIds = {}
-
-    const saveSkills = (skillArray) => {
-        return skillArray.map((skill) => {
-            const savedSkillId = skillIds[JSON.stringify(skill, null, 2)]
-            if (!savedSkillId) {
-                const newId = Object.keys(skills).length + 1
-                skillIds[JSON.stringify(skill, null, 2)] = newId
-                skill.id = newId
-                skills[newId] = skill
-                return skill.id
-            } else {
-                return savedSkillId
-            }
-        })
-    }
     
     json.forEach((servantData) => {
         const id = servantData.collectionNo
@@ -1276,10 +1129,10 @@ const parseServantsJson = (json, servantId) => {
         } else {
             console.log("parsing ", id)
         }
-        const classId = className2Id[servantData.className]
+        const classe = classNames[servantData.className]
         const rare = servantData.rarity
         const gender = genderNames[servantData.gender]
-        const attributes = attribute2Id[servantData.attribute]
+        const attributes = attributeNames[servantData.attribute]
         const characteristics = traits2characteristics(servantData.traits)
         const hp = {
             min: servantData.hpBase,
@@ -1289,6 +1142,7 @@ const parseServantsJson = (json, servantId) => {
             min: servantData.atkBase,
             max: servantData.atkMax,
         }
+        const growthCurve = growthCurve2Str(servantData.growthCurve)
         const npTypes = checkNPTypes(servantData.noblePhantasms)
         const items = {
             "ascension": materials(servantData.ascensionMaterials),
@@ -1300,31 +1154,25 @@ const parseServantsJson = (json, servantId) => {
         }
 
         const skills = {
-            np: saveSkills(parseNpsSpec(servantData.noblePhantasms)),
-            active: saveSkills(parseSkillsSpec(servantData.skills)),
-            passive: saveSkills(parsePassiveSkillsSpec(servantData.classPassive)),
-            append: saveSkills(parseAppendSkillsSpec(servantData.appendPassive)),
+            np: parseNpsSpec(servantData.noblePhantasms),
+            active: parseSkillsSpec(servantData.skills),
+            passive: parsePassiveSkillsSpec(servantData.classPassive),
+            append: parseAppendSkillsSpec(servantData.appendPassive),
         }
 
         if (!(servantData.type != "normal" && servantData.type != "heroine")) {
-            servantNames[id] = servantData.name
             servants[id] = {
-                id, class: classId, rare, gender, attributes, characteristics, hp, attack,
+                id, class: classe, rare, name: servantData.name, gender, attributes, characteristics, hp, attack, growthCurve,
                 npTypes, skills,
                 items
             }
         }
     })
-    return { servants, servantNames, skills }
+    return servants
 }
 
 const atlasJsonParser = {
     parseServantsJson,
-    classId2Name,
-    attirbuteId2Name,
-    genderNames,
-    growthCurve2Str,
-    itemNames
 }
 module.exports = atlasJsonParser
 
