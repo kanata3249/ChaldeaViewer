@@ -6,7 +6,7 @@
 //
 
 fs = require('fs')
-chaldeaIds = require('./chaldeaViewerIds')
+ids = require('./ids')
 
 const atlasjson = JSON.parse(fs.readFileSync(process.argv[2]))
 
@@ -15,7 +15,7 @@ const bgmList = {}
 atlasjson.forEach((bgmData) => {
     if (!bgmData.notReleased) {
         const items = (bgmData.shop && bgmData.shop.payType == "item")
-         ? { [chaldeaIds.itemName2Id[bgmData.shop.cost.item.name]]: bgmData.shop.cost.amount }
+         ? { [ids.itemName2Id[bgmData.shop.cost.item.name]]: bgmData.shop.cost.amount }
          : {}
         bgmList[bgmData.id] = {
             id: bgmData.id,

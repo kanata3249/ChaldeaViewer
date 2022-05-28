@@ -8,18 +8,18 @@
 fs = require('fs')
 csv = require('csvtojson')
 pako = require('pako')
-chaldeaIds = require('./chaldeaViewerIds')
+ids = require('./ids')
 
 const parseItems = (itemsText) => {
   return itemsText.split("\n").reduce((acc, itemText) => {
     if (itemText.length) {
     const [item, count] = itemText.split("x")
     if (count) {
-      if (chaldeaIds.itemName2Id[item]) {
-        acc[chaldeaIds.itemName2Id[item]] = Number(count)
+      if (ids.itemName2Id[item]) {
+        acc[ids.itemName2Id[item]] = Number(count)
       }
     } else {
-      acc[chaldeaIds.itemName2Id["QP"]] = parseInt(itemText)
+      acc[ids.itemName2Id["QP"]] = parseInt(itemText)
     }
     }
     return acc
@@ -204,10 +204,10 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
 
     servantList[servant.id] = {
       id: servant.id,
-      class: chaldeaIds.className2Id[servant.class],
+      class: ids.className2Id[servant.class],
       rare: servant.rare,
       gender: servant.gender,
-      attributes: chaldeaIds.power2Id[servant.power],
+      attributes: ids.power2Id[servant.power],
       characteristics: servant.attribute + " " + validateCharacteristics(servant.characteristics),
       hp: { min: Number.parseInt(String(servant.minHP).replace(/,/,"")), max: Number.parseInt(String(servant.maxHP).replace(/,/,"")) },
       attack: { min: Number.parseInt(String(servant.minAtk).replace(/,/,"")), max: Number.parseInt(String(servant.maxAtk).replace(/,/,"")) },

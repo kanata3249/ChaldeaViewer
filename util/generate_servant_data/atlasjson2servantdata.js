@@ -8,7 +8,7 @@
 fs = require('fs')
 pako = require('pako')
 atlasJsonParser = require('./atlasJsonParser')
-chaldeaIds = require('./chaldeaViewerIds')
+ids = require('./ids')
 
 const genServantCsv = (servantList, atlasjson, startServantId) => {
     return atlasjson.reduce((acc, atlas) => {
@@ -58,14 +58,14 @@ const genItemsCsv = (servantList, startServantId) => {
     return Object.values(servantList).reduce((acc, servant) => {
         if (servant.id >= startServantId) {
             const itemsCsv = [ ...servant.items.ascension, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, ...servant.items.skill, ...servant.items.appendSkill ].map((items) => {
-                const itemIds = Object.keys(items).map((name) => chaldeaIds.itemName2Id[name]).filter((id) => id !== undefined)
+                const itemIds = Object.keys(items).map((name) => ids.itemName2Id[name]).filter((id) => id !== undefined)
                 itemIds.sort((a, b) => {
                     const aa = a >= 600 ? -a : a
                     const bb = b >= 600 ? -b : b
                     return aa - bb
                 })
                 return itemIds.map((itemId) => {
-                    const itemName = chaldeaIds.itemNames[itemId]
+                    const itemName = ids.itemNames[itemId]
                     if (itemName == "QP") {
                         return `${items[itemName]}万QP`
                     } else {
@@ -193,8 +193,8 @@ const saveSkills = (skillArray) => {
 const converItemName2Id = (itemsArray) => {
     return itemsArray.map((item) => {
         return Object.keys(item).reduce((acc, name) => {
-            if (chaldeaIds.itemName2Id[name]) {
-                acc[chaldeaIds.itemName2Id[name]] = item[name]
+            if (ids.itemName2Id[name]) {
+                acc[ids.itemName2Id[name]] = item[name]
             }
             return acc
         },{})
@@ -204,8 +204,8 @@ const converItemName2Id = (itemsArray) => {
 Object.entries(servants).forEach(([servantId, servant]) => {
     servantNames[servantId] = servant.name
 
-    servant.class = chaldeaIds.className2Id[servant.class]
-    servant.attributes = chaldeaIds.power2Id[servant.attributes]
+    servant.class = ids.className2Id[servant.class]
+    servant.attributes = ids.power2Id[servant.attributes]
     servant.skills.np = saveSkills(servant.skills.np)
     servant.skills.active = saveSkills(servant.skills.active)
     servant.skills.passive = saveSkills(servant.skills.passive)

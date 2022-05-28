@@ -11,7 +11,7 @@
 
 csv = require('csvtojson')
 fs = require('fs')
-chaldeaIds = require('./chaldeaViewerIds')
+ids = require('./ids')
 
 const csv2json = async (file) => {
   return await csv({checkType:true}).fromFile(file)
@@ -38,14 +38,14 @@ Promise.all([csv2json(process.argv[3])]).then(([costume_array]) => {
         if (Object.keys(servantData.costumeMaterials).length) {
             Object.keys(servantData.costumeMaterials).forEach((aid) => {
                 const items = servantData.costumeMaterials[aid].items.reduce((acc, item) => {
-                    acc[chaldeaIds.itemName2Id[item.item.name]] = item.amount
+                    acc[ids.itemName2Id[item.item.name]] = item.amount
                     return acc
                 }, {})
-                items[chaldeaIds.itemName2Id["QP"]] = servantData.costumeMaterials[aid].qp / 10000
+                items[ids.itemName2Id["QP"]] = servantData.costumeMaterials[aid].qp / 10000
                 if (costumes[aid2id[aid]]) {
                     costumes[aid2id[aid]].items = items
                 } else {
-                    console.log(`${id}\t${aid}\t${Object.keys(items).map((itemId) => `${chaldeaIds.itemNames[itemId]}\t${items[itemId]}`).join('\t')}`)
+                    console.log(`${id}\t${aid}\t${Object.keys(items).map((itemId) => `${ids.itemNames[itemId]}\t${items[itemId]}`).join('\t')}`)
                 }
             })
         }
