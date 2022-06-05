@@ -676,8 +676,7 @@ const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValu
             case 'leveling':
               return enabled && (row.servant.npLevel > 0)
                               && (row.servant.ascension < row.servant.maxAscension || row.servant.skillLevel[0] < row.servant.maxSkillLevel[0]
-                                || row.servant.skillLevel[1] < row.servant.maxSkillLevel[1] || row.servant.skillLevel[2] < row.servant.maxSkillLevel[2]
-                                || row.servant.appendSkillLevel[0] < row.servant.maxAppendSkillLevel[0] || row.servant.appendSkillLevel[1] < row.servant.maxAppendSkillLevel[1] || row.servant.appendSkillLevel[2] < row.servant.maxAppendSkillLevel[2])
+                                || row.servant.skillLevel[1] < row.servant.maxSkillLevel[1] || row.servant.skillLevel[2] < row.servant.maxSkillLevel[2])
             case '0':
               return enabled && (row.servant.skillLevel[0] < 9 || row.servant.skillLevel[1] < 9 || row.servant.skillLevel[2] < 9)
             case '1':
@@ -695,12 +694,12 @@ const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValu
             const allOpen = row.servant.appendSkillLevel.every((value) => value > 0)
             const nineOver = row.servant.appendSkillLevel.every((value) => value == 0 || value >= 9)
             const maxLevel = row.servant.appendSkillLevel.every((value) => value == 10)
-            const growing = row.servant.appendSkillLevel.some((value, index) => row.servant.maxAppendSkillLevel[index] != value)
+            const leveling = row.servant.appendSkillLevel.some((value, index) => row.servant.maxAppendSkillLevel[index] != value)
             switch (filterKey) {
             case 'notOpen':
               return enabled && !allOpen
             case '0':
-              return enabled && growing
+              return enabled && leveling
             case '1':
               return enabled && !allClose && !allOpen && nineOver
             case '2':
