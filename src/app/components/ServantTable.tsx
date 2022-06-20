@@ -463,6 +463,7 @@ const filterDefinition: FilterDefinition[] = [
     buttons: [
       { label: "未解放有り", key: "notOpen" },
       { label: "育成中", key: "0" },
+      { label: "未スキルマ", key: "notSkillMax" },
       { label: "未解放有りスキルマ(偽含)", key: "1" },
       { label: "全スキルマ(偽)", key: "2" },
       { label: "全スキルマ", key: "3" },
@@ -700,6 +701,8 @@ const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValu
               return enabled && !allOpen
             case '0':
               return enabled && leveling
+            case 'notSkillMax':
+              return enabled && !allClose && !nineOver 
             case '1':
               return enabled && !allClose && !allOpen && nineOver
             case '2':
