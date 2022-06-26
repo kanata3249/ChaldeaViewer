@@ -135,7 +135,7 @@ export const TopPage: FC = () => {
     const link = document.createElement('a')
     document.body.appendChild(link)
     link.href = jsonURL
-    link.setAttribute('download', 'chalde_backup.json')
+    link.setAttribute('download', 'chaldea_backup.json')
     link.click()
     document.body.removeChild(link)
 
