@@ -26,6 +26,12 @@ atlasjson.forEach((bgmData) => {
     }
 })
 
+// fix priority
+if (bgmList["367"].priority == bgmList["369"].priority) {
+    bgmList["367"].priority++
+    bgmList["365"].priority++
+}
+
 try {
     fs.writeFileSync("bgms.json", JSON.stringify(bgmList))
 } catch (e) {
