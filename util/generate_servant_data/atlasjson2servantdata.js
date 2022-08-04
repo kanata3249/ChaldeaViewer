@@ -10,10 +10,10 @@ pako = require('pako')
 atlasJsonParser = require('./atlasJsonParser')
 ids = require('./ids')
 
-const genServantCsv = (servantList, atlasjson, startServantId) => {
+const genServantCsv = (servantList, atlasjson, servantIds) => {
     return atlasjson.reduce((acc, atlas) => {
         const servant = servantList[atlas.collectionNo]
-        if (servant && servant.id >= startServantId) {
+        if (servant && servantIds.includes(servant.id)) {
             const characteristics = servant.characteristics.split(" ")
             if (servant.gender == '-') {
                 const genderUnknown = characteristics[0] 
@@ -54,9 +54,9 @@ const genServantCsv = (servantList, atlasjson, startServantId) => {
     }).join("")
 }
 
-const genItemsCsv = (servantList, startServantId) => {
+const genItemsCsv = (servantList, servantIds) => {
     return Object.values(servantList).reduce((acc, servant) => {
-        if (servant.id >= startServantId) {
+        if (servantIds.includes(servant.id)) {
             const itemsCsv = [ ...servant.items.ascension, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, ...servant.items.skill, ...servant.items.appendSkill ].map((items) => {
                 const itemIds = Object.keys(items).map((name) => ids.itemName2Id[name]).filter((id) => id !== undefined)
                 itemIds.sort((a, b) => {
@@ -123,15 +123,15 @@ const genSkillCsv = (servant, skill) => {
         })
         return acc
     },{})
-    return `,"${skill.name}",s${servant.id},"[[${servant.name}]]","${npType}",,,,,,,${ct},,,,,,`
+    return `,"${skill.name}","s${servant.id}","[[${servant.name}]]","${npType}",,,,,,,${ct},,,,,,`
             + `"${effects.applyUser?.join('\n')}","${effects.target?.join('\n')}","${effects.target2?.join('\n')}","${effects.pretext?.join('\n')}","${effects.mainText?.join('\n')}","${effects.postText?.join('\n')}"`
             + `,"${effects.grow?.join('\n')}",`
             + effects.values?.map((value) => `"${value.join('\n')}"`).join(',')
 }
 
-const genSkillsCsv = (servantList, startServantId) => {
+const genSkillsCsv = (servantList, servantIds) => {
     return Object.values(servantList).reduce((acc, servant) => {
-        if (servant.id >= startServantId) {
+        if (servantIds.includes(servant.id)) {
             servant.skills.np.forEach((skill) => acc.push(genSkillCsv(servant, skill)))
             servant.skills.active.forEach((skill) => acc.push(genSkillCsv(servant, skill)))
             servant.skills.passive.forEach((skill) => acc.push(genSkillCsv(servant, skill)))
@@ -140,10 +140,10 @@ const genSkillsCsv = (servantList, startServantId) => {
     }, []).join('\n')
 }
 
-const genAppendSkillsCsv = (servantList, startServantId) => {
+const genAppendSkillsCsv = (servantList, servantIds) => {
     //"No.","Rare","Name","Class","アペンドスキル 1","アペンドスキル 2","アペンドスキル 3"
     return Object.values(servantList).reduce((acc, servant) => {
-        if (servant.id >= startServantId) {
+        if (servantIds.includes(servant.id)) {
             acc.push(
                 `${servant.id},${servant.rare},"${servant.name}","${servant.class}",`
                 + `"${servant.skills.append[0].name}","${servant.skills.append[1].name}","${servant.skills.append[2].name}"`
@@ -155,17 +155,21 @@ const genAppendSkillsCsv = (servantList, startServantId) => {
 
 const atlasjson = JSON.parse(fs.readFileSync(process.argv[2]))
 const gencsv = process.argv[3] == "gencsv"
-const gencsvStartNo = gencsv && process.argv[4] || 1
+const gencsvIds = gencsv && process.argv[4].split(',').map((v) => parseInt(v, 10)) || [1]
 const debugServantId = process.argv[gencsv ? 5 : 3]
+const spread = (start, end) => {
+    return Array(Math.max(end - start + 1, 1)).fill(start).map((v, index) => v + index)
+}
 
 const servants = atlasJsonParser.parseServantsJson(atlasjson, debugServantId)
 
 if (gencsv) {
     try {
-        fs.writeFileSync("91_servants.csv", genServantCsv(servants, atlasjson, gencsvStartNo))
-        fs.writeFileSync("92_skills.csv", genSkillsCsv(servants, gencsvStartNo))
-        fs.writeFileSync("93_items.csv", genItemsCsv(servants, gencsvStartNo))
-        fs.writeFileSync("94_appendskill.csv", genAppendSkillsCsv(servants, gencsvStartNo))
+        const ids = gencsvIds.length == 1 ? spread(gencsvIds[0], 999) : gencsvIds
+        fs.writeFileSync("91_servants.csv", genServantCsv(servants, atlasjson, ids))
+        fs.writeFileSync("92_skills.csv", genSkillsCsv(servants, ids))
+        fs.writeFileSync("93_items.csv", genItemsCsv(servants, ids))
+        fs.writeFileSync("94_appendskill.csv", genAppendSkillsCsv(servants, ids))
     } catch(e) {
         console.log(e)
     }
