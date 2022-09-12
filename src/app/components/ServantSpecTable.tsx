@@ -569,9 +569,12 @@ const filterAndSort = (servantTableData: ServantSpecTableData[], filters: Filter
   const isSkillFilterUsed = Object.values(skillFilters).some((group) => Object.values(group).some((value) => value))
   const isCharFilterUsed = Object.values(charFilters).some((group) => Object.values(group).some((value) => value))
   const preSortkey = (row) => ((sortOrder > 0 ? 100 - row.servant.spec.class : row.servant.spec.class) * 10000 + (10 - row.servant.spec.rare) * 1000 + (1000 - row.id))
+  const filterStrings = filterString.split(/[,\s]+/)
 
   return servantTableData.filter((row) => {
-    return row.name.match(filterString)
+    return filterStrings.some((str) => {
+      return row.id == parseInt(str, 10) || row.name.match(str)
+    })
   }).sort((a, b) => {
     return preSortkey(a) - preSortkey(b)
   }).filter((row) => {
@@ -851,7 +854,7 @@ export const ServantSpecTable: FC<Prop> = (props) => {
         </Grid>
         <Grid item>
           <TextField defaultValue={filterString} size="small"
-            placeholder="サーヴァント名フィルタ"
+            placeholder="名称/IDフィルタ"
             inputProps={{ type: "search" }}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterStringChanged(e)}
             onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => handleFilterStringKeyPress(e)}
