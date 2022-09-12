@@ -87,6 +87,7 @@ export const importMSInventory = (msInventory: string): Inventory =>
 {
   const ms: Inventory = JSON.parse(msInventory)
 
+  ms[900] = (ms[900] / 10000) >> 0
   return Object.keys(itemNames).reduce((acc, itemId) => {
     acc[itemId] = ms[itemId2msItemId[itemId] || itemId]
     return acc
