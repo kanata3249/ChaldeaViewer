@@ -145,3 +145,39 @@ export const saveModifyInventory = (table: string, value: boolean) => {
   
   localStorage.setItem(makeKey('configuration'), JSON.stringify(configuration))
 }
+
+export const loadShowBGM = (): boolean => {
+  const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
+
+  return configuration.showBGM
+}
+
+export const saveShowBGM = (value: boolean): void => {
+  const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
+  configuration.showBGM = value
+  localStorage.setItem(makeKey('configuration'), JSON.stringify(configuration))
+}
+
+export const loadShowCostume = (): boolean => {
+  const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
+
+  return configuration.showCostume
+}
+
+export const saveShowCostume = (value: boolean): void => {
+  const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
+  configuration.showCostume = value
+  localStorage.setItem(makeKey('configuration'), JSON.stringify(configuration))
+}
+
+export const loadShowDuplicated = (): boolean => {
+  const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
+
+  return configuration.showDuplicated
+}
+
+export const saveShowDuplicated = (value: boolean): void => {
+  const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
+  configuration.showDuplicated = value
+  localStorage.setItem(makeKey('configuration'), JSON.stringify(configuration))
+}

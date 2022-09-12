@@ -2,14 +2,14 @@ import React, { FC, useState, useEffect, useRef } from 'react'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import { isAndroid } from 'react-device-detect'
 
-import { TextField, Button, Grid } from '@material-ui/core'
+import { TextField, Button, Grid, FormControlLabel, Checkbox } from '@material-ui/core'
 import { VariableSizeGrid } from 'react-window'
 
 import { Inventory, InventoryStatus, ItemStatus, itemNames } from './../../fgo/inventory'
 
 import { FilterDefinition, FilterValues } from './FilterDialog'
 import { DialogProviderContext } from './DialogProvider'
-import { saveFilter, loadFilter } from '../storage'
+import { saveFilter, loadFilter, saveShowBGM, loadShowBGM, saveShowCostume, loadShowCostume, saveShowDuplicated, loadShowDuplicated } from '../storage'
 
 type Prop = {
   inventory: Inventory
@@ -273,7 +273,13 @@ export const InventoryTable: FC<Prop> = (props) => {
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("InventoryTable")))
   const [ tableSize, setTableSize ] = useState([1000, 800])
+  const [ showBGM, setShowBGM ] = useState(loadShowBGM())
+  const [ showCostume, setShowCostume ] = useState(loadShowCostume())
+  const [ showDuplicated, setShowDuplicated ] = useState(loadShowDuplicated())
   const columns = fullColumns
+    .filter((col) => !col.label.match(/BGM/) || showBGM)
+    .filter((col) => !col.label.match(/衣/) || showCostume)
+    .filter((col) => !col.label.match(/分/) || showDuplicated)
   const tableData = filterAndSort(calcInventoryTableData(props.getInventoryStatus()), filterValues, sortBy, sortOrder, columns)
 
   const refs = {}
@@ -345,6 +351,19 @@ export const InventoryTable: FC<Prop> = (props) => {
     saveFilter("InventoryTable", newFilterValues)
   }
 
+  const handleModifyShowBGM = (e: React.ChangeEvent<HTMLInputElement>) => {
+    saveShowBGM(e.target.checked)
+    setShowBGM(e.target.checked)
+  }
+  const handleModifyShowCostume = (e: React.ChangeEvent<HTMLInputElement>) => {
+    saveShowCostume(e.target.checked)
+    setShowCostume(e.target.checked)
+  }
+  const handleModifyShowDuplicated = (e: React.ChangeEvent<HTMLInputElement>) => {
+    saveShowDuplicated(e.target.checked)
+    setShowDuplicated(e.target.checked)
+  }
+
   const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
     const lines: string[] = []
 
@@ -401,6 +420,18 @@ export const InventoryTable: FC<Prop> = (props) => {
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
         <Grid item className={classes.summary} >
           {`フィルタ: ${tableData.length}`}
+        </Grid>
+        <Grid item>
+          <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={showBGM} onChange={handleModifyShowBGM} />}
+                            label="BGM" />
+        </Grid>
+        <Grid item>
+          <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={showCostume} onChange={handleModifyShowCostume} />}
+                            label="霊衣" />
+        </Grid>
+        <Grid item>
+          <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={showDuplicated} onChange={handleModifyShowDuplicated} />}
+                            label="分裂" />
         </Grid>
         <Grid item>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
