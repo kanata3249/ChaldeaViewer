@@ -923,7 +923,7 @@ export const ServantTable: FC<Prop> = (props) => {
 
   const handleAddDuplicate = (servant) => {
     const servants = props.servants
-    servants.push({ ...generateCleanServant(servant.spec), duplicated: true })
+    servants.push({ ...generateCleanServant(servant.spec), npLevel: 1, duplicated: true })
     props.onChange(props.servants)
     setTableKey(tableKey + 1)
   }
