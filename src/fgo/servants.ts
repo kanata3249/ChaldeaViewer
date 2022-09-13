@@ -1,4 +1,4 @@
-import { ServantItemCounts, ItemPerUsage } from './inventory'
+import { ServantItemCounts, ItemPerUsage, itemNames } from './inventory'
 import pako from 'pako'
 
 export type ServantSkillSpec = {
@@ -58,6 +58,8 @@ export type Servant = {
   level: number
   hpMod: number
   attackMod: number
+
+  duplicated: boolean
 
   spec: ServantSpec
   itemCounts: ServantItemCounts
@@ -144,18 +146,24 @@ const costumeSpecs: {
   [id: number]: CostumeSpec
 } = require('./costumes.json')
 
+export const generateCleanServant = (spec: ServantSpec) => {
+  return {
+    id: spec.id,
+    ascension: 0, maxAscension: 4,
+    skillLevel: [1, 1, 1], maxSkillLevel: [9, 9, 9],
+    appendSkillLevel: [0, 0, 0], maxAppendSkillLevel: [0, 0, 0],
+    npLevel: 0, level: 1, hpMod: 0, attackMod: 0,
+    duplicated: false,
+    spec: spec,
+    itemCounts: {},
+    totalItemsForMax: { ascension: 0, skill: 0, appendSkill: 0, duplicated: 0, dress: 0, bgm: 0 }
+  }
+}
+
 const generateCleanServants = () => {
-  return Object.values(servantSpecs).map((servant) => (
-    { id: servant.id,
-      ascension: 0, maxAscension: 4,
-      skillLevel: [1, 1, 1], maxSkillLevel: [9, 9, 9],
-      appendSkillLevel: [0, 0, 0], maxAppendSkillLevel: [0, 0, 0],
-      npLevel: 0, level: 1, hpMod: 0, attackMod: 0,
-      spec: servant,
-      itemCounts: {},
-      totalItemsForMax: { ascension: 0, skill: 0, appendSkill: 0, dress: 0, bgm: 0 }
-    }
-  ))
+  return Object.values(servantSpecs).map((spec) => 
+    generateCleanServant(spec)
+  )
 }
 
 const generateCleanCostumes = () => {
@@ -197,7 +205,7 @@ export const exportMSServants = (servants: Servants): string =>
   return JSON.stringify(
     servants.reduce((acc, servant) => {
       const msId = servantId2msId[servant.id] || servant.id
-      if ((servant.npLevel > 0) && (msId >= 0)) {
+      if ((servant.npLevel > 0) && !servant.duplicated && (msId >= 0)) {
         acc.push([
           msId, servant.ascension, servant.maxAscension,
           servant.skillLevel[0], servant.maxSkillLevel[0], servant.skillLevel[1], servant.maxSkillLevel[1], servant.skillLevel[2], servant.maxSkillLevel[2],
@@ -209,32 +217,45 @@ export const exportMSServants = (servants: Servants): string =>
   )
 }
 
+const validateServant = (servant: Servant) => {
+  const { id, ascension, maxAscension, skillLevel, maxSkillLevel, appendSkillLevel, maxAppendSkillLevel, npLevel, level, hpMod, attackMod } = servant
+
+  const result = {
+      id, ascension, maxAscension, skillLevel, maxSkillLevel,
+      appendSkillLevel: appendSkillLevel || [ 0, 0, 0 ], maxAppendSkillLevel: maxAppendSkillLevel || [ 0, 0, 0 ],
+      npLevel, level, hpMod, attackMod,
+      duplicated: false,
+      spec: servantSpecs[servant.id],
+      totalItemsForMax: { ascension: 0, skill: 0, appendSkill: 0, duplicated: 0, dress: 0, bgm: 0 },
+      itemCounts: {}
+    } 
+
+  result.ascension = Math.max(0, Math.min(4, result.ascension))
+  result.maxAscension = Math.max(result.ascension, Math.min(4, result.maxAscension))
+  result.skillLevel.forEach((skillLevel, skillNo) => {
+    result.skillLevel[skillNo] = Math.max(1, Math.min(10, result.skillLevel[skillNo]))
+    result.maxSkillLevel[skillNo] = Math.max(result.skillLevel[skillNo], Math.min(10, result.maxSkillLevel[skillNo]))
+  })
+
+  return result
+}
+
 export const validateServants = (servants: Servants): Servants =>
 {
   const result = generateCleanServants()
+  const duplicatedResult = []
   if (servants) {
     result.forEach((servant, index) => {
-      const servantIndex = servants.findIndex((item) => (item.id == servant.id))
-      if (servantIndex >= 0) {
-        servants[servantIndex].appendSkillLevel = servants[servantIndex].appendSkillLevel || result[index].appendSkillLevel
-        servants[servantIndex].maxAppendSkillLevel = servants[servantIndex].maxAppendSkillLevel || result[index].maxAppendSkillLevel
-        const { id, ascension, maxAscension, skillLevel, maxSkillLevel, appendSkillLevel, maxAppendSkillLevel, npLevel, level, hpMod, attackMod } = servants[servantIndex]
-
-        result[index] = { id, ascension, maxAscension, skillLevel, maxSkillLevel, appendSkillLevel, maxAppendSkillLevel, npLevel, level, hpMod, attackMod,
-                          spec: servantSpecs[servant.id],
-                          totalItemsForMax: { ascension: 0, skill: 0, appendSkill: 0, dress: 0, bgm: 0 },
-                          itemCounts: {}
-                        } 
+      const matchedServants = servants.filter((item) => item.id == servant.id).sort((a, b) => b.level - a.level)
+      if (matchedServants.length > 0) {
+        result[index] = validateServant(matchedServants[0])
+        matchedServants.slice(1).forEach((dupServant) => {
+          duplicatedResult.push({ ...validateServant(dupServant), duplicated: true })
+        })
       }
-      result[index].ascension = Math.max(0, Math.min(4, result[index].ascension))
-      result[index].maxAscension = Math.max(result[index].ascension, Math.min(4, result[index].maxAscension))
-      result[index].skillLevel.forEach((skillLevel, skillNo) => {
-        result[index].skillLevel[skillNo] = Math.max(1, Math.min(10, result[index].skillLevel[skillNo]))
-        result[index].maxSkillLevel[skillNo] = Math.max(result[index].skillLevel[skillNo], Math.min(10, result[index].maxSkillLevel[skillNo]))
-      })
     })
   }
-  return result
+  return [ ...result, ...duplicatedResult ]
 }
 
 

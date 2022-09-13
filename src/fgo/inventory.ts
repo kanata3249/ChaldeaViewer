@@ -9,6 +9,7 @@ export type ItemPerUsage = {
   ascension: number
   skill: number
   appendSkill: number
+  duplicated: number
   dress: number
   bgm: number
 }
@@ -45,6 +46,7 @@ const emptyItemUsage = {
   ascension: 0,
   skill: 0,
   appendSkill: 0,
+  duplicated: 0,
   dress: 0,
   bgm: 0
 }
@@ -213,6 +215,7 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants, co
 
 const itemsForServant = (servant: Servant) => {
   const isSummoned = servant.npLevel > 0
+  const isDuplicated = servant.duplicated
   const currentAscensionLevel = servant.ascension
   const reservedAscensionLevel = servant.maxAscension
   const currentSkillLevel = servant.skillLevel
@@ -224,6 +227,10 @@ const itemsForServant = (servant: Servant) => {
   const skillItems = servant.spec.items.skill
   const appendSkillItems = servant.spec.items.appendSkill
 
+  const ascensionKey = isDuplicated ? "duplicated" : "ascension"
+  const skillKey = isDuplicated ? "duplicated" : "skill"
+  const appendSkillKey = isDuplicated ? "duplicated" : "appendSkill"
+
   const servantItemCounts = {}
 
   ascensionItems.forEach((items, ascensionLevel) => {
@@ -231,14 +238,18 @@ const itemsForServant = (servant: Servant) => {
       const counts = servantItemCounts[itemId] || JSON.parse(JSON.stringify(itemCountsTemplate))
 
       servantItemCounts[itemId] = counts
-      counts.required.ascension += count
+      if (!isDuplicated || reservedAscensionLevel > ascensionLevel) {
+        counts.required[ascensionKey] += count
+      }
       if (isSummoned) {
-        counts.summoned.ascension += count
+        if (!isDuplicated || reservedAscensionLevel > ascensionLevel) {
+          counts.summoned[ascensionKey] += count
+        }
         if (currentAscensionLevel > ascensionLevel) {
-          counts.used.ascension += count
+          counts.used[ascensionKey] += count
         } else {
           if (reservedAscensionLevel > ascensionLevel) {
-            counts.reserved.ascension += count
+            counts.reserved[ascensionKey] += count
           }
         }
       }
@@ -255,14 +266,18 @@ const itemsForServant = (servant: Servant) => {
         const counts = servantItemCounts[itemId] || JSON.parse(JSON.stringify(itemCountsTemplate))
 
         servantItemCounts[itemId] = counts
-        counts.required.skill += count
+        if (!isDuplicated || reservedSkillLevel[skillNo] > skillLevel + 1) {
+          counts.required[skillKey] += count
+        }
         if (isSummoned) {
-          counts.summoned.skill += count
+          if (!isDuplicated || reservedSkillLevel[skillNo] > skillLevel + 1) {
+            counts.summoned[skillKey] += count
+          }
           if (currentSkillLevel[skillNo] > skillLevel + 1) {
-            counts.used.skill += count
+            counts.used[skillKey] += count
           } else {
             if (reservedSkillLevel[skillNo] > skillLevel + 1) {
-              counts.reserved.skill += count
+              counts.reserved[skillKey] += count
             }
           }
         }
@@ -279,14 +294,18 @@ const itemsForServant = (servant: Servant) => {
         const counts = servantItemCounts[itemId] || JSON.parse(JSON.stringify(itemCountsTemplate))
 
         servantItemCounts[itemId] = counts
-        counts.required.appendSkill += count
+        if (!isDuplicated || reservedAppendSkillLevel[skillNo] > skillLevel + 1) {
+          counts.required[appendSkillKey] += count
+        }
         if (isSummoned) {
-          counts.summoned.appendSkill += count
+          if (!isDuplicated || reservedAppendSkillLevel[skillNo] > skillLevel + 1) {
+            counts.summoned[appendSkillKey] += count
+          }
           if (currentAppendSkillLevel[skillNo] > skillLevel + 1) {
-            counts.used.appendSkill += count
+            counts.used[appendSkillKey] += count
           } else {
             if (reservedAppendSkillLevel[skillNo] > skillLevel + 1) {
-              counts.reserved.appendSkill += count
+              counts.reserved[appendSkillKey] += count
             }
           }
         }

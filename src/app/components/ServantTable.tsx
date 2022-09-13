@@ -5,7 +5,7 @@ import { isAndroid } from 'react-device-detect'
 import { Grid, Button, TextField, FormControlLabel, Checkbox } from '@material-ui/core'
 import { VariableSizeGrid } from 'react-window'
 
-import { Servants, Servant, ServantSpec, servantNames, servantClassNames, attributeNames, estimatedLevelByAscensionAndRare, servantSkills } from '../../fgo/servants'
+import { Servants, Servant, ServantSpec, servantNames, servantClassNames, attributeNames, estimatedLevelByAscensionAndRare, servantSkills, generateCleanServant } from '../../fgo/servants'
 import { InventoryStatus } from '../../fgo/inventory'
 
 import { DialogProviderContext } from './DialogProvider'
@@ -30,6 +30,7 @@ type TableColumnInfo = {
   min?: number
   max?: number
   button?: boolean
+  duplicate?: boolean
   buttonLabel?: string
   step?: number
 }
@@ -201,7 +202,8 @@ const columns : TableColumnInfo[] = [
   { label: '育成中', key: 'leveling', align: "center", width: 80},
   { label: '残素材数', key: 'items', align: "center", width: 80 },
   { label: 'AP残数', key: 'itemsForAP', align: "center", width: 80 },
-  { label: '素材確認', key: 'checkItems', align: "center", width: 80, button: true, buttonLabel: "素材" }
+  { label: '素材確認', key: 'checkItems', align: "center", width: 80, button: true, buttonLabel: "素材" },
+  { label: '分裂', key: 'duplicated', align: "center", width: 80, duplicate: true, buttonLabel: "+" }
 ]
 
 const getTableData = (servantTableData: ServantTableData, columnIndex: number, sort?: boolean) => {
@@ -468,6 +470,13 @@ const filterDefinition: FilterDefinition[] = [
       { label: "全スキルマ(偽)", key: "2" },
       { label: "全スキルマ", key: "3" },
     ]
+  },
+  {
+    name: "分裂", key: "duplicatedStatus", type: "check",
+    buttons: [
+      { label: "通常", key: "normal" },
+      { label: "分裂", key: "duplicated" },
+    ]
   }
 ]
 const defaultFilterValues: FilterValues = Object.values(filterDefinition).reduce((acc, group) => {
@@ -624,14 +633,18 @@ const calcServantTableData = (servants: Servants): ServantTableData[] => {
 
 const calcServantSummary = (servants: Servants) => {
   return servants.reduce((acc, servant) => {
-    acc.servants++
-    servant.npLevel > 0 && acc.summoned++
-    servant.ascension == 4 && acc.maxAscension++
-    (servant.skillLevel[0] >= 9 && servant.skillLevel[1] >= 9 && servant.skillLevel[2] >= 9) && acc.maxSkill++
-    (servant.appendSkillLevel[0] >= 9 && servant.appendSkillLevel[1] >= 9 && servant.appendSkillLevel[2] >= 9) && acc.maxAppendSkill++
+    if (servant.duplicated) {
+      acc.duplicated++
+    } else {
+      acc.servants++
+      servant.npLevel > 0 && acc.summoned++
+      servant.ascension == 4 && acc.maxAscension++
+      (servant.skillLevel[0] >= 9 && servant.skillLevel[1] >= 9 && servant.skillLevel[2] >= 9) && acc.maxSkill++
+      (servant.appendSkillLevel[0] >= 9 && servant.appendSkillLevel[1] >= 9 && servant.appendSkillLevel[2] >= 9) && acc.maxAppendSkill++
+    }
 
     return acc
-  }, { servants: 0, summoned: 0, maxAscension: 0, maxSkill: 0, maxAppendSkill: 0, })
+  }, { servants: 0, summoned: 0, maxAscension: 0, maxSkill: 0, maxAppendSkill: 0, duplicated: 0 })
 }
 
 const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValues, skillFilters: FilterValues, filterString: string, sortColumn: number, sortOrder: number) => {
@@ -714,6 +727,15 @@ const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValu
               return enabled && maxLevel
             default:
               return false
+            }
+          })
+        case 'duplicatedStatus':
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            switch (filterKey) {
+              case 'normal':
+                return enabled && !row.servant.duplicated
+              case 'duplicated':
+                return enabled && row.servant.duplicated
             }
           })
         default:
@@ -899,6 +921,24 @@ export const ServantTable: FC<Prop> = (props) => {
     saveModifyInventory('ServantTable', modifyInventory)
   }
 
+  const handleAddDuplicate = (servant) => {
+    const servants = props.servants
+    servants.push({ ...generateCleanServant(servant.spec), duplicated: true })
+    props.onChange(props.servants)
+    setTableKey(tableKey + 1)
+  }
+
+  const handleDelDuplicate = (servant) => {
+    const servants = props.servants
+    const deleteIndex = props.servants.findIndex((item) => item == servant)
+    if (deleteIndex >= 0) {
+      servants.splice(deleteIndex, 1)
+      props.onChange(props.servants)
+      setTableKey(tableKey + 1)
+    } else {
+      console.log("not found servant")
+    }
+  }
   const headerCell = ({columnIndex, rowIndex, style }) => {
     const column = columns[columnIndex]
 
@@ -941,12 +981,16 @@ export const ServantTable: FC<Prop> = (props) => {
       <div style={{...style, textAlign: column.align}} className={rowIndex % 2 ? classes.oddRowCell : classes.evenRowCell}>
         {column.editable ?
           editableCell(columnIndex, rowIndex)
-        : column.button ?
-          <DialogProviderContext.Consumer>
-            {({showServantInfoDialog}) =>
-              <Button size="small" onClick={() => showServantInfoDialog(tableData[rowIndex].servant, props.getInventoryStatus(), "items")} variant="outlined" >{column.buttonLabel}</Button>
-            }
-          </DialogProviderContext.Consumer>
+          : column.button ?
+            <DialogProviderContext.Consumer>
+              {({showServantInfoDialog}) =>
+                <Button size="small" onClick={() => showServantInfoDialog(tableData[rowIndex].servant, props.getInventoryStatus(), "items")} variant="outlined" >{column.buttonLabel}</Button>
+              }
+            </DialogProviderContext.Consumer>
+          : column.duplicate ?
+            tableData[rowIndex].servant.duplicated ?
+                <Button size="small" onClick={() => handleDelDuplicate(tableData[rowIndex].servant)} variant="outlined">-</Button>
+                : <Button size="small" onClick={() => handleAddDuplicate(tableData[rowIndex].servant)} variant="outlined">+</Button>
         : charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>
                 : cellData
         }
@@ -958,7 +1002,7 @@ export const ServantTable: FC<Prop> = (props) => {
     <div className={classes.container} ref={myRef}>
       <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
         <Grid item className={classes.summary} >
-          {`実装: ${summary.servants} 召喚: ${summary.summoned} 最終再臨: ${summary.maxAscension} スキルマ(含偽): ${summary.maxSkill} アペンドマ(含偽): ${summary.maxAppendSkill} フィルタ: ${tableData.length}`}
+          {`実装: ${summary.servants} 召喚: ${summary.summoned} 最終再臨: ${summary.maxAscension} スキルマ(含偽): ${summary.maxSkill} アペンドマ(含偽): ${summary.maxAppendSkill} 分裂: ${summary.duplicated} フィルタ: ${tableData.length}`}
         </Grid>
         <Grid item>
           <Button onClick={handleClickRecalc} variant="outlined" >再計算</Button>

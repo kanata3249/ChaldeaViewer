@@ -38,27 +38,33 @@ const fullColumns : TableColumnInfo[] = [
   { label: '所持数', key: 'stock', align: "right", width: 70, editable: true },
   { label: '使用予定(BGM)', key: 'reservedForBGM', align: "right", width: countColumnWidth },
   { label: '使用予定(衣)', key: 'reservedForCostume', align: "right", width: countColumnWidth },
+  { label: '使用予定(分裂)', key: 'reservedForDuplicated', align: "right", width: countColumnWidth },
   { label: '使用予定(AS)', key: 'reservedForAP', align: "right", width: countColumnWidth },
   { label: '使用予定', key: 'reserved', align: "right", width: countColumnWidth },
   { label: '使用可能', key: 'free', align: "right", width: countColumnWidth },
   { label: '使用済み(BGM)', key: 'usedForBGM', align: "right", width: countColumnWidth },
   { label: '使用済み(衣)', key: 'usedForCostume', align: "right", width: countColumnWidth },
+  { label: '使用済み(分裂)', key: 'usedForDuplicated', align: "right", width: countColumnWidth },
   { label: '使用済み(AS)', key: 'usedForAP', align: "right", width: countColumnWidth },
   { label: '使用済み', key: 'used', align: "right", width: countColumnWidth },
   { label: '必要数(全BGM)', key: 'requiredForBGM', align: "right", width: countColumnWidth },
   { label: '必要数(全衣)', key: 'requiredForCostume', align: "right", width: countColumnWidth },
+  { label: '必要数(全分裂)', key: 'requiredForDuplicated', align: "right", width: countColumnWidth },
   { label: '必要数(全AS)', key: 'requiredForAP', align: "right", width: countColumnWidth },
   { label: '必要数(全)', key: 'required', align: "right", width: countColumnWidth },
   { label: '必要数(可BGM)', key: 'summonedForBGM', align: "right", width: countColumnWidth },
   { label: '必要数(可衣)', key: 'summonedForCostume', align: "right", width: countColumnWidth },
+  { label: '必要数(分裂)', key: 'summonedForDuplicated', align: "right", width: countColumnWidth },
   { label: '必要数(召AS)', key: 'summonedForAP', align: "right", width: countColumnWidth },
   { label: '必要数(召)', key: 'summoned', align: "right", width: countColumnWidth },
   { label: '残必要数(全BGM)', key: 'remainForBGM', align: "right", width: countColumnWidth },
   { label: '残必要数(全衣)', key: 'remainForCostume', align: "right", width: countColumnWidth },
+  { label: '残必要数(全分裂)', key: 'remainForDuplicated', align: "right", width: countColumnWidth },
   { label: '残必要数(全AS込)', key: 'remainForAP', align: "right", width: countColumnWidth },
   { label: '残必要数(全)', key: 'remain', align: "right", width: countColumnWidth },
   { label: '残必要数(可BGM)', key: 'remainSummonedForBGM', align: "right", width: countColumnWidth },
   { label: '残必要数(可衣)', key: 'remainSummonedForCostume', align: "right", width: countColumnWidth },
+  { label: '残必要数(分裂)', key: 'remainSummonedForDuplicated', align: "right", width: countColumnWidth },
   { label: '残必要数(召AS込)', key: 'remainSummonedForAP', align: "right", width: countColumnWidth },
   { label: '残必要数(召)', key: 'remainSummoned', align: "right", width: countColumnWidth },
 ]
@@ -69,6 +75,7 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
   const SumForAppendSkill = (key: string) => inventoryTableData.item[key].appendSkill
   const sumForBGM = (key: string) => inventoryTableData.item[key].bgm
   const sumForCostume = (key: string) => inventoryTableData.item[key].dress
+  const sumForDuplicated = (key: string) => inventoryTableData.item[key].duplicated
   const sumExBGMCostume = (key: string) => sumForAscensionAndSkill(key) + SumForAppendSkill(key)
 
   switch (key) {
@@ -90,6 +97,10 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
       return sumForBGM('used')
     case 'reservedForBGM':
       return sumForBGM('reserved')
+    case 'usedForDuplicated':
+      return sumForDuplicated('used')
+    case 'reservedForDuplicated':
+      return sumForDuplicated('reserved')
     case 'required':
     case 'summoned':
       return sumForAscensionAndSkill(key)
@@ -105,6 +116,10 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
       return sumForBGM('required')
     case 'summonedForBGM':
       return sumForBGM('summoned')
+    case 'requiredForDuplicated':
+      return sumForDuplicated('required')
+    case 'summonedForDuplicated':
+      return sumForDuplicated('summoned')
     case 'remain':
       return Math.max(sumForAscensionAndSkill('required') + SumForAppendSkill('reserved') - sumForAscensionAndSkill('used') - inventoryTableData.item.stock, 0)
     case 'remainSummoned':
@@ -121,6 +136,10 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
       return Math.max(sumForBGM('required') - sumForBGM('used') - inventoryTableData.item.stock, 0)
     case 'remainSummonedForBGM':
       return Math.max(sumForBGM('summoned') - sumForBGM('used') - inventoryTableData.item.stock, 0)
+    case 'remainForDuplicated':
+      return Math.max(sumForDuplicated('required') - sumForDuplicated('used') - inventoryTableData.item.stock, 0)
+    case 'remainSummonedForDuplicated':
+      return Math.max(sumForDuplicated('summoned') - sumForDuplicated('used') - inventoryTableData.item.stock, 0)
     default:
       return inventoryTableData.item[key]
   }
