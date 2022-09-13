@@ -389,7 +389,7 @@ export const CostumeTable: FC<Prop> = (props) => {
 
   return (
     <div className={classes.container} ref={myRef}>
-      <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
+      <Grid container className={classes.controller} justifyContent="flex-end" alignItems="center" spacing={1} >
         <Grid item className={classes.summary} >
           { `実装: ${summary.costumes} 販売中: ${summary.onsale} 購入予定: ${summary.reserved} 購入済み: ${summary.purchased} フィルタ: ${tableData.length}`}
         </Grid>

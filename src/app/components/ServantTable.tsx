@@ -1000,7 +1000,7 @@ export const ServantTable: FC<Prop> = (props) => {
 
   return (
     <div className={classes.container} ref={myRef}>
-      <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
+      <Grid container className={classes.controller} justifyContent="flex-end" alignItems="center" spacing={1} >
         <Grid item className={classes.summary} >
           {`実装: ${summary.servants} 召喚: ${summary.summoned} 最終再臨: ${summary.maxAscension} スキルマ(含偽): ${summary.maxSkill} アペンドマ(含偽): ${summary.maxAppendSkill} 分裂: ${summary.duplicated} フィルタ: ${tableData.length}`}
         </Grid>

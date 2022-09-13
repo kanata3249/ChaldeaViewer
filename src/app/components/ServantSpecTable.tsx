@@ -845,7 +845,7 @@ export const ServantSpecTable: FC<Prop> = (props) => {
 
   return (
     <div className={classes.container} ref={myRef}>
-      <Grid container className={classes.controller} justify="flex-end" alignItems="center" spacing={1} >
+      <Grid container className={classes.controller} justifyContent="flex-end" alignItems="center" spacing={1} >
         <Grid item className={classes.summary} >
           {`フィルタ: ${tableData.length}`}
         </Grid>
