@@ -19,6 +19,7 @@ const csv2json = async (file) => {
 
 Promise.all([csv2json(process.argv[3])]).then(([costume_array]) => {
     const aid2id = {}
+    const newCostumes = []
     const costumes = costume_array.reduce((acc, row) => {
         acc[row.id] = {
             id: row.id,
@@ -45,7 +46,8 @@ Promise.all([csv2json(process.argv[3])]).then(([costume_array]) => {
                 if (costumes[aid2id[aid]]) {
                     costumes[aid2id[aid]].items = items
                 } else {
-                    console.log(`${id}\t${aid}\t${Object.keys(items).map((itemId) => `${ids.itemNames[itemId]}\t${items[itemId]}`).join('\t')}`)
+                    newCostumes.push(`${id}\t${aid}\t${Object.keys(items).map((itemId) => `${ids.itemNames[itemId]}\t${items[itemId]}`).join('\t')}`)
+                    console.log("*** new costume found ***", id, servantData.name)
                 }
             })
         }
@@ -53,6 +55,9 @@ Promise.all([csv2json(process.argv[3])]).then(([costume_array]) => {
 
     try {
         fs.writeFileSync("costumes.json",  JSON.stringify(costumes))
+        if (newCostumes.length > 0) {
+            fs.writeFileSync("95_costume.csv", newCostumes.join('\n'))
+        }
       } catch (e) {
         console.log(e)
       }
