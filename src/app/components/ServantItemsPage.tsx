@@ -96,9 +96,9 @@ const createServantItemsTableData = (servant: Servant, inventoryStatus: Inventor
   return Object.entries(servant.itemCounts)
             .filter(([itemId, counts]) => Number(itemId) < 800)
             .map<ServantItemsTableData>(([itemId, counts]) => {
-    const required = counts.required.ascension + counts.required.skill
-    const used = counts.used.ascension + counts.used.skill
-    const reserved = counts.reserved.ascension + counts.reserved.skill
+    const required = servant.duplicated ? counts.required.duplicated : counts.required.ascension + counts.required.skill
+    const used = servant.duplicated ? counts.used.duplicated : counts.used.ascension + counts.used.skill
+    const reserved = servant.duplicated ? counts.reserved.duplicated : counts.reserved.ascension + counts.reserved.skill
     const shortage = Math.max(0, required - used - Math.max(0, Math.min(reserved + Math.max(0, inventoryStatus[itemId].free), inventoryStatus[itemId].stock)))
 
     return {

@@ -101,7 +101,7 @@ export const ServantInfoDialog: FC<Prop> = (props) => {
           <Tabs value={tabIndex} onChange={handleChangeTab} aria-label="simple tabs example">
             <Tab label="スキル" {...a11yProps(0)} />
             <Tab label="素材" {...a11yProps(1)} />
-            <Tab label="素材(AP)" {...a11yProps(1)} />
+            {!props.servant.duplicated && <Tab label="素材(AP)" {...a11yProps(1)} />}
           </Tabs>
           {props.servant && (
             <>
@@ -111,9 +111,11 @@ export const ServantInfoDialog: FC<Prop> = (props) => {
               <TabPanel value={tabIndex} index={1} className={classes.tabPanel}>
                 <ServantItemsPage servant={props.servant} inventoryStatus={props.inventoryStatus} />
               </TabPanel>
-              <TabPanel value={tabIndex} index={2} className={classes.tabPanel}>
-                <ServantItemsForAPPage servant={props.servant} inventoryStatus={props.inventoryStatus} />
-              </TabPanel>
+              {!props.servant.duplicated && (
+                <TabPanel value={tabIndex} index={2} className={classes.tabPanel}>
+                  <ServantItemsForAPPage servant={props.servant} inventoryStatus={props.inventoryStatus} />
+                </TabPanel>
+              )}
             </>)}
         </DialogContent>
         <DialogActions>
