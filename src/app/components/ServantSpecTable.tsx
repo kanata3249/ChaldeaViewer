@@ -474,6 +474,7 @@ const charFilterDefinition: FilterDefinition[] = [
       { label: "源氏", key: "源氏" },
       { label: "子供", key: "子供" },
       { label: "神性", key: "神性" },
+      { label: "新撰組", key: "新撰組" },
       { label: "神霊", key: "神霊" },
       { label: "人類の脅威", key: "人類の脅威" },
       { label: "超巨大", key: "超巨大" },
@@ -484,6 +485,7 @@ const charFilterDefinition: FilterDefinition[] = [
       { label: "妖精", key: "妖精" },
       { label: "竜", key: "竜" },
       { label: "領域外の生命", key: "領域外の生命" },
+      { label: "梁山泊", key: "梁山泊" },
       { label: "ローマ", key: "ローマ" },
     ]
   },
