@@ -114,6 +114,8 @@ const traitnames =
     "unknown": "",
     "weakToEnumaElish": "エヌマ特攻有効",
     "wildbeast": "猛獣",
+    "shinsengumiServant": "新撰組",
+    "2840": "梁山泊",
 }
 
 const individualTargetName = {
@@ -148,6 +150,8 @@ const individualTargetName = {
     "2759": "〔源氏〕",
     "2827": "〔いいね！〕",
     "2828": "〔王勇〕",
+    "2839": "〔新撰組〕",
+    "2840": "〔梁山泊〕",
     "3010": "〔精神異常〕",
     "3011": "〔毒〕",
     "3012": "〔魅了〕",
@@ -305,7 +309,7 @@ const unknownTraits = {}
 
 const traits2string = (traits) => {
     const traitsString = traits.reduce((acc, trait) => {
-        const traitName = traitnames[trait.name]
+        const traitName = traitnames[trait.id] || traitnames[trait.name]
         if (traitName != null) {
             if (traitName && !acc.match(traitName)) {
                 acc += ` ${traitName}`
