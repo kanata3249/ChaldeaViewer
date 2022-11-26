@@ -10,6 +10,15 @@ pako = require('pako')
 atlasJsonParser = require('./atlasJsonParser')
 ids = require('./ids')
 
+const genServantIdMap = (servantList, atlasjson) => {
+    return atlasjson.reduce((acc, atlas) => {
+        if (servantList[atlas.collectionNo]) {
+            acc[atlas.collectionNo] = atlas.id
+        }
+        return acc
+    },{})
+}
+
 const genServantCsv = (servantList, atlasjson, servantIds) => {
     return atlasjson.reduce((acc, atlas) => {
         const servant = servantList[atlas.collectionNo]
@@ -223,6 +232,7 @@ Object.entries(servants).forEach(([servantId, servant]) => {
 })
 
 try {
+    fs.writeFileSync("servantId.json", JSON.stringify(genServantIdMap(servants, atlasjson)))
     fs.writeFileSync("servantdata.new.json", JSON.stringify(servants))
     //    fs.writeFileSync("servantdata.json.gz",  pako.deflate(JSON.stringify(servantList)))
     //    fs.writeFileSync("servantid2msid.json", JSON.stringify(servantId2msId))
