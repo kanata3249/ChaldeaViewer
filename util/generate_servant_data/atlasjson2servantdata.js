@@ -171,6 +171,7 @@ const spread = (start, end) => {
 }
 
 const servants = atlasJsonParser.parseServantsJson(atlasjson, debugServantId)
+const materialNames = atlasJsonParser.getMaterialNames()
 
 if (gencsv) {
     try {
@@ -179,6 +180,8 @@ if (gencsv) {
         fs.writeFileSync("92_skills.csv", genSkillsCsv(servants, ids))
         fs.writeFileSync("93_items.csv", genItemsCsv(servants, ids))
         fs.writeFileSync("94_appendskill.csv", genAppendSkillsCsv(servants, ids))
+        fs.writeFileSync("99_materialNames.json", JSON.stringify(materialNames, null, " "))
+
     } catch(e) {
         console.log(e)
     }

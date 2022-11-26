@@ -1,4 +1,4 @@
-
+const iteminfo = {}
 
 const classNames = {
     "saber": "剣",
@@ -347,6 +347,8 @@ const materials = ((materials) => {
         const items = materials[level].items.reduce((acc, item) => {
             if (item.item.name) {
                 acc[item.item.name] = item.amount
+
+                iteminfo[item.item.id] = item.item.name
             }
             return acc
         }, {})
@@ -1182,8 +1184,11 @@ const parseServantsJson = (json, servantId) => {
     return servants
 }
 
+const getMaterialNames = () => iteminfo
+
 const atlasJsonParser = {
     parseServantsJson,
+    getMaterialNames,
 }
 module.exports = atlasJsonParser
 
