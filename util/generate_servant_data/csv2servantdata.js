@@ -54,6 +54,7 @@ const validateCharacteristics = (text) => {
 }
 
 const skillNoMap = {
+  '1': { 'パラドクス・シリンダー C': 3 },
   '3': { '魔力放出 A': 1 },
   '4': { '魔力放出 A': 2, '直感 B': 1 },
   '8': { '軍略 B': 1 },
