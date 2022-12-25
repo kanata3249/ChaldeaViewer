@@ -115,11 +115,14 @@ export const validateInventory = (inventory: Inventory): Inventory =>
 
 export const calcInventoryStatus = (inventory: Inventory, servants: Servants, costumes: Costumes, bgms: Bgms): InventoryStatus =>
 {
+  const emptyItemCounts = Object.keys(itemNames).reduce((acc, itemId) => {
+    acc[itemId] = JSON.parse(JSON.stringify(itemCountsTemplate))
+    return acc
+  }, {})
   const totalItemCounts = servants.reduce((acc, servant) => {
     servant.itemCounts = itemsForServant(servant)
     servant.totalItemsForMax = { ...emptyItemUsage }
     Object.entries(servant.itemCounts).forEach(([itemId, itemCounts]) => {
-      acc[itemId] = acc[itemId] || JSON.parse(JSON.stringify(itemCountsTemplate))
       Object.entries(itemCounts).forEach(([type, countsPerType]) => {
         Object.entries(countsPerType).forEach(([usage, count]) => {
           acc[itemId][type][usage] += count
@@ -127,7 +130,7 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants, co
       })
     })
     return acc
-  }, {})
+  }, emptyItemCounts)
 
   bgms.forEach((bgm) => {
     Object.entries(bgm.spec.items).forEach(([id, count]) => {
