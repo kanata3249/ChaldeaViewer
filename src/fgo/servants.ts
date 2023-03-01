@@ -214,9 +214,9 @@ export const exportMSServants = (servants: Servants): string =>
           msId, servant.ascension, servant.maxAscension,
           servant.skillLevel[0], servant.maxSkillLevel[0], servant.skillLevel[1], servant.maxSkillLevel[1], servant.skillLevel[2], servant.maxSkillLevel[2],
           1, 0,
-          Math.min(1, servant.appendSkillLevel[0]), Math.min(1, servant.maxAppendSkillLevel[0]),
-          Math.min(1, servant.appendSkillLevel[1]), Math.min(1, servant.maxAppendSkillLevel[1]),
-          Math.min(1, servant.appendSkillLevel[2]), Math.min(1, servant.maxAppendSkillLevel[2]),
+          Math.max(1, servant.appendSkillLevel[0]), Math.max(1, servant.maxAppendSkillLevel[0]),
+          Math.max(1, servant.appendSkillLevel[1]), Math.max(1, servant.maxAppendSkillLevel[1]),
+          Math.max(1, servant.appendSkillLevel[2]), Math.max(1, servant.maxAppendSkillLevel[2]),
         ])
       }
       return acc
