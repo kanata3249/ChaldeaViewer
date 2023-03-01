@@ -183,7 +183,9 @@ export const importMSServants = (msServants: string): Servants =>
   const servants: Servants = generateCleanServants()
 
   ms.forEach((msServantStatus) => {
-    const [msId, ascension, maxAscension, s1, maxS1, s2, maxS2, s3, maxS3, saveFlag, alwaysZero] = msServantStatus
+    const [msId, ascension, maxAscension, s1, maxS1, s2, maxS2, s3, maxS3, saveFlag, alwaysZero,
+      as1, maxAS1, as2, maxAS2, as3, maxAS3
+    ] = msServantStatus
     const id = msId2servantId[msId] || msId
 
     const idx = servants.findIndex((servant) => (servant.id == id))
@@ -192,6 +194,8 @@ export const importMSServants = (msServants: string): Servants =>
       servants[idx].maxAscension = maxAscension
       servants[idx].skillLevel = [ s1, s2, s3 ]
       servants[idx].maxSkillLevel = [ maxS1, maxS2, maxS3 ]
+      servants[idx].appendSkillLevel = [ as1, as2, as3 ]
+      servants[idx].maxAppendSkillLevel = [ maxAS1, maxAS2, maxAS3 ]
       servants[idx].npLevel = 1
       servants[idx].level = estimatedLevelByAscensionAndRare[servantSpecs[id].rare][ascension]
     }
@@ -209,7 +213,8 @@ export const exportMSServants = (servants: Servants): string =>
         acc.push([
           msId, servant.ascension, servant.maxAscension,
           servant.skillLevel[0], servant.maxSkillLevel[0], servant.skillLevel[1], servant.maxSkillLevel[1], servant.skillLevel[2], servant.maxSkillLevel[2],
-          1, 0
+          1, 0,
+          servant.appendSkillLevel[0], servant.maxAppendSkillLevel[0], servant.appendSkillLevel[1], servant.maxAppendSkillLevel[1], servant.appendSkillLevel[2], servant.maxAppendSkillLevel[2],
         ])
       }
       return acc
