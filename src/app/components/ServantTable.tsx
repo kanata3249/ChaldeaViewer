@@ -400,6 +400,7 @@ const filterDefinition: FilterDefinition[] = [
       { label: "ムーンキャンサー", key: "月" },
       { label: "フォーリナー", key: "降" },
       { label: "プリテンダー", key: "詐" },
+      { label: "ビースト", key: "獣" },
       { label: 'シールダー', key: "盾" },
     ]
   },
@@ -566,6 +567,7 @@ const skillFilterDefinition: FilterDefinition[] = [
       { label: "ムーンキャンサー攻撃適性", key: "ムーンキャンサー攻撃適性" },
       { label: "フォーリナー攻撃適性", key: "フォーリナー攻撃適性" },
       { label: "プリテンダー攻撃適性", key: "プリテンダー攻撃適性" },
+      { label: "ビースト攻撃適性", key: "ビースト攻撃適性" },
     ]
   },
 ]
