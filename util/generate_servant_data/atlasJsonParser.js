@@ -118,6 +118,7 @@ const traitnames =
     "wildbeast": "猛獣",
     "shinsengumiServant": "新撰組",
     "2840": "梁山泊",
+    "holdingHolyGrail": "聖杯所持"
 }
 
 const individualTargetName = {
@@ -154,6 +155,8 @@ const individualTargetName = {
     "2828": "〔王勇〕",
     "2839": "〔新撰組〕",
     "2840": "〔梁山泊〕",
+    "2857": "〔聖杯所持〕",
+    "2858": "〔7騎士のサーヴァント〕",
     "3010": "〔精神異常〕",
     "3011": "〔毒〕",
     "3012": "〔魅了〕",
@@ -308,6 +311,15 @@ const stateNames = {
     "buffGuts": "〔ガッツ〕",
     "buffCurse": "〔呪い〕",
 
+}
+
+const addStateShortXStates = {
+    "970272": {  // ロクスタ S3
+        "Text": "毒（毎ターンHP）減少",
+        "Turn": 3,
+        "Count": 0,
+        "Value": -500
+    }
 }
 
 const unknownTraits = {}
@@ -621,11 +633,14 @@ const suffixByEffectName = (effectName) => {
     if (effectName.match(/(スター獲得)/)) {
         return "個"
     }
+    if (effectName.match(/(オーバーチャージ)/)) {
+        return "段階"
+    }
     return "%"
 }
 
 const dividerByEffectName = (effectName) => {
-    if (effectName.match(/(攻撃回数|ダメージカット|タイプチェンジ|ガッツ|ダメージプラス|毎ターンHP|毎ターンスター|最大HP)/)) {
+    if (effectName.match(/(攻撃回数|ダメージカット|タイプチェンジ|ガッツ|ダメージプラス|毎ターンHP|毎ターンスター|最大HP|オーバーチャージ)/)) {
         return 1
     }
     if (effectName.match(/(毎ターンNP)/)) {
@@ -723,7 +738,46 @@ const parseEffectName = (func) => {
     return `${field}${cond}${modname}${addStr}`
 }
 
+const parseAddStateShortXEffectName = (func) => {
+    const name = func.buffs[0] ? (effectNames[func.buffs[0].name] || func.buffs[0].name) : (effectNames[func.funcPopupText] || func.funcPopupText)
+    const modname = name.replace(/(.*)(〔.*〕)/, "$2$1").replace(/追加効果/,"")
+    const stateId = func.svals[0].Value
+    const addStateShortXState = addStateShortXStates[stateId] || { Text: "", Turn: 0, Count: 0 }
+
+    const add = []
+    if (addStateShortXState.Turn > 0) {
+        add.push(`${addStateShortXState.Turn}T`)
+    }
+    if (addStateShortXState.Count > 0) {
+        add.push(`${addStateShortXState.Count}回`)
+    }
+    const stateX = addStateShortXState.Text + (add.length ? `(${add.join("/")})` : "")
+
+    const field = parseQuestTvals(func)
+    const cond = func.svals[0].RatioHPLow > 0 ? "HPが少ないほど" : ""
+    add.length = 0
+    if (func.svals[0].Turn > 0) {
+        add.push(`${func.svals[0].Turn}T`)
+    }
+    if (func.svals[0].Count > 0) {
+        add.push(`${func.svals[0].Count}回`)
+    }
+    const rate = parseEffectRate(func)
+    if (rate.length) {
+        add.push(rate)
+    }
+    const proc = parseEffectProc(func)
+    if (proc.length) {
+        add.push(proc)
+    }
+    const addStr = add.length ? `(${add.join("/")})` : ""
+    return `${field}${cond}${modname}${addStr} ${stateX}`
+}
+
 const parseAddState = (func) => {
+    if (func.buffs[0].type == "addIndividuality") {
+        return parseAddStateIndividuality(func)
+    }
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
     const effectName = parseEffectName(func)
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
@@ -737,7 +791,24 @@ const parseAddState = (func) => {
     }
 }
 
+const parseAddStateIndividuality = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = parseEffectName(func)
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = Array(10).fill("")
+
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
 const parseAddStateShort = (func) => {
+    if (func.funcPopupText.startsWith('通常攻撃時')) {
+        return parseAddStateShortX(func)
+    }
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
     const effectName = parseEffectName(func)
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
@@ -746,6 +817,26 @@ const parseAddStateShort = (func) => {
     if (effectName.match(/やけど無効/) && !func.funcPopupText.match(/やけど無効/)) {
         return null
     }
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
+const parseAddStateShortX = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = parseAddStateShortXEffectName(func)
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = Array(10).fill("")
+    if (addStateShortXStates[func.svals[0].Value]) {
+        const addStateShortValue = addStateShortXStates[func.svals[0].Value].Value
+        values.fill(`${addStateShortValue}`)
+    } else {
+        console.log("unknown addStateShortX state: ", func.svals[0].Value)
+    }
+
     return {
         target,
         text: effectName,
