@@ -121,6 +121,95 @@ const traitnames =
     "holdingHolyGrail": "聖杯所持"
 }
 
+const targetTraitNames =
+{
+    "alignmentBalanced": "中庸",
+    "alignmentChaotic": "混沌",
+    "alignmentEvil": "悪",
+    "alignmentGood": "善",
+    "alignmentLawful": "秩序",
+    "alignmentMadness": "狂",
+    "alignmentNeutral": "中立",
+    "alignmentSummer": "夏",
+    "100600": "花嫁",
+    "arthur": "アーサー",
+    "associatedToTheArgo": "アルゴノーツ",
+    "atalante": "",
+    "attributeBeast": "",
+    "attributeEarth": "",
+    "attributeHuman": "",
+    "attributeSky": "",
+    "attributeStar": "",
+    "basedOnServant": "サーヴァント",
+    "brynhildsBeloved": "愛する者",
+    "canBeInBattle": "",
+    "childServant": "子供",
+    "classAlterEgo": "",
+    "classArcher": "",
+    "classAssassin": "",
+    "classAvenger": "",
+    "classBeastI": "",
+    "classBeastII": "",
+    "classBeastIIIL": "",
+    "classBeastIIIR": "",
+    "classBerserker": "",
+    "classCaster": "",
+    "classForeigner": "",
+    "classGrandCaster": "",
+    "classLancer": "",
+    "classMoonCancer": "",
+    "classPretender": "",
+    "classRider": "",
+    "classRuler": "",
+    "classSaber": "",
+    "classShielder": "",
+    "demonBeast": "",
+    "demonic": "魔性",
+    "demonicBeastServant": "",
+    "divine": "神性",
+    "divineOrDemonOrUndead": "",
+    "divineSpirit": "神霊",
+    "dragon": "竜",
+    "dragonSlayer": "",
+    "existenceOutsideTheDomain": "領域外の生命",
+    "fae": "妖精",
+    "fairyTaleServant": "童話",
+    "feminineLookingServant": "性別不明",
+    "genderCaenisServant": "",
+    "genderFemale": "女性",
+    "genderMale": "男性",
+    "genderUnknown": "性別不明",
+    "genji": "源氏",
+    "giant": "巨人",
+    "greekMythologyMales": "ギリシャ男",
+    "hasCostume": "",
+    "hominidaeServant": "",
+    "humanoid": "人型",
+    "illya": "イリヤ",
+    "king": "王",
+    "knightsOfTheRound": "円卓",
+    "livingHuman": "今を生きる人類",
+    "mechanical": "機械",
+    "nobunaga": "信長",
+    "oni": "鬼",
+    "riding": "騎乗スキル",
+    "roman": "ローマ",
+    "saberClassServant": "",
+    "saberface": "アルトリア顔",
+    "servantsWithSkyAttribute": "天",
+    "shuten": "",
+    "skyOrEarth": "",
+    "skyOrEarthExceptPseudoAndDemi": "",
+    "superGiant": "超巨大",
+    "threatToHumanity": "人類の脅威",
+    "unknown": "",
+    "weakToEnumaElish": "エヌマ特攻有効",
+    "wildbeast": "猛獣",
+    "shinsengumiServant": "新撰組",
+    "2840": "梁山泊",
+    "holdingHolyGrail": "聖杯所持"
+}
+
 const individualTargetName = {
     "1": "〔男性〕",
     "2": "〔女性〕",
@@ -194,22 +283,31 @@ const targetTextTable = {
 }
 
 const effectNames = {
-    'Busterアップ': 'Busterカード性能アップ',
-    'Artsアップ': 'Artsカード性能アップ',
-    'Quickアップ': 'Quickカード性能アップ',
+    'バスターアップ': 'Busterカード性能アップ',
+    'アーツアップ': 'Artsカード性能アップ',
+    'アーツアップ：水辺または都市': 'Artsカード性能アップ',
+    'クイックアップ': 'Quickカード性能アップ',
     'Extra Attackアップ': 'Extraカード性能アップ',
+    'アタックプラス': '与ダメージプラス',
     'スター発生アップ': 'スター発生率アップ',
     'クリティカル発生アップ': 'クリティカル発生率アップ',
     'スター発生ダウン': 'スター発生率ダウン',
     'クリティカル発生ダウン': 'クリティカル発生率ダウン',
     'スター集中アップ': 'スター集中度アップ',
-    'スター集中アップ:Buster': 'Busterカードのスター集中度アップ',
-    'スター集中アップ:Arts': 'Artsカードのスター集中度アップ',
-    'スター集中アップ:Quick': 'Quickカードのスター集中度アップ',
+    'スター集中アップ：Buster': 'Busterカードのスター集中度アップ',
+    'スター集中アップ：Arts': 'Artsカードのスター集中度アップ',
+    'スター集中アップ：Quick': 'Quickカードのスター集中度アップ',
+    'クリティカル威力アップ：Buster': 'Busterカードのクリティカル威力アップ',
+    'クリティカル威力アップ：Arts': 'Artsカードのクリティカル威力アップ',
+    'クリティカル威力アップ：Quick': 'Quickカードのクリティカル威力アップ',
     'ダメージカット': '被ダメージカット',
     'ダメージプラス': '与ダメージプラス',
+    '被ダメージプラス': 'ダメージアップ',
     'ヒット数アップ': '攻撃回数',
     '即死': '即死効果',
+    'バスター耐性ダウン': 'Busterカード耐性ダウン',
+    'アーツ耐性ダウン': 'Artsカード耐性ダウン',
+    'クイック耐性ダウン': 'Quickカード耐性ダウン',
     '強化付与アップ': '強化付与成功率アップ',
     '弱体付与アップ': '弱体付与成功率アップ',
     '精神異常付与アップ': '精神異常付与成功率アップ',
@@ -319,14 +417,20 @@ const addStateShortXStates = {
         "Turn": 3,
         "Count": 0,
         "Value": -500
+    },
+    "966566": {
+        "Text": "攻撃力アップ",
+        "Turn": 3,
+        "Count": 0,
+        "Value": "20%"
     }
 }
 
 const unknownTraits = {}
 
-const traits2string = (traits) => {
+const targettraits2string = (traits) => {
     const traitsString = traits.reduce((acc, trait) => {
-        const traitName = traitnames[trait.id] || traitnames[trait.name]
+        const traitName = targetTraitNames[trait.id] || targetTraitNames[trait.name]
         if (traitName != null) {
             if (traitName && !acc.match(traitName)) {
                 acc += ` ${traitName}`
@@ -436,7 +540,7 @@ const individualSumTargetText = (targetList) => {
 }
 
 const targetText = (team, type, tvals) => {
-    const targetTraits = tvals ? traits2string(tvals) : null
+    const targetTraits = tvals ? targettraits2string(tvals) : null
     if (targetTextTable[team] && targetTextTable[team][type]) {
       return targetTextTable[team][type] + (targetTraits ? `〔${targetTraits.split(/ /).join("〕＆〔")}〕` : "")
     }
@@ -714,8 +818,8 @@ const parseEffectProc = (func) => {
 }
 
 const parseEffectName = (func) => {
-    const name = func.buffs[0] ? (effectNames[func.buffs[0].name] || func.buffs[0].name) : (effectNames[func.funcPopupText] || func.funcPopupText)
-    const modname = name.replace(/(.*)(〔.*〕)/, "$2$1")
+    const name = effectNames[func.funcPopupText] || func.funcPopupText
+    const modname = name.replace(/(.*)(〔.*〕)/, "$2$1").replace(/(.*)・対(.*)/, "〔$2〕$1")
 
     const field = parseQuestTvals(func)
     const cond = func.svals[0].RatioHPLow > 0 ? "HPが少ないほど" : ""
@@ -778,6 +882,9 @@ const parseAddState = (func) => {
     if (func.buffs[0].type == "addIndividuality") {
         return parseAddStateIndividuality(func)
     }
+    if (func.buffs[0].type == "gutsFunction") {
+        return parseAddStateGuts(func)
+    }
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
     const effectName = parseEffectName(func)
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
@@ -835,6 +942,26 @@ const parseAddStateShortX = (func) => {
         values.fill(`${addStateShortValue}`)
     } else {
         console.log("unknown addStateShortX state: ", func.svals[0].Value)
+    }
+
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
+const parseAddStateGuts = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = parseAddStateShortXEffectName(func)
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = Array(10).fill("")
+    if (addStateShortXStates[func.svals[0].Value]) {
+        const addStateShortValue = addStateShortXStates[func.svals[0].Value].Value
+        values.fill(`${addStateShortValue}`)
+    } else {
+        console.log("unknown addStateGuts state: ", func.svals[0].Value)
     }
 
     return {
