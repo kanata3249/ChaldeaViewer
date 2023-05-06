@@ -142,6 +142,7 @@ const targetTraitNames =
     "attributeStar": "",
     "basedOnServant": "サーヴァント",
     "brynhildsBeloved": "愛する者",
+    "buffGuts": "ガッツ状態",
     "canBeInBattle": "",
     "childServant": "子供",
     "classAlterEgo": "",
@@ -154,7 +155,7 @@ const targetTraitNames =
     "classBeastIIIR": "",
     "classBerserker": "",
     "classCaster": "",
-    "classForeigner": "",
+    "classForeigner": "フォーリナー",
     "classGrandCaster": "",
     "classLancer": "",
     "classMoonCancer": "",
@@ -183,7 +184,8 @@ const targetTraitNames =
     "giant": "巨人",
     "greekMythologyMales": "ギリシャ男",
     "hasCostume": "",
-    "hominidaeServant": "",
+    "havingAnimalsCharacteristics": "ケモノ科のサーヴァント",
+    "hominidaeServant": "ヒト科のサーヴァント",
     "humanoid": "人型",
     "illya": "イリヤ",
     "king": "王",
@@ -196,16 +198,20 @@ const targetTraitNames =
     "roman": "ローマ",
     "saberClassServant": "",
     "saberface": "アルトリア顔",
+    "servant": "サーヴァント",
     "servantsWithSkyAttribute": "天",
-    "shuten": "",
+    "shinsengumiServant": "新撰組",
+    "shuten": "酒呑童子",
     "skyOrEarth": "",
     "skyOrEarthExceptPseudoAndDemi": "",
     "superGiant": "超巨大",
+    "summerModeServant": "夏モードのサーヴァント",
     "threatToHumanity": "人類の脅威",
     "unknown": "",
     "weakToEnumaElish": "エヌマ特攻有効",
     "wildbeast": "猛獣",
-    "shinsengumiServant": "新撰組",
+    "valkyrie": "ワルキューレ",
+    "yuMeiren": "虞美人",
     "2840": "梁山泊",
     "holdingHolyGrail": "聖杯所持"
 }
@@ -213,6 +219,7 @@ const targetTraitNames =
 const individualTargetName = {
     "1": "〔男性〕",
     "2": "〔女性〕",
+    "103": "〔ライダー〕",
     "109": "〔アルターエゴ〕",
     "115": "〔ムーンキャンサー〕",
     "200": "〔天〕",
@@ -251,6 +258,7 @@ const individualTargetName = {
     "3012": "〔魅了〕",
     "3015": "〔やけど〕",
     "3021": "〔回避〕",
+    "3026": "〔呪い〕",
     "3025": "〔スキル封印〕"
 }
 
@@ -260,6 +268,7 @@ const targetTextTable = {
         "ptAll": "味方全体",
         "ptOne": "味方単体",
         "ptOther": "自身を除く味方全体",
+        "ptOtherFull":  "自身を除く味方全体",
         "enemy": "敵単体",
         "enemyAll": "敵全体"
     },
@@ -268,6 +277,7 @@ const targetTextTable = {
         "ptAll": "味方全体",
         "ptOne": "味方単体",
         "ptOther": "自身を除く味方全体",
+        "ptOtherFull":  "自身を除く味方全体",
         "enemy": "敵単体",
         "enemyAll": "敵全体",
         "commandTypeSelfTreasureDevice": "自身",
@@ -284,9 +294,13 @@ const targetTextTable = {
 
 const effectNames = {
     'バスターアップ': 'Busterカード性能アップ',
+    'バスターアップ：水辺': 'Busterカード性能アップ',
+    'バスターアップ：千年城': '〔千年城〕 Busterカード性能アップ',
     'アーツアップ': 'Artsカード性能アップ',
     'アーツアップ：水辺または都市': 'Artsカード性能アップ',
+    'アーツアップ：千年城': '〔千年城〕 Artsカード性能アップ',
     'クイックアップ': 'Quickカード性能アップ',
+    'クイックアップ：千年城': '〔千年城〕 Quickカード性能アップ',
     'Extra Attackアップ': 'Extraカード性能アップ',
     'アタックプラス': '与ダメージプラス',
     'スター発生アップ': 'スター発生率アップ',
@@ -297,6 +311,7 @@ const effectNames = {
     'スター集中アップ：Buster': 'Busterカードのスター集中度アップ',
     'スター集中アップ：Arts': 'Artsカードのスター集中度アップ',
     'スター集中アップ：Quick': 'Quickカードのスター集中度アップ',
+    'スター集中ダウン': 'スター集中度ダウン',
     'クリティカル威力アップ：Buster': 'Busterカードのクリティカル威力アップ',
     'クリティカル威力アップ：Arts': 'Artsカードのクリティカル威力アップ',
     'クリティカル威力アップ：Quick': 'Quickカードのクリティカル威力アップ',
@@ -305,6 +320,7 @@ const effectNames = {
     '被ダメージプラス': 'ダメージアップ',
     'ヒット数アップ': '攻撃回数',
     '即死': '即死効果',
+    '即死付与率アップ': '即死付与成功率アップ',
     'バスター耐性ダウン': 'Busterカード耐性ダウン',
     'アーツ耐性ダウン': 'Artsカード耐性ダウン',
     'クイック耐性ダウン': 'Quickカード耐性ダウン',
@@ -328,6 +344,19 @@ const effectNames = {
     '防御無視': '防御無視状態',
     'HP回復量アップ': 'HP回復効果量アップ',
     'スキルターン減少': 'スキルチャージ短縮',
+    '威力アップ・対超巨大エネミー': '〔超巨大〕威力アップ',
+    'ガッツ時発動': 'ガッツ発動時',
+    '被ダメージ時発動': '被ダメージ時',
+    '被ダメージ時NP獲得アップ': '被ダメージ時NP獲得量アップ',
+
+    '悪特性付与': '〔悪〕特性付与',
+    '善特性付与': '〔善〕特性付与',
+    '竜特性付与': '〔竜〕特性付与',
+    '猛獣特性付与': '〔猛獣〕特性付与',
+    '死霊特性付与': '〔死霊〕特性付与',
+   
+    '攻撃力アップ：神性': '攻撃力アップ',
+    'オーバーチャージ段階UP': 'オーバーチャージ段階',
 
     'NiceShot!': '防御力ダウン',
 
@@ -412,17 +441,71 @@ const stateNames = {
 }
 
 const addStateShortXStates = {
-    "970272": {  // ロクスタ S3
+    "970272": {
         "Text": "毒（毎ターンHP）減少",
         "Turn": 3,
         "Count": 0,
         "Value": -500
     },
     "966566": {
+        "Target": "味方全体",
         "Text": "攻撃力アップ",
         "Turn": 3,
         "Count": 0,
         "Value": "20%"
+    },
+    "968051": {
+        "Target": "味方全体",
+        "Text": "攻撃力アップ",
+        "Turn": 3,
+        "Count": 0,
+        "Value": "5%"
+    },
+    "970058": {
+        "Text": "宝具威力アップ",
+        "Turn": 5,
+        "Count": 0,
+        "Value": "20%"
+    },
+    "968983": {
+        "Text": "スター発生率アップ",
+        "Turn": 3,
+        "Count": 0,
+        "Value": "20%"
+    },
+    "968984": {
+        "Text": "クリティカル威力アップ",
+        "Turn": 3,
+        "Count": 0,
+        "Value": "20%"
+    },
+    "965948": {
+        "Text": "Quickカード耐性ダウン",
+        "Turn": 3,
+        "Count": 0,
+        "Value": "-10%"
+    },
+    "965699": {
+        "Text": "防御力ダウン",
+        "Turn": 3,
+        "Count": 0,
+        "Value": "-10%"
+    },
+    "968344": {
+        "Text": "防御力ダウン",
+        "Turn": 3,
+        "Count": 0,
+        "Value": "-10%"
+    },
+    "968815": {
+        "Text": "防御力ダウン",
+        "Turn": 3,
+        "Count": 0,
+        "Value": "-10%"
+    },
+    "9640409": {
+        "Text": "ローマ特性付与",
+        "Turn": 3
     }
 }
 
@@ -542,7 +625,7 @@ const individualSumTargetText = (targetList) => {
 const targetText = (team, type, tvals) => {
     const targetTraits = tvals ? targettraits2string(tvals) : null
     if (targetTextTable[team] && targetTextTable[team][type]) {
-      return targetTextTable[team][type] + (targetTraits ? `〔${targetTraits.split(/ /).join("〕＆〔")}〕` : "")
+      return targetTextTable[team][type] + (targetTraits ? `〔${targetTraits.split(/ /).join("〕または〔")}〕` : "")
     }
     return ""
 }
@@ -667,6 +750,70 @@ const parseEffectValues = (growthType, modifier, prefix, suffix, values) => {
             }
             if (values[0][1].Value) {
                 return formatEffectValue(value.Value, undefined, value.RatioHPLow, undefined, modifier, prefix, suffix)
+            }
+            return ""
+        })
+    }
+}
+
+const parseEffectStateValues = (growthType, modifier, prefix, suffix, values) => {
+    if (values[1]) {
+        switch(growthType) {
+        case "":
+        case "Lv":
+            return values[0].map((value) => {
+                if (values[0][0].Rate != values[0][1].Rate) {
+                    return formatEffectValue(undefined, value.Rate, value.RatioHPLow, undefined, modifier, prefix, suffix)
+                }
+                if (values[0][0].UseRate != values[0][1].UseRate) {
+                    return formatEffectValue(undefined, undefined, value.RatioHPLow, value.UseRate, modifier, prefix, suffix)
+                }
+                return formatEffectValue(undefined, undefined, value.RatioHPLow, undefined, modifier, prefix, suffix)
+            })
+        case "OC":
+            return values.map((value) => {
+                if (values[0][0].Rate != values[1][0].Rate) {
+                    return formatEffectValue(undefined, value[0].Rate, value[0].RatioHPLow, undefined, modifier, prefix, suffix)
+                }
+                return formatEffectValue(undefined, undefined, value[0].RatioHPLow, undefined, modifier, prefix, suffix)
+            })
+        case "LvOC":
+            if (values[0][0].Correction) {
+                return [
+                    `${parseInt(values[0][0].Value) / 10}%(特攻:${parseInt(values[0][0].Correction) / 10}%)`,
+                    `${parseInt(values[0][1].Value) / 10}%(特攻:${parseInt(values[1][0].Correction) / 10}%)`,
+                    `${parseInt(values[0][2].Value) / 10}%(特攻:${parseInt(values[2][0].Correction) / 10}%)`,
+                    `${parseInt(values[0][3].Value) / 10}%(特攻:${parseInt(values[3][0].Correction) / 10}%)`,
+                    `${parseInt(values[0][4].Value) / 10}%(特攻:${parseInt(values[4][0].Correction) / 10}%)`,
+                ]
+            } else if (values[0][0].Target) {
+                return [
+                    `${parseInt(values[0][0].Value) / 10}%(追加:${parseInt(values[0][0].Target) / 10}%)`,
+                    `${parseInt(values[0][1].Value) / 10}%(追加:${parseInt(values[1][0].Target) / 10}%)`,
+                    `${parseInt(values[0][2].Value) / 10}%(追加:${parseInt(values[2][0].Target) / 10}%)`,
+                    `${parseInt(values[0][3].Value) / 10}%(追加:${parseInt(values[3][0].Target) / 10}%)`,
+                    `${parseInt(values[0][4].Value) / 10}%(追加:${parseInt(values[4][0].Target) / 10}%)`,
+                ]
+            } {
+                return [
+                    `${prefix}${parseInt(values[0][0].Value) / 10}%(rate:${parseInt(values[0][0].Rate) / 10}%)`,
+                    `${prefix}${parseInt(values[1][0].Value) / 10}%(rate:${parseInt(values[0][1].Rate) / 10}%)`,
+                    `${prefix}${parseInt(values[2][0].Value) / 10}%(rate:${parseInt(values[0][2].Rate) / 10}%)`,
+                    `${prefix}${parseInt(values[3][0].Value) / 10}%(rate:${parseInt(values[0][3].Rate) / 10}%)`,
+                    `${prefix}${parseInt(values[4][0].Value) / 10}%(rate:${parseInt(values[0][4].Rate) / 10}%)`,
+                ]
+            }
+        }
+    } else {
+        return values[0].map((value) => {
+            if (values[0][0].Rate != values[0][1].Rate) {
+                return formatEffectValue(undefined, value.Rate, value.RatioHPLow, undefined, modifier, prefix, suffix)
+            }
+            if (values[0][0].UseRate != values[0][1].UseRate) {
+                return formatEffectValue(undefined, undefined, value.RatioHPLow, value.UseRate, modifier, prefix, suffix)
+            }
+            if (values[0][1].Value) {
+                return formatEffectValue(undefined, undefined, value.RatioHPLow, undefined, modifier, prefix, suffix)
             }
             return ""
         })
@@ -820,7 +967,6 @@ const parseEffectProc = (func) => {
 const parseEffectName = (func) => {
     const name = effectNames[func.funcPopupText] || func.funcPopupText
     const modname = name.replace(/(.*)(〔.*〕)/, "$2$1").replace(/(.*)・対(.*)/, "〔$2〕$1")
-
     const field = parseQuestTvals(func)
     const cond = func.svals[0].RatioHPLow > 0 ? "HPが少ないほど" : ""
     const add = []
@@ -842,12 +988,7 @@ const parseEffectName = (func) => {
     return `${field}${cond}${modname}${addStr}`
 }
 
-const parseAddStateShortXEffectName = (func) => {
-    const name = func.buffs[0] ? (effectNames[func.buffs[0].name] || func.buffs[0].name) : (effectNames[func.funcPopupText] || func.funcPopupText)
-    const modname = name.replace(/(.*)(〔.*〕)/, "$2$1").replace(/追加効果/,"")
-    const stateId = func.svals[0].Value
-    const addStateShortXState = addStateShortXStates[stateId] || { Text: "", Turn: 0, Count: 0 }
-
+const parseAddStateExternalBuffEffectNameX = (addStateShortXState) => {
     const add = []
     if (addStateShortXState.Turn > 0) {
         add.push(`${addStateShortXState.Turn}T`)
@@ -855,11 +996,22 @@ const parseAddStateShortXEffectName = (func) => {
     if (addStateShortXState.Count > 0) {
         add.push(`${addStateShortXState.Count}回`)
     }
-    const stateX = addStateShortXState.Text + (add.length ? `(${add.join("/")})` : "")
+    const target = addStateShortXState.Target?.length ? addStateShortXState.Target + "の" : ""
+    const stateX = target + addStateShortXState.Text + (add.length ? `(${add.join("/")})` : "")
+
+    return stateX
+}
+
+const parseAddStateExternalBuffEffectName = (func) => {
+    const name = func.buffs[0] ? (effectNames[func.buffs[0].name] || func.buffs[0].name) : (effectNames[func.funcPopupText] || func.funcPopupText)
+    const modname = name.replace(/(.*)(〔.*〕)/, "$2$1").replace(/追加効果/,"")
+    const stateId = func.svals[0].Value
+    const addStateShortXState = addStateShortXStates[stateId] || { Text: "", Turn: 0, Count: 0 }
+    const stateX = parseAddStateExternalBuffEffectNameX(addStateShortXState)
 
     const field = parseQuestTvals(func)
     const cond = func.svals[0].RatioHPLow > 0 ? "HPが少ないほど" : ""
-    add.length = 0
+    const add = []
     if (func.svals[0].Turn > 0) {
         add.push(`${func.svals[0].Turn}T`)
     }
@@ -875,12 +1027,37 @@ const parseAddStateShortXEffectName = (func) => {
         add.push(proc)
     }
     const addStr = add.length ? `(${add.join("/")})` : ""
-    return `${field}${cond}${modname}${addStr} ${stateX}`
+    return `${field}${cond}${modname}${addStr} ${stateX}`.trim()
+}
+
+const parseAddStateShortCommandAttackEffectName = (func) => {
+    return parseAddStateExternalBuffEffectName(func)
+}
+
+const parseAddStateShortSelfTurnendEffectName = (func) => {
+    return parseAddStateExternalBuffEffectName(func)
+}
+
+const parseAddStateDamageEffectName = (func) => {
+    return parseAddStateExternalBuffEffectName(func)
+}
+
+const parseAddStateShortGutsEffectName = (func) => {
+    return parseAddStateExternalBuffEffectName(func)
 }
 
 const parseAddState = (func) => {
     if (func.buffs[0].type == "addIndividuality") {
         return parseAddStateIndividuality(func)
+    }
+    if (func.buffs[0].type == "fieldIndividuality") {
+        return parseAddStateFieldIndividuality(func)
+    }
+    if (func.buffs[0].type == "selfturnendFunction") {
+        return parseAddStateSelfTurnend(func)
+    }
+    if (func.buffs[0].type == "damageFunction") {
+        return parseAddStateDamage(func)
     }
     if (func.buffs[0].type == "gutsFunction") {
         return parseAddStateGuts(func)
@@ -902,7 +1079,81 @@ const parseAddStateIndividuality = (func) => {
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
     const effectName = parseEffectName(func)
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
-    const values = Array(10).fill("")
+    const values = Array(func.svals.length).fill("")
+
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
+const parseAddStateFieldIndividuality = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = parseEffectName(func)
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = Array(func.svals.length).fill("")
+
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
+const parseAddStateSelfTurnend = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = parseAddStateShortSelfTurnendEffectName(func)
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = parseEffectStateValues(growthType, dividerByEffectName(effectName), prefixByEffectName(effectName), suffixByEffectName(effectName), [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    if (addStateShortXStates[func.svals[0].Value]) {
+        const addStateShortValue = addStateShortXStates[func.svals[0].Value].Value
+        values.fill(`${addStateShortValue}`)
+    } else {
+        console.log("unknown addStateGuts state: ", func.svals[0].Value)
+    }
+
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
+const parseAddStateDamage = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = parseAddStateDamageEffectName(func)
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = parseEffectStateValues(growthType, dividerByEffectName(effectName), prefixByEffectName(effectName), suffixByEffectName(effectName), [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    if (addStateShortXStates[func.svals[0].Value]) {
+        const addStateShortValue = addStateShortXStates[func.svals[0].Value].Value
+        values.fill(`${addStateShortValue}`)
+    } else {
+        console.log("unknown addStateDamage state: ", func.svals[0].Value)
+    }
+
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
+const parseAddStateGuts = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = parseAddStateShortGutsEffectName(func)
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = Array(func.svals.length).fill("")
+    if (addStateShortXStates[func.svals[0].Value]) {
+        const addStateShortValue = addStateShortXStates[func.svals[0].Value].Value
+        values.fill(`${addStateShortValue}`)
+    } else {
+        console.log("unknown addStateGuts state: ", func.svals[0].Value)
+    }
 
     return {
         target,
@@ -913,8 +1164,8 @@ const parseAddStateIndividuality = (func) => {
 }
 
 const parseAddStateShort = (func) => {
-    if (func.funcPopupText.startsWith('通常攻撃時')) {
-        return parseAddStateShortX(func)
+    if (func.buffs[0].type.match(/(commandattackFunction|attackBeforeFunction|attackFunction)/)) {
+        return parseAddStateShortCommandAttack(func)
     }
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
     const effectName = parseEffectName(func)
@@ -932,36 +1183,16 @@ const parseAddStateShort = (func) => {
     }
 }
 
-const parseAddStateShortX = (func) => {
+const parseAddStateShortCommandAttack = (func) => {
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
-    const effectName = parseAddStateShortXEffectName(func)
+    const effectName = parseAddStateShortCommandAttackEffectName(func)
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
-    const values = Array(10).fill("")
+    const values = Array(func.svals.length).fill("")
     if (addStateShortXStates[func.svals[0].Value]) {
         const addStateShortValue = addStateShortXStates[func.svals[0].Value].Value
         values.fill(`${addStateShortValue}`)
     } else {
-        console.log("unknown addStateShortX state: ", func.svals[0].Value)
-    }
-
-    return {
-        target,
-        text: effectName,
-        grow: growthType,
-        values
-    }
-}
-
-const parseAddStateGuts = (func) => {
-    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
-    const effectName = parseAddStateShortXEffectName(func)
-    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
-    const values = Array(10).fill("")
-    if (addStateShortXStates[func.svals[0].Value]) {
-        const addStateShortValue = addStateShortXStates[func.svals[0].Value].Value
-        values.fill(`${addStateShortValue}`)
-    } else {
-        console.log("unknown addStateGuts state: ", func.svals[0].Value)
+        console.log("unknown addStateShortCommandAttack state: ", func.svals[0].Value)
     }
 
     return {
@@ -1144,7 +1375,7 @@ const parseDamageNpStateIndividualFix = (func) => {
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals) + individualTargetText(func.svals[0].Target)
     const effectName = "状態特攻宝具攻撃"
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
-    const values = parseEffectValues(growthType, 10, prefixByEffectName(effectName), '%', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = parseDamageNpIndividualEffectValues(growthType, 10, prefixByEffectName(effectName), '%', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
     
     return {
         target,
@@ -1325,12 +1556,12 @@ const parsePassiveSkillsSpec = ((skills) => {
         skillSpec.effects = skillSpec.effects.map((effect) => {
             effect.values = [ effect.values[0] ]
             return effect
-})
+        })
 
         acc.push(skillSpec)
         return acc
     }, [])
-    })
+})
 
 const parseAppendSkillsSpec = ((skills) => {
     return skills.reduce((acc, skill) => {
@@ -1359,7 +1590,7 @@ const parseServantsJson = (json, servantId) => {
                 return
             }
             try {
-                fs.writeFileSync(`debug-${id}.json`, JSON.stringify([servantData], null, 4))
+                fs.writeFileSync(`debug-data.json`, JSON.stringify([servantData], null, 4))
             } catch (e) {
             }
         } else {
