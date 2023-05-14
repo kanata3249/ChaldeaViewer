@@ -501,8 +501,8 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
   try {
     fs.writeFileSync("servantdata.json",  JSON.stringify(servantList))
     fs.writeFileSync("servantdata.json.gz",  pako.deflate(JSON.stringify(servantList)))
-    fs.writeFileSync("servantid2msid.json", JSON.stringify(servantId2msId))
-    fs.writeFileSync("servantnames.json", JSON.stringify(servantNames))
+    fs.writeFileSync("./servantId2msId.json", JSON.stringify(servantId2msId))
+    fs.writeFileSync("servantNames.json", JSON.stringify(servantNames))
     fs.writeFileSync("skills.json",  JSON.stringify(skills2))
     fs.writeFileSync("skills.json.gz", pako.deflate(JSON.stringify(skills2)))
   } catch (e) {
