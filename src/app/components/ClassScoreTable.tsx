@@ -84,8 +84,8 @@ const updateInventory = (classscore: TableData, newState: boolean, oldState: boo
 
   if (newState != oldState) {
     inventoryStatus[classscore.itemId].stock += (inc ? 1 : -1) * classscore.itemAmount
-    inventoryStatus[itemName2Id['星光の砂']].stock += (inc ? 1 : -1) * classscore.sands
-    inventoryStatus[itemName2Id['QP']].stock += (inc ? 1 : -1) * classscore.qp
+    inventoryStatus[itemName2Id['星光の砂']].stock += (inc ? 1 : -1) * (classscore.sands || 0)
+    inventoryStatus[itemName2Id['QP']].stock += (inc ? 1 : -1) * (classscore.qp || 0)
     return true
   }
   return false
