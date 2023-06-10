@@ -226,7 +226,7 @@ export const TopPage: FC = () => {
                 <MenuItem value={"Inventory"}>所持アイテム</MenuItem>
                 <MenuItem value={"Servants"}>サーヴァント育成</MenuItem>
                 <MenuItem value={"ServantsSpec"}>サーヴァント性能</MenuItem>
-                <MenuItem value={"ClassScores"}>クラスコア</MenuItem>
+                <MenuItem value={"ClassScores"}>クラススコア</MenuItem>
                 <MenuItem value={"Costumes"}>霊衣</MenuItem>
                 <MenuItem value={"Bgms"}>サウンドプレイヤー</MenuItem>
               </Select>
