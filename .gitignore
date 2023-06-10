@@ -2,6 +2,7 @@ src/fgo/servantdata.json.gz
 src/fgo/servantId2msId.json
 src/fgo/servantNames.json
 src/fgo/skills.json.gz
+src/fgo/classscores.json
 src/fgo/bgms.json
 src/fgo/costumes.json
 

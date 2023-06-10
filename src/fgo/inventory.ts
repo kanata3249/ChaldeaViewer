@@ -1,4 +1,5 @@
 import { Servants, Servant, Costumes } from './servants'
+import { ClassScores, ClassScore } from './classscores'
 import { Bgms, Bgm } from './bgms'
 
 export type Inventory = {
@@ -10,6 +11,7 @@ export type ItemPerUsage = {
   skill: number
   appendSkill: number
   duplicated: number
+  classscore: number
   dress: number
   bgm: number
 }
@@ -42,11 +44,17 @@ export const itemNames: {
   [itemId: number]: string
 } = require('./itemnames.json')
 
-const emptyItemUsage = {
+export const itemName2Id = Object.entries(itemNames).reduce((acc, [key, value]: string[]) => {
+  acc[value] = parseInt(key)
+  return acc
+},{})
+
+export const emptyItemUsage = {
   ascension: 0,
   skill: 0,
   appendSkill: 0,
   duplicated: 0,
+  classscore: 0,
   dress: 0,
   bgm: 0
 }
@@ -113,7 +121,7 @@ export const validateInventory = (inventory: Inventory): Inventory =>
   }, {})
 }
 
-export const calcInventoryStatus = (inventory: Inventory, servants: Servants, costumes: Costumes, bgms: Bgms): InventoryStatus =>
+export const calcInventoryStatus = (inventory: Inventory, servants: Servants, classscores: ClassScores, costumes: Costumes, bgms: Bgms): InventoryStatus =>
 {
   const emptyItemCounts = Object.keys(itemNames).reduce((acc, itemId) => {
     acc[itemId] = JSON.parse(JSON.stringify(itemCountsTemplate))
@@ -131,6 +139,20 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants, co
     })
     return acc
   }, emptyItemCounts)
+
+  classscores.forEach((classscore) => {
+    Object.entries(classscore.spec.items).forEach(([id, count]) => {
+      totalItemCounts[id].required.classscore += count
+      totalItemCounts[id].summoned.classscore += count
+      if (classscore.acquired) {
+        totalItemCounts[id].used.classscore += count
+      } else {
+        if (classscore.reserved) {
+          totalItemCounts[id].reserved.classscore += count
+        }
+      }
+    })
+  })
 
   bgms.forEach((bgm) => {
     Object.entries(bgm.spec.items).forEach(([id, count]) => {

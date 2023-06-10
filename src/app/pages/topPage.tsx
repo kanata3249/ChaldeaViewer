@@ -15,8 +15,11 @@ import { DialogProvider, DialogProviderContext } from '../components/DialogProvi
 
 import { Inventory, InventoryStatus, importMSInventory, exportMSInventory, calcInventoryStatus } from './../../fgo/inventory'
 import { Servants, importMSServants, exportMSServants, Costumes } from './../../fgo/servants'
+import { ClassScores, ClassScore } from './../../fgo/classscores'
 import { Bgms } from '../../fgo/bgms'
-import { createBackup, restoreBackup, saveSelectedInfo, loadSelectedInfo, saveServants, loadServants, saveCostumes, loadCostumes, saveBgms, loadBgms, saveInventory, loadInventory } from '../storage'
+import { createBackup, restoreBackup, saveSelectedInfo, loadSelectedInfo,
+   saveServants, loadServants, saveClassScores, loadClassScores,
+   saveCostumes, loadCostumes, saveBgms, loadBgms, saveInventory, loadInventory } from '../storage'
 
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
@@ -78,22 +81,28 @@ export const TopPage: FC = () => {
   const servants: Servants = loadServants()
   const handleServantChanged = (servants) => {
     saveServants(servants)
-    inventoryStatus = calcInventoryStatus(inventory, servants, costumes, bgms)
+    inventoryStatus = calcInventoryStatus(inventory, servants, classscores, costumes, bgms)
+  }
+
+  const classscores: ClassScores = loadClassScores()
+  const handleClassScoreChanged = (classscores) => {
+    saveClassScores(classscores)
+    inventoryStatus = calcInventoryStatus(inventory, servants, classscores, costumes, bgms)
   }
 
   const costumes: Costumes = loadCostumes()
   const handleCostumesChanged = (costumes) => {
     saveCostumes(costumes)
-    inventoryStatus = calcInventoryStatus(inventory, servants, costumes, bgms)
+    inventoryStatus = calcInventoryStatus(inventory, servants, classscores, costumes, bgms)
   }
 
   const bgms: Bgms = loadBgms()
   const handleBgmsChanged = (bgms) => {
     saveBgms(bgms)
-    inventoryStatus = calcInventoryStatus(inventory, servants, costumes, bgms)
+    inventoryStatus = calcInventoryStatus(inventory, servants, classscores, costumes, bgms)
   }
 
-  let inventoryStatus: InventoryStatus = calcInventoryStatus(inventory, servants, costumes, bgms)
+  let inventoryStatus: InventoryStatus = calcInventoryStatus(inventory, servants, classscores, costumes, bgms)
   const getInventoryStatus = () => inventoryStatus
   const setInventoryStatus = (newInventoryStatus: InventoryStatus) => {
     const newInventory = Object.entries(newInventoryStatus).reduce<Inventory>((acc, [id, status]) => {
@@ -102,7 +111,7 @@ export const TopPage: FC = () => {
     },{})
     saveInventory(newInventory)
     Object.assign(inventory, newInventory)
-    inventoryStatus = calcInventoryStatus(inventory, servants, costumes, bgms)
+    inventoryStatus = calcInventoryStatus(inventory, servants, classscores, costumes, bgms)
   }
 
   const handleImportServants = (json: string) => {

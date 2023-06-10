@@ -1,5 +1,6 @@
 import { Inventory, validateInventory, itemNames } from './../fgo/inventory'
 import { Servants, validateServants, Costumes, validateCostumes } from './../fgo/servants'
+import { ClassScores, validateClassScores } from './../fgo/classscores'
 import { Bgms, validateBgms } from './../fgo/bgms'
 import { FilterValues } from './components/FilterDialog'
 
@@ -13,7 +14,7 @@ const makeKey = (name: string) => {
 
 export const createBackup = () => {
   const backup = {
-    version: 2,
+    version: 3,
     servants: loadServants()
                 .filter((servant) => servant.npLevel > 0)
                 .map(({ spec, itemCounts, totalItemsForMax, ...info } ) => ({ ...info })),
@@ -21,6 +22,7 @@ export const createBackup = () => {
                 acc[itemNames[id]] = count
                 return acc
                },{}),
+    classscores: loadClassScores().map(({ spec, id, ...info}) => ({ ...info })),
     costumes: loadCostumes().map(({ spec, ...info}) => ({ ...info })),
     bgms: loadBgms().map(({ spec, ...info}) => ({ ...info }))
   }
@@ -58,7 +60,17 @@ export const restoreBackup = (backupData: string) => {
           return acc
         }, {})))
         return true
-
+      case 3:
+        saveServants(validateServants(backup.servants))
+        saveCostumes(validateCostumes(backup.costumes))
+        saveBgms(validateBgms(backup.bgms))
+        saveClassScores(validateClassScores(backup.classscores))
+        saveInventory(validateInventory(Object.entries(itemNames).reduce((acc, [itemId, name]) => {
+          acc[itemId] = backup.inventory[name]
+          return acc
+        }, {})))
+        return true
+  
     }
     return false
   } catch (e) {
@@ -88,6 +100,14 @@ export const loadServants = () => {
 
 export const saveServants = (servants: Servants) => {
   localStorage.setItem(makeKey("servants"), JSON.stringify(servants.map(({ spec, itemCounts, totalItemsForMax, ...info } ) => ({ ...info }))))
+}
+
+export const loadClassScores = () => {
+  return validateClassScores(JSON.parse(localStorage.getItem(makeKey("classscores"))))
+}
+
+export const saveClassScores = (classscores: ClassScores) => {
+  localStorage.setItem(makeKey("classscores"), JSON.stringify(classscores.map(({ spec, ...info } ) => ({ ...info }))))
 }
 
 export const loadCostumes = () => {

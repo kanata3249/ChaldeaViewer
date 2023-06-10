@@ -1,4 +1,4 @@
-import { ServantItemCounts, ItemPerUsage, itemNames } from './inventory'
+import { ServantItemCounts, ItemPerUsage, itemNames, emptyItemUsage } from './inventory'
 import pako from 'pako'
 
 export type ServantSkillSpec = {
@@ -157,7 +157,7 @@ export const generateCleanServant = (spec: ServantSpec) => {
     duplicated: false,
     spec: spec,
     itemCounts: {},
-    totalItemsForMax: { ascension: 0, skill: 0, appendSkill: 0, duplicated: 0, dress: 0, bgm: 0 }
+    totalItemsForMax: JSON.parse(JSON.stringify(emptyItemUsage))
   }
 }
 
@@ -234,7 +234,7 @@ const validateServant = (servant: Servant) => {
       npLevel, level, hpMod, attackMod,
       duplicated: false,
       spec: servantSpecs[servant.id],
-      totalItemsForMax: { ascension: 0, skill: 0, appendSkill: 0, duplicated: 0, dress: 0, bgm: 0 },
+      totalItemsForMax: JSON.parse(JSON.stringify(emptyItemUsage)),
       itemCounts: {}
     } 
 
