@@ -172,6 +172,18 @@ export const loadShowBGM = (): boolean => {
   return configuration.showBGM
 }
 
+export const saveShowClassscore = (value: boolean): void => {
+  const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
+  configuration.showClassscore = value
+  localStorage.setItem(makeKey('configuration'), JSON.stringify(configuration))
+}
+
+export const loadShowClassscore = (): boolean => {
+  const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
+
+  return configuration.showClassscore
+}
+
 export const saveShowBGM = (value: boolean): void => {
   const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
   configuration.showBGM = value

@@ -9,7 +9,7 @@ import { Inventory, InventoryStatus, ItemStatus, itemNames } from './../../fgo/i
 
 import { FilterDefinition, FilterValues } from './FilterDialog'
 import { DialogProviderContext } from './DialogProvider'
-import { saveFilter, loadFilter, saveShowBGM, loadShowBGM, saveShowCostume, loadShowCostume, saveShowDuplicated, loadShowDuplicated } from '../storage'
+import { saveFilter, loadFilter, saveShowBGM, loadShowBGM, saveShowClassscore, loadShowClassscore, saveShowCostume, loadShowCostume, saveShowDuplicated, loadShowDuplicated } from '../storage'
 
 type Prop = {
   inventory: Inventory
@@ -37,17 +37,20 @@ const fullColumns : TableColumnInfo[] = [
   { label: '名称', key: 'name', align: "left", width: 150 },
   { label: '所持数', key: 'stock', align: "right", width: 70, editable: true },
   { label: '使用予定(BGM)', key: 'reservedForBGM', align: "right", width: countColumnWidth },
+  { label: '使用予定(CS)', key: 'reservedForCS', align: "right", width: countColumnWidth },
   { label: '使用予定(衣)', key: 'reservedForCostume', align: "right", width: countColumnWidth },
   { label: '使用予定(分裂)', key: 'reservedForDuplicated', align: "right", width: countColumnWidth },
   { label: '使用予定(AS)', key: 'reservedForAP', align: "right", width: countColumnWidth },
   { label: '使用予定', key: 'reserved', align: "right", width: countColumnWidth },
   { label: '使用可能', key: 'free', align: "right", width: countColumnWidth },
   { label: '使用済み(BGM)', key: 'usedForBGM', align: "right", width: countColumnWidth },
+  { label: '使用済み(CS)', key: 'usedForCS', align: "right", width: countColumnWidth },
   { label: '使用済み(衣)', key: 'usedForCostume', align: "right", width: countColumnWidth },
   { label: '使用済み(分裂)', key: 'usedForDuplicated', align: "right", width: countColumnWidth },
   { label: '使用済み(AS)', key: 'usedForAP', align: "right", width: countColumnWidth },
   { label: '使用済み', key: 'used', align: "right", width: countColumnWidth },
   { label: '必要数(全BGM)', key: 'requiredForBGM', align: "right", width: countColumnWidth },
+  { label: '必要数(全CS)', key: 'requiredForCS', align: "right", width: countColumnWidth },
   { label: '必要数(全衣)', key: 'requiredForCostume', align: "right", width: countColumnWidth },
   { label: '必要数(全分裂)', key: 'requiredForDuplicated', align: "right", width: countColumnWidth },
   { label: '必要数(全AS)', key: 'requiredForAP', align: "right", width: countColumnWidth },
@@ -58,6 +61,7 @@ const fullColumns : TableColumnInfo[] = [
   { label: '必要数(召AS)', key: 'summonedForAP', align: "right", width: countColumnWidth },
   { label: '必要数(召)', key: 'summoned', align: "right", width: countColumnWidth },
   { label: '残必要数(全BGM)', key: 'remainForBGM', align: "right", width: countColumnWidth },
+  { label: '残必要数(全CS)', key: 'remainForCS', align: "right", width: countColumnWidth },
   { label: '残必要数(全衣)', key: 'remainForCostume', align: "right", width: countColumnWidth },
   { label: '残必要数(全分裂)', key: 'remainForDuplicated', align: "right", width: countColumnWidth },
   { label: '残必要数(全AS込)', key: 'remainForAP', align: "right", width: countColumnWidth },
@@ -73,6 +77,7 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
   const key = columns[columnIndex].key
   const sumForAscensionAndSkill = (key: string) => inventoryTableData.item[key].ascension + inventoryTableData.item[key].skill
   const SumForAppendSkill = (key: string) => inventoryTableData.item[key].appendSkill
+  const sumForCS = (key: string) => inventoryTableData.item[key].classscore
   const sumForBGM = (key: string) => inventoryTableData.item[key].bgm
   const sumForCostume = (key: string) => inventoryTableData.item[key].dress
   const sumForDuplicated = (key: string) => inventoryTableData.item[key].duplicated
@@ -93,8 +98,12 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
       return sumForCostume('used')
     case 'reservedForCostume':
       return sumForCostume('reserved')
+    case 'usedForCS':
+      return sumForCS('used')
     case 'usedForBGM':
       return sumForBGM('used')
+    case 'reservedForCS':
+      return sumForCS('reserved')
     case 'reservedForBGM':
       return sumForBGM('reserved')
     case 'usedForDuplicated':
@@ -112,6 +121,8 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
       return sumForCostume('required')
     case 'summonedForCostume':
       return sumForCostume('summoned')
+    case 'requiredForCS':
+      return sumForCS('required')
     case 'requiredForBGM':
       return sumForBGM('required')
     case 'summonedForBGM':
@@ -132,6 +143,8 @@ const getTableData = (inventoryTableData: InventoryTableData, columnIndex: numbe
       return Math.max(sumForCostume('required') - sumForCostume('used') - inventoryTableData.item.stock, 0)
     case 'remainSummonedForCostume':
       return Math.max(sumForCostume('summoned') - sumForCostume('used') - inventoryTableData.item.stock, 0)
+    case 'remainForCS':
+      return Math.max(sumForCS('required') - sumForCS('used') - inventoryTableData.item.stock, 0)
     case 'remainForBGM':
       return Math.max(sumForBGM('required') - sumForBGM('used') - inventoryTableData.item.stock, 0)
     case 'remainSummonedForBGM':
@@ -154,6 +167,7 @@ const filterDefinition: FilterDefinition[] = [
       { label: "素材(銅)", key: "cupperItems" },
       { label: "モニュメント・ピース", key: "essentials" },
       { label: "秘石等", key: "gems" },
+      { label: "クラススコア", key: "classscores" },
       { label: "QP", key: "qp" },
     ]
   },
@@ -251,6 +265,8 @@ const filterAndSort = (inventoryTableData: InventoryTableData[], filters: Filter
                   return (row.id < 300 || row.id == 800)
                 case 'essentials':
                   return (row.id >= 600 && row.id < 700)
+                case 'classscores':
+                  return (row.id >= 700 && row.id < 800)
                 case 'qp':
                   return row.id == 900
               }
@@ -293,10 +309,12 @@ export const InventoryTable: FC<Prop> = (props) => {
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("InventoryTable")))
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const [ showBGM, setShowBGM ] = useState(loadShowBGM())
+  const [ showCS, setShowCS ] = useState(loadShowClassscore())
   const [ showCostume, setShowCostume ] = useState(loadShowCostume())
   const [ showDuplicated, setShowDuplicated ] = useState(loadShowDuplicated())
   const columns = fullColumns
     .filter((col) => !col.label.match(/BGM/) || showBGM)
+    .filter((col) => !col.label.match(/CS/) || showCS)
     .filter((col) => !col.label.match(/衣/) || showCostume)
     .filter((col) => !col.label.match(/分/) || showDuplicated)
   const tableData = filterAndSort(calcInventoryTableData(props.getInventoryStatus()), filterValues, sortBy, sortOrder, columns)
@@ -374,6 +392,10 @@ export const InventoryTable: FC<Prop> = (props) => {
     saveShowBGM(e.target.checked)
     setShowBGM(e.target.checked)
   }
+  const handleModifyShowClassscore = (e: React.ChangeEvent<HTMLInputElement>) => {
+    saveShowClassscore(e.target.checked)
+    setShowCS(e.target.checked)
+  }
   const handleModifyShowCostume = (e: React.ChangeEvent<HTMLInputElement>) => {
     saveShowCostume(e.target.checked)
     setShowCostume(e.target.checked)
@@ -443,6 +465,10 @@ export const InventoryTable: FC<Prop> = (props) => {
         <Grid item>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={showBGM} onChange={handleModifyShowBGM} />}
                             label="BGM" />
+        </Grid>
+        <Grid item>
+          <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={showCS} onChange={handleModifyShowClassscore} />}
+                            label="クラススコア" />
         </Grid>
         <Grid item>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={showCostume} onChange={handleModifyShowCostume} />}
