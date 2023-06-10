@@ -11,6 +11,7 @@ import { ServantTable } from './../components/ServantTable'
 import { ServantSpecTable } from './../components/ServantSpecTable'
 import { CostumeTable } from './../components/CostumeTable'
 import { BgmTable } from './../components/BgmTable'
+import { ClassScoreTable } from './../components/ClassScoreTable'
 import { DialogProvider, DialogProviderContext } from '../components/DialogProvider'
 
 import { Inventory, InventoryStatus, importMSInventory, exportMSInventory, calcInventoryStatus } from './../../fgo/inventory'
@@ -52,6 +53,7 @@ export const TopPage: FC = () => {
   const [ servantTableKey, setServantTableKey ] = useState(0)
   const [ costumeTableKey, setCostumeTableKey ] = useState(0)
   const [ bgmTableKey, setBgmTableKey ] = useState(0)
+  const [ classScoreTableKey, setClassScoreTableKey ] = useState(0)
   const [ selectedInfo, setSelectedInfo ] = useState(loadSelectedInfo())
   const [ openMSExchangeDialog, setOpenMSExchangeDialog ] = useState(false)
 
@@ -66,6 +68,9 @@ export const TopPage: FC = () => {
   }
   const updateBgmTable = () => {
     setBgmTableKey(bgmTableKey + 1)
+  }
+  const updateClassScoreTable = () => {
+    setClassScoreTableKey(classScoreTableKey + 1)
   }
 
   const handleSelectedInfoChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,7 +90,7 @@ export const TopPage: FC = () => {
   }
 
   const classscores: ClassScores = loadClassScores()
-  const handleClassScoreChanged = (classscores) => {
+  const handleClassScoresChanged = (classscores) => {
     saveClassScores(classscores)
     inventoryStatus = calcInventoryStatus(inventory, servants, classscores, costumes, bgms)
   }
@@ -168,6 +173,7 @@ export const TopPage: FC = () => {
           updateServantTable()
           updateCostumeTable()
           updateBgmTable()
+          updateClassScoreTable()
         }
       })
       reader.readAsText(inputEvent.target.files[0])
@@ -220,6 +226,7 @@ export const TopPage: FC = () => {
                 <MenuItem value={"Inventory"}>所持アイテム</MenuItem>
                 <MenuItem value={"Servants"}>サーヴァント育成</MenuItem>
                 <MenuItem value={"ServantsSpec"}>サーヴァント性能</MenuItem>
+                <MenuItem value={"ClassScores"}>クラスコア</MenuItem>
                 <MenuItem value={"Costumes"}>霊衣</MenuItem>
                 <MenuItem value={"Bgms"}>サウンドプレイヤー</MenuItem>
               </Select>
@@ -230,6 +237,7 @@ export const TopPage: FC = () => {
           {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} getInventoryStatus={getInventoryStatus} />}
           {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} setInventoryStatus={setInventoryStatus} />}
           {selectedInfo == "ServantsSpec" && <ServantSpecTable key={`servantSpecTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
+          {selectedInfo == "ClassScores" && <ClassScoreTable key={`classScoreTable-${classScoreTableKey}`} onChange={handleClassScoresChanged} classscores={classscores} getInventoryStatus={getInventoryStatus} setInventoryStatus={setInventoryStatus} />}
           {selectedInfo == "Costumes" && <CostumeTable key={`costumeTable-${costumeTableKey}`} onChange={handleCostumesChanged} costumes={costumes} getInventoryStatus={getInventoryStatus} setInventoryStatus={setInventoryStatus} />}
           {selectedInfo == "Bgms" && <BgmTable key={`bgmTable-${bgmTableKey}`} onChange={handleBgmsChanged} bgms={bgms} getInventoryStatus={getInventoryStatus} setInventoryStatus={setInventoryStatus} />}
         </div>

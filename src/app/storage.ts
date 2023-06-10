@@ -140,6 +140,8 @@ export const loadModifyInventory = (table: string): boolean => {
   switch (table) {
     case 'ServantTable':
       return configuration.modifyInventory
+    case 'ClassScoreTable':
+      return configuration.modifyInventoryOnClassScoreTable
     case 'CostumeTable':
       return configuration.modifyInventoryOnCostumeTable
     case 'BgmTable':
@@ -154,6 +156,9 @@ export const saveModifyInventory = (table: string, value: boolean) => {
   switch (table) {
     case 'ServantTable':
       configuration.modifyInventory = value
+      break
+    case 'ClassScoreTable':
+      configuration.modifyInventoryOnClassScoreTable = value
       break
     case 'CostumeTable':
       configuration.modifyInventoryOnCostumeTable = value
