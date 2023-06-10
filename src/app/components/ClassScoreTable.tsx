@@ -41,6 +41,8 @@ type TableData = {
   classId: number
   nodeName: string
   prevNodeName: string
+  effectText: string
+  effectValue: string
   reserved: boolean
   acquired: boolean
   itemId: number
@@ -55,7 +57,9 @@ const columns : TableColumnInfo[] = [
   { label: 'クラス', key: 'classId', align: "left", width: 80 },
   { label: 'ノード名', key: 'nodeName', align: "left", width: 160},
   { label: '前ノード', key: 'prevNodeName', align: "left", width: 160},
-  { label: '素材', key: 'itemName', align: "left", width: 240 },
+  { label: '効果', key: 'effectText', align: "left", width: 300},
+  { label: '効果量', key: 'effectValue', align: "left", width: 120},
+  { label: '素材', key: 'itemName', align: "left", width: 200 },
   { label: '素材数', key: 'itemAmount', align: "right", width: 80 },
   { label: '砂', key: 'sands', align: "right", width: 80 },
   { label: 'QP', key: 'qp', align: "right", width: 80 },
@@ -172,6 +176,7 @@ const calcTableData = (classscores: ClassScores): TableData[] => {
   const sortkey = (row) => row.id
   return classscores.map((classscore, index) => (
     { id: classscore.id, index, classId: classscore.spec.class, nodeName: classscore.spec.nodeName, prevNodeName: classscore.spec.prevNodeName,
+      effectText: `${classscore.spec.effect.condition} ${classscore.spec.effect.text}`.replace(/-\s*/g, ""), effectValue: classscore.spec.effect.value,
       reserved: classscore.reserved, acquired: classscore.acquired,
       itemId: Number(Object.keys(classscore.spec.items)[0]), itemName: itemNames[Object.keys(classscore.spec.items)[0]], itemAmount: Number(Object.values(classscore.spec.items)[0]),
       sands: classscore.spec.items[700], qp: classscore.spec.items[900]
@@ -255,6 +260,7 @@ export const ClassScoreTable: FC<Prop> = (props) => {
   const summary = calcSummary(props.classscores)
   let modifyInventory = loadModifyInventory('ClassScoreTable')
   const refs = {}
+  console.log(tableData)
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
