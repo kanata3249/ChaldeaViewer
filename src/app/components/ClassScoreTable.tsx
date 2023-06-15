@@ -55,8 +55,7 @@ type TableData = {
 const columns : TableColumnInfo[] = [
   { label: 'id', key: 'id', align: "left", width: 80 },
   { label: 'クラス', key: 'classId', align: "left", width: 80 },
-  { label: 'ノード名', key: 'nodeName', align: "left", width: 160},
-  { label: '前ノード', key: 'prevNodeName', align: "left", width: 160},
+  { label: 'ノード名', key: 'nodeName', align: "left", width: 160 },
   { label: '効果', key: 'effectText', align: "left", width: 300},
   { label: '効果量', key: 'effectValue', align: "left", width: 120},
   { label: '素材', key: 'itemName', align: "left", width: 200 },
