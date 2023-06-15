@@ -202,14 +202,30 @@ const calcTableData = (classscores: ClassScores): TableData[] => {
   })
 }
 
+const addEffectValue = (a, b) => {
+  const as = a?.split(/\n/) || [ "0%" ]
+  const bs = b?.split(/\n/) || [ "0%" ]
+  if (as[0] == '-') {
+    return undefined
+  }
+
+  return as.map((av, index) => {
+    return `${parseInt(av) + parseInt(bs[index])}%`
+  }).join("\n")
+}
+
 const calcSummary = (classscores: ClassScores) => {
   return classscores.reduce((acc, classscore) => {
     acc.classscores++
     classscore.reserved && !classscore.acquired && acc.reserved++
-    classscore.acquired && acc.acquired++
-
+    if (classscore.acquired) {
+      acc.acquired++
+      acc.effects[classscore.spec.class] = { ...acc.effects[classscore.spec.class],
+         [classscore.spec.effect.text]: addEffectValue(acc.effects[classscore.spec.class]?.[classscore.spec.effect.text], classscore.spec.effect.value)
+      }
+    }
     return acc
-  }, { classscores: 0, onsale: 0, reserved: 0, acquired: 0 })
+  }, { classscores: 0, onsale: 0, reserved: 0, acquired: 0, effects: {} })
 }
 
 const filterAndSort = (tableData: TableData[], filters: FilterValues, sortColumn: number, sortOrder: number) => {
@@ -265,7 +281,6 @@ export const ClassScoreTable: FC<Prop> = (props) => {
   const summary = calcSummary(props.classscores)
   let modifyInventory = loadModifyInventory('ClassScoreTable')
   const refs = {}
-  console.log(tableData)
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -387,12 +402,38 @@ export const ClassScoreTable: FC<Prop> = (props) => {
       </div>
     )
   }
+  const formatEffects = (effects) => {
+    const labels = [
+      { label: "B威力", key: "Busterカード威力アップ" },
+      { label: "A威力", key: "Artsカード威力アップ" },
+      { label: "Q威力", key: "Quickカード威力アップ" },
+      { label: "EX性能", key: "Extraアタック性能アップ" },
+      { label: "Bクリ", key: "Busterカードのクリティカル威力アップ" },
+      { label: "Aクリ", key: "Artsカードのクリティカル威力アップ" },
+      { label: "Qクリ", key: "Quickカードのクリティカル威力アップ" },
+      { label: "宝具", key: "宝具威力アップ" },
+      { label: "クリ", key: "クリティカル威力アップ" },
+      { label: "スター", key: "スター発生率アップ" },
+      { label: "令呪", key: "攻撃力アップ(1T)\n防御力アップ(1T)" },
+      { label: "効果なし", key: "" }
+    ]
+    return labels.reduce((acc, label) => {
+      if (effects[label.key]) {
+        acc.push(`${label.label} ${effects[label.key]}`)
+      }
 
+      return acc
+    }, []).join(' ')
+  }
+  
   return (
     <div className={classes.container} ref={myRef}>
       <Grid container className={classes.controller} justifyContent="flex-end" alignItems="center" spacing={1} >
         <Grid item className={classes.summary} >
           { `実装: ${summary.classscores}  解放予定: ${summary.reserved} 解放済み: ${summary.acquired} フィルタ: ${tableData.length}`}
+          { Object.entries(summary.effects).map(([classId, effects]) => {
+            return <><div>&emsp;{servantClassNames[parseInt(classId)]}: {formatEffects(effects)}</div></>
+          }) }
         </Grid>
         <Grid item>
           <Button onClick={handleClickRecalc} variant="outlined" >再計算</Button>
