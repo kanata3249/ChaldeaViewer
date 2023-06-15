@@ -109,6 +109,23 @@ const filterDefinition: FilterDefinition[] = [
     ]
   },
   {
+    name: "効果", key: "effect", type: "check",
+    buttons: [
+      { label: "Busterカード威力", key: "Busterカード威力アップ" },
+      { label: "Artsカード威力", key: "Artsカード威力アップ" },
+      { label: "Quickカード威力", key: "Quickカード威力アップ" },
+      { label: "EXアタック性能", key: "Extraアタック性能アップ" },
+      { label: "Busterクリティカル威力", key: "Busterカードのクリティカル威力アップ" },
+      { label: "Artsクリティカル威力", key: "Artsカードのクリティカル威力アップ" },
+      { label: "Quickクリティカル威力", key: "Quickカードのクリティカル威力アップ" },
+      { label: "宝具威力", key: "宝具威力アップ" },
+      { label: "クリティカル威力", key: "クリティカル威力アップ" },
+      { label: "スター発生率", key: "スター発生率アップ" },
+      { label: "令呪時 攻撃力・防御力", key: "令呪使用時 攻撃力アップ(1T)\n防御力アップ(1T)" },
+      { label: "効果なし", key: "" }
+    ]
+  },
+  {
     name: "解放状態", key: "acquired", type: "check",
     buttons: [
       { label: "予定なし", key: "notreserved" },
@@ -204,6 +221,10 @@ const filterAndSort = (tableData: TableData[], filters: FilterValues, sortColumn
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
             return enabled && (servantClassNames[row.classId] == filterKey)
           })
+        case "effect":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (row.effectText == filterKey)
+          })
         case "acquired":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
             switch (filterKey) {
@@ -213,21 +234,6 @@ const filterAndSort = (tableData: TableData[], filters: FilterValues, sortColumn
             case 'acquired':
               return enabled && row[filterKey]
             }
-          })
-        case "itemClass":
-          return Object.entries(groupValues).some(([filterKey, enabled]) => {
-            switch (filterKey) {
-              case 'none':
-                return enabled && Number.isNaN(row.itemId)
-              case 'piece':
-                return enabled && row.itemId >= 600 && row.itemId < 610
-              case 'monument':
-                return enabled && row.itemId >= 610 && row.itemId < 620
-              case 'cupper':
-                return enabled && row.itemId >= 300 && row.itemId < 400
-              case 'silver':
-                return enabled && row.itemId >= 400 && row.itemId < 500
-              }
           })
         default:
           return false
