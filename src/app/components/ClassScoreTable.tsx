@@ -45,9 +45,9 @@ type TableData = {
   effectValue: string
   reserved: boolean
   acquired: boolean
-  itemId: number
-  itemName: string
-  itemAmount: number
+  itemIds: number[]
+  itemNames: string[]
+  itemAmounts: number[]
   sands: number
   qp: number
 }
@@ -58,8 +58,8 @@ const columns : TableColumnInfo[] = [
   { label: 'ノード名', key: 'nodeName', align: "left", width: 160 },
   { label: '効果', key: 'effectText', align: "left", width: 300},
   { label: '効果量', key: 'effectValue', align: "left", width: 120},
-  { label: '素材', key: 'itemName', align: "left", width: 200 },
-  { label: '素材数', key: 'itemAmount', align: "right", width: 80 },
+  { label: '素材', key: 'itemNames', align: "left", width: 200 },
+  { label: '素材数', key: 'itemAmounts', align: "right", width: 80 },
   { label: '砂', key: 'sands', align: "right", width: 80 },
   { label: 'QP', key: 'qp', align: "right", width: 80 },
   { label: '解放予定', key: 'reserved', align: "center", width: 80, editable: true, type: "boolean" },
@@ -77,6 +77,11 @@ const getTableData = (tableData: TableData, columnIndex: number, sort?: boolean)
       }
       return servantClassNames[row.classId]
 
+    case 'itemNames':
+      return row.itemNames.join(' / ')
+    case 'itemAmounts':
+      return row.itemAmounts.join(' / ')
+  
     default:
       return row[key]
   }
@@ -86,7 +91,9 @@ const updateInventory = (classscore: TableData, newState: boolean, oldState: boo
   const inc = !newState && oldState
 
   if (newState != oldState) {
-    inventoryStatus[classscore.itemId].stock += (inc ? 1 : -1) * classscore.itemAmount
+    classscore.itemIds.forEach((itemId, index) => {
+      inventoryStatus[itemId].stock += (inc ? 1 : -1) * classscore.itemAmounts[index]
+    })
     inventoryStatus[itemName2Id['星光の砂']].stock += (inc ? 1 : -1) * (classscore.sands || 0)
     inventoryStatus[itemName2Id['QP']].stock += (inc ? 1 : -1) * (classscore.qp || 0)
     return true
@@ -105,6 +112,7 @@ const filterDefinition: FilterDefinition[] = [
       { label: "キャスター", key: "術" },
       { label: "アサシン", key: "殺" },
       { label: "バーサーカー", key: "狂" },
+      { label: "アルターエゴ", key: "分" },
     ]
   },
   {
@@ -190,14 +198,22 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const calcTableData = (classscores: ClassScores): TableData[] => {
   const sortkey = (row) => row.id
-  return classscores.map((classscore, index) => (
-    { id: classscore.id, index, classId: classscore.spec.class, nodeName: classscore.spec.nodeName, prevNodeName: classscore.spec.prevNodeName,
+  return classscores.map((classscore, index) => {
+    const itemIds = Object.keys(classscore.spec.items).map((idStr) => Number(idStr))
+    const itemTexts = itemIds.map<string>((id) => itemNames[id])
+    const itemAmounts = Object.values(classscore.spec.items)
+    if (itemIds.length >= 3) {
+      itemIds.splice(-2, 2)
+      itemTexts.splice(-2, 2)
+      itemAmounts.splice(-2, 2)
+    }
+    return { id: classscore.id, index, classId: classscore.spec.class, nodeName: classscore.spec.nodeName, prevNodeName: classscore.spec.prevNodeName,
       effectText: `${classscore.spec.effect.condition} ${classscore.spec.effect.text}`.replace(/-\s*/g, ""), effectValue: classscore.spec.effect.value,
       reserved: classscore.reserved, acquired: classscore.acquired,
-      itemId: Number(Object.keys(classscore.spec.items)[0]), itemName: itemNames[Object.keys(classscore.spec.items)[0]], itemAmount: Number(Object.values(classscore.spec.items)[0]),
+      itemIds: itemIds, itemNames: itemTexts, itemAmounts: itemAmounts,
       sands: classscore.spec.items[700], qp: classscore.spec.items[900]
     } 
-  )).sort((a, b) => {
+  }).sort((a, b) => {
     return sortkey(a) - sortkey(b)
   })
 }

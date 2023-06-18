@@ -36,6 +36,10 @@ Promise.all([csv2json(csvs[0])])
 .then(([classscore_array]) => {
 
   const classscore = classscore_array.reduce((acc, row) => {
+    const items = row.itemName.split(/\n/).reduce((acc, itemName, index) => {
+      acc[ids.itemName2Id[itemName]] = (typeof row.item == 'number') ? row.item : parseInt(row.item.split(/\n/)[index])
+      return acc;
+    }, {})
     const result_row = {
       id: row.id,
       class: ids.className2Id[row.class],
@@ -47,7 +51,7 @@ Promise.all([csv2json(csvs[0])])
         value: row.effect_value
       },
       items: {
-        [ids.itemName2Id[row.itemName]]: row.item,
+        ...items,
         [ids.itemName2Id['星光の砂']]: row.sand || undefined,
         [ids.itemName2Id['QP']]: row.qp / 10000 || undefined,
       }
