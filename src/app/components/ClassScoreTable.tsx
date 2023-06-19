@@ -52,6 +52,12 @@ type TableData = {
   qp: number
 }
 
+const classscoreServantClassNames = {
+  ...servantClassNames,
+
+  "9": "分降詐獣"
+}
+
 const columns : TableColumnInfo[] = [
   { label: 'id', key: 'id', align: "left", width: 80 },
   { label: 'クラス', key: 'classId', align: "left", width: 80 },
@@ -75,7 +81,7 @@ const getTableData = (tableData: TableData, columnIndex: number, sort?: boolean)
       if (sort) {
         return row.classId
       }
-      return servantClassNames[row.classId]
+      return classscoreServantClassNames[row.classId]
 
     case 'itemNames':
       return row.itemNames.join(' / ')
@@ -112,7 +118,7 @@ const filterDefinition: FilterDefinition[] = [
       { label: "キャスター", key: "術" },
       { label: "アサシン", key: "殺" },
       { label: "バーサーカー", key: "狂" },
-      { label: "EX2", key: "分" },
+      { label: "EX2", key: "分降詐獣" },
     ]
   },
   {
@@ -250,7 +256,7 @@ const filterAndSort = (tableData: TableData[], filters: FilterValues, sortColumn
       switch(groupKey) {
         case "class":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
-            return enabled && (servantClassNames[row.classId] == filterKey)
+            return enabled && (classscoreServantClassNames[row.classId] == filterKey)
           })
         case "effect":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
@@ -448,7 +454,7 @@ export const ClassScoreTable: FC<Prop> = (props) => {
         <Grid item className={classes.summary} >
           { `実装: ${summary.classscores}  解放予定: ${summary.reserved} 解放済み: ${summary.acquired} フィルタ: ${tableData.length}`}
           { Object.entries(summary.effects).map(([classId, effects]) => {
-            return <><div>&emsp;{servantClassNames[parseInt(classId)]}: {formatEffects(effects)}</div></>
+            return <><div>&emsp;{classscoreServantClassNames[parseInt(classId)]}: {formatEffects(effects)}</div></>
           }) }
         </Grid>
         <Grid item>
