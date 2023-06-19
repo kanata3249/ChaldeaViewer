@@ -112,7 +112,7 @@ const filterDefinition: FilterDefinition[] = [
       { label: "キャスター", key: "術" },
       { label: "アサシン", key: "殺" },
       { label: "バーサーカー", key: "狂" },
-      { label: "アルターエゴ", key: "分" },
+      { label: "EX2", key: "分" },
     ]
   },
   {
