@@ -6,7 +6,7 @@ import { Grid, Button, TextField, FormControlLabel, Checkbox } from '@material-u
 import { VariableSizeGrid } from 'react-window'
 
 import { servantClassNames } from '../../fgo/servants'
-import { ClassScores } from '../../fgo/classscores'
+import { ClassScores, ClassScore } from '../../fgo/classscores'
 import { InventoryStatus, itemNames, itemName2Id } from '../../fgo/inventory'
 
 import { DialogProviderContext } from './DialogProvider'
@@ -50,6 +50,8 @@ type TableData = {
   itemAmounts: number[]
   sands: number
   qp: number
+  pathSands: number
+  pathAcquiredSands: number
 }
 
 const classscoreServantClassNames = {
@@ -67,6 +69,8 @@ const columns : TableColumnInfo[] = [
   { label: '素材', key: 'itemNames', align: "left", width: 200 },
   { label: '素材数', key: 'itemAmounts', align: "right", width: 80 },
   { label: '砂', key: 'sands', align: "right", width: 80 },
+  { label: '残経路砂', key: 'pathSandsLeft', align: "right", width: 80 },
+  { label: '経路砂', key: 'pathSands', align: "right", width: 80 },
   { label: 'QP', key: 'qp', align: "right", width: 80 },
   { label: '解放予定', key: 'reserved', align: "center", width: 80, editable: true, type: "boolean" },
   { label: '解放済み', key: 'acquired', align: "center", width: 80, editable: true, type: "boolean" },
@@ -87,6 +91,11 @@ const getTableData = (tableData: TableData, columnIndex: number, sort?: boolean)
       return row.itemNames.join(' / ')
     case 'itemAmounts':
       return row.itemAmounts.join(' / ')
+
+    case 'pathSandsLeft':
+      return row.pathSands - row.pathAcquiredSands
+    case 'pathSands':
+      return row.pathSands
   
     default:
       return row[key]
@@ -217,8 +226,16 @@ const calcTableData = (classscores: ClassScores): TableData[] => {
       effectText: `${classscore.spec.effect.condition} ${classscore.spec.effect.text}`.replace(/-\s*/g, ""), effectValue: classscore.spec.effect.value,
       reserved: classscore.reserved, acquired: classscore.acquired,
       itemIds: itemIds, itemNames: itemTexts, itemAmounts: itemAmounts,
-      sands: classscore.spec.items[700], qp: classscore.spec.items[900]
-    } 
+      sands: classscore.spec.items[700], qp: classscore.spec.items[900],
+      pathSands: 0, pathAcquiredSands: 0
+    }
+  }).map((row, index, array) => {
+    if (row.prevNodeName.length) {
+      const prevNode = array.find((v) => v.nodeName == row.prevNodeName)
+      row.pathSands = prevNode.pathSands + (prevNode.sands || 0)
+      row.pathAcquiredSands = prevNode.pathAcquiredSands + (prevNode.acquired ? (prevNode.sands || 0) : 0)
+    }
+    return row
   }).sort((a, b) => {
     return sortkey(a) - sortkey(b)
   })
