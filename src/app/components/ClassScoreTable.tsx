@@ -443,15 +443,15 @@ export const ClassScoreTable: FC<Prop> = (props) => {
   }
   const formatEffects = (effects) => {
     const labels = [
-      { label: "B威力", key: "Busterカード威力アップ" },
-      { label: "A威力", key: "Artsカード威力アップ" },
-      { label: "Q威力", key: "Quickカード威力アップ" },
-      { label: "EX性能", key: "Extraアタック性能アップ" },
-      { label: "Bクリ", key: "Busterカードのクリティカル威力アップ" },
-      { label: "Aクリ", key: "Artsカードのクリティカル威力アップ" },
-      { label: "Qクリ", key: "Quickカードのクリティカル威力アップ" },
       { label: "宝具", key: "宝具威力アップ" },
+      { label: "EX性能", key: "Extraアタック性能アップ" },
+      { label: "Q威力", key: "Quickカード威力アップ" },
+      { label: "A威力", key: "Artsカード威力アップ" },
+      { label: "B威力", key: "Busterカード威力アップ" },
       { label: "クリ", key: "クリティカル威力アップ" },
+      { label: "Qクリ", key: "Quickカードのクリティカル威力アップ" },
+      { label: "Aクリ", key: "Artsカードのクリティカル威力アップ" },
+      { label: "Bクリ", key: "Busterカードのクリティカル威力アップ" },
       { label: "スター", key: "スター発生率アップ" },
       { label: "令呪", key: "攻撃力アップ(1T)\n防御力アップ(1T)" },
       { label: "効果なし", key: "" }
