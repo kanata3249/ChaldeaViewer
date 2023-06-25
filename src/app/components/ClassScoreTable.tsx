@@ -54,6 +54,18 @@ type TableData = {
   pathAcquiredSands: number
 }
 
+type TableSummary = {
+  classscores: number
+  onsale: number
+  reserved: number
+  acquired: number
+  effects: {
+    [classid: number]: {
+      [effect: string]: string
+    }
+  }
+}
+
 const classscoreServantClassNames = {
   ...servantClassNames,
 
@@ -253,13 +265,15 @@ const addEffectValue = (a, b) => {
   }).join("\n")
 }
 
-const calcSummary = (classscores: ClassScores) => {
+const calcSummary = (classscores: ClassScores): TableSummary => {
   return classscores.reduce((acc, classscore) => {
     acc.classscores++
     classscore.reserved && !classscore.acquired && acc.reserved++
     if (classscore.acquired) {
       acc.acquired++
+      const point = (Object.keys(classscore.spec.items).length > 1 ? 1 : 0) + (acc.effects[classscore.spec.class]?.point || 0)
       acc.effects[classscore.spec.class] = { ...acc.effects[classscore.spec.class],
+        point,
          [classscore.spec.effect.text]: addEffectValue(acc.effects[classscore.spec.class]?.[classscore.spec.effect.text], classscore.spec.effect.value)
       }
     }
@@ -471,7 +485,7 @@ export const ClassScoreTable: FC<Prop> = (props) => {
         <Grid item className={classes.summary} >
           { `実装: ${summary.classscores}  解放予定: ${summary.reserved} 解放済み: ${summary.acquired} フィルタ: ${tableData.length}`}
           { Object.entries(summary.effects).map(([classId, effects]) => {
-            return <><div>&emsp;{classscoreServantClassNames[parseInt(classId)]}: {formatEffects(effects)}</div></>
+            return <><div>&emsp;{classscoreServantClassNames[parseInt(classId)]}: +{effects.point} {formatEffects(effects)}</div></>
           }) }
         </Grid>
         <Grid item>
