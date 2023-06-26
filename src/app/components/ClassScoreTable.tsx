@@ -164,6 +164,7 @@ const filterDefinition: FilterDefinition[] = [
     buttons: [
       { label: "予定なし", key: "notreserved" },
       { label: "解放予定", key: "reserved" },
+      { label: "未解放", key: "notacquired" },
       { label: "解放済み", key: "acquired" },
     ]
   },
@@ -298,6 +299,8 @@ const filterAndSort = (tableData: TableData[], filters: FilterValues, sortColumn
             switch (filterKey) {
             case 'notreserved':
               return enabled && !row.reserved && !row.acquired
+            case 'notacquired':
+              return enabled && !row.acquired
             case 'reserved':
             case 'acquired':
               return enabled && row[filterKey]
