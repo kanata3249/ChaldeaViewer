@@ -486,7 +486,7 @@ export const ClassScoreTable: FC<Prop> = (props) => {
     <div className={classes.container} ref={myRef}>
       <Grid container className={classes.controller} justifyContent="flex-end" alignItems="center" spacing={1} >
         <Grid item className={classes.summary} >
-          { `実装: ${summary.classscores}  解放予定: ${summary.reserved} 解放済み: ${summary.acquired} フィルタ: ${tableData.length}`}
+          { `実装: ${summary.classscores}  強化予定: ${summary.reserved} 強化済み: ${summary.acquired} フィルタ: ${tableData.length}`}
           { Object.entries(summary.effects).map(([classId, effects]) => {
             return <><div>&emsp;{classscoreServantClassNames[parseInt(classId)]}: +{effects.point} {formatEffects(effects)}</div></>
           }) }
@@ -496,7 +496,7 @@ export const ClassScoreTable: FC<Prop> = (props) => {
         </Grid>
         <Grid item>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={modifyInventory} onChange={handleModifyInventory} />}
-                            label="購入状態変更時に所持数に反映" />
+                            label="強化状態変更時に所持数に反映" />
         </Grid>
         <Grid item>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
