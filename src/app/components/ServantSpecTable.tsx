@@ -159,6 +159,7 @@ const columns : TableColumnInfo[] = [
   { label: 'ID', key: 'id', align: "center", width: 80},
   { label: '名称', key: 'name', align: "left", width: 240},
   { label: 'クラス', key: 'class', align: "center", width: 80},
+  { label: 'レア', key: 'rare', align: "center", width: 80},
   { label: '特性', key: 'characteristics', align: "left", width: 400},
   { label: '宝具タイプ', key: 'npType', align: "center", width: 80},
   { label: '宝具Lv', key: 'npLevel', align: "center", width: 80 },
@@ -313,6 +314,17 @@ const filterDefinition: FilterDefinition[] = [
       { label: "狂", key: "狂" },
       { label: "夏", key: "夏" },
       { label: "花嫁", key: "花嫁" },
+    ]
+  },
+  {
+    name: "レアリティ", key: "rare", type: "check",
+    buttons: [
+      { label: "★5", key: "5" },
+      { label: "★4", key: "4" },
+      { label: "★3", key: "3" },
+      { label: "★2", key: "2" },
+      { label: "★1", key: "1" },
+      { label: "★0", key: "0" },
     ]
   },
   {
