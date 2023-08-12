@@ -47,7 +47,7 @@ Promise.all([csv2json(process.argv[3])]).then(([costume_array]) => {
                     costumes[aid2id[aid]].items = items
                 } else {
                     newCostumes.push(`${id}\t${aid}\t${Object.keys(items).map((itemId) => `${ids.itemNames[itemId]}\t${items[itemId]}`).join('\t')}`)
-                    console.log("*** new costume found ***", id, servantData.name)
+                    console.log("*** new costume found ***", id, servantData.name, aid)
                 }
             })
         }
