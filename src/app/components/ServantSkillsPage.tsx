@@ -88,7 +88,7 @@ export const ServantSkillsPage: FC<Prop> = (props) => {
                       return (<tr key={index}><td colSpan={11} >{`${row.targets[index]} ${text}`}</td></tr>)
                     case "passive":
                       if (row.targets[0] != "自身")
-                        return (<tr key={index}><td colSpan={11} >{`${row.targets[0]} ${text} ${row.values[index]}`}</td></tr>)
+                        return (<tr key={index}><td colSpan={11} >{`${row.targets[index]} ${text} ${row.values[index]}`}</td></tr>)
                       return (<tr key={index}><td colSpan={11} >{`${text} ${row.values[index]}`}</td></tr>)
                     case "active":
                       if (row.values[index][0] != row.values[index][9])
