@@ -341,7 +341,7 @@ export const ClassScoreTable: FC<Prop> = (props) => {
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
       const width = entries[0].contentRect.width
-      const height = entries[0].contentRect.height - 48
+      const height = entries[0].contentRect.height
       if (!(isAndroid && document.activeElement.nodeName == 'INPUT')) {
         setTableSize([width, height])
       }
@@ -517,7 +517,7 @@ export const ClassScoreTable: FC<Prop> = (props) => {
         rowCount={1} rowHeight={() => (30)} style={{overflowX: "hidden", overflowY: "scroll"}}>
         {headerCell}
       </VariableSizeGrid>
-      <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - 30} ref={bodyRef}
+      <VariableSizeGrid width={tableSize[0]} height={tableSize[1] - (30 + 18 * Object.keys(summary.effects).length) - 30} ref={bodyRef}
         columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
         rowCount={tableData.length} rowHeight={() => (30)} onScroll={({scrollLeft}) => {headerRef.current.scrollTo({scrollLeft: scrollLeft, scrollTop: 0})}} >
         {cell}
