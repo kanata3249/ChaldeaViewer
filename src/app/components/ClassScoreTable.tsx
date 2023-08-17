@@ -386,7 +386,6 @@ export const ClassScoreTable: FC<Prop> = (props) => {
   }
 
   const handleCheckChanged = (rowIndex: number, columnIndex: number, checked: boolean) => {
-    console.log(tableData[rowIndex].index, columns[columnIndex].key)
     props.classscores[tableData[rowIndex].index][columns[columnIndex].key] = checked
     if (columns[columnIndex].key == 'acquired' && modifyInventory) {
       const inventoryStatus = props.getInventoryStatus()
