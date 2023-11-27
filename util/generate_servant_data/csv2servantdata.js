@@ -357,31 +357,33 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
       })
     }
     owners.forEach((owner) => {
-      if (skillType == "np") {
-        const oldNpIndex = servantList[owner].skills[skillType].findIndex((npId) => (skills[npId].npType == npType))
-        if (oldNpIndex >= 0) {
-          servantList[owner].skills[skillType][oldNpIndex] = skillId
-        } else {
-          servantList[owner].npTypes = [ ...servantList[owner].npTypes, npType ]
-          servantList[owner].skills[skillType] = [ ...servantList[owner].skills[skillType], skillId ]
-          if (servantList[owner].skills[skillType].length > 1) {
-            console.log(`second np for ${servantNames[owner]}`)
+      if (servantList[owner]) {
+        if (skillType == "np") {
+          const oldNpIndex = servantList[owner].skills[skillType].findIndex((npId) => (skills[npId].npType == npType))
+          if (oldNpIndex >= 0) {
+            servantList[owner].skills[skillType][oldNpIndex] = skillId
+          } else {
+            servantList[owner].npTypes = [ ...servantList[owner].npTypes, npType ]
+            servantList[owner].skills[skillType] = [ ...servantList[owner].skills[skillType], skillId ]
+            if (servantList[owner].skills[skillType].length > 1) {
+              console.log(`second np for ${servantNames[owner]}`)
+            }
           }
-        }
-      } else if (skillType == "active") {
-        const skillNo = skillNoMap[owner] && skillNoMap[owner][name] || servantList[owner].skills[skillType].findIndex((v) => (v < 0)) + 1
-        if (skillNo == 0) {
-          if (servantList[owner].skills.active[0] >= 0 && isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[0]]))
-            servantList[owner].skills.active[0] = skillId
-          else if (servantList[owner].skills.active[1] >= 0 && isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[1]]))
-            servantList[owner].skills.active[1] = skillId
-          else if (servantList[owner].skills.active[2] >= 0 && isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[2]]))
-            servantList[owner].skills.active[2] = skillId
+        } else if (skillType == "active") {
+          const skillNo = skillNoMap[owner] && skillNoMap[owner][name] || servantList[owner].skills[skillType].findIndex((v) => (v < 0)) + 1
+          if (skillNo == 0) {
+            if (servantList[owner].skills.active[0] >= 0 && isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[0]]))
+              servantList[owner].skills.active[0] = skillId
+            else if (servantList[owner].skills.active[1] >= 0 && isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[1]]))
+              servantList[owner].skills.active[1] = skillId
+            else if (servantList[owner].skills.active[2] >= 0 && isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[2]]))
+              servantList[owner].skills.active[2] = skillId
+          } else {
+            servantList[owner].skills[skillType][skillNo - 1] = skillId
+          }
         } else {
-          servantList[owner].skills[skillType][skillNo - 1] = skillId
+          servantList[owner].skills[skillType].push(skillId)
         }
-      } else {
-        servantList[owner].skills[skillType].push(skillId)
       }
     })
   })
@@ -441,7 +443,8 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
 
     }
     const servantId = servant["No."]
-    servantList[servantId].items = items
+    if (servantList[servantId])
+      servantList[servantId].items = items
     //    console.log("items for servant id: ", servant.id, items)
   })
 
@@ -495,7 +498,8 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
       }
       appendSkills[name] = skillId
     }
-    servantList[servant["No."]].skills.append = [ 10000, 10001, appendSkills[name] ]
+    if (servantList[servant["No."]])
+      servantList[servant["No."]].skills.append = [ 10000, 10001, appendSkills[name] ]
   })
 
   try {

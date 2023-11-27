@@ -11,25 +11,30 @@ ids = require('./ids')
 const atlasjson = JSON.parse(fs.readFileSync(process.argv[2]))
 
 const bgmList = {}
+const before = null // new Date("2022/1/1").getTime()/1000
 
 atlasjson.forEach((bgmData) => {
     if (!bgmData.notReleased) {
-        const items = (bgmData.shop && bgmData.shop.payType == "item")
-         ? { [ids.itemName2Id[bgmData.shop.cost.item.name]]: bgmData.shop.cost.amount }
-         : {}
-        bgmList[bgmData.id] = {
-            id: bgmData.id,
-            priority: bgmData.priority,
-            name: bgmData.name,
-            items
+        if (!before || bgmData.shop?.openedAt < before) {
+            const items = (bgmData.shop && bgmData.shop.payType == "item")
+            ? { [ids.itemName2Id[bgmData.shop.cost.item.name]]: bgmData.shop.cost.amount }
+            : {}
+            bgmList[bgmData.id] = {
+                id: bgmData.id,
+                priority: bgmData.priority,
+                name: bgmData.name,
+                items
+            }
         }
     }
 })
 
 // fix priority
-if (bgmList["367"].priority == bgmList["369"].priority) {
-    bgmList["367"].priority++
-    bgmList["365"].priority++
+if (bgmList["367"]) {
+    if (bgmList["367"].priority == bgmList["369"].priority) {
+        bgmList["367"].priority++
+        bgmList["365"].priority++
+    }
 }
 
 try {
