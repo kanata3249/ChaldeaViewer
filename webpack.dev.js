@@ -7,6 +7,8 @@ module.exports = merge(common, {
     hot: true,
     open: true,
     https: false,
-    contentBase: `${__dirname}/dist/`
+    static: {
+      directory: `${__dirname}/dist/`
+    }
   }
 })
