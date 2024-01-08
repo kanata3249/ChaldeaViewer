@@ -263,7 +263,9 @@ export const BgmTable: FC<Prop> = (props) => {
       const width = entries[0].contentRect.width
       const height = entries[0].contentRect.height - 48
       if (!(isAndroid && document.activeElement.nodeName == 'INPUT')) {
-        setTableSize([width, height])
+        window.requestAnimationFrame((): void | undefined => {
+          setTableSize([width, height])
+        })
       }
     })
 
