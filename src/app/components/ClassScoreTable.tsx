@@ -518,7 +518,7 @@ export const ClassScoreTable: FC<Prop> = (props) => {
         <Grid item className={classes.summary} >
           { `実装: ${summary.classscores}  強化予定: ${summary.reserved} 強化済み: ${summary.acquired} フィルタ: ${tableData.length}`}
           { Object.entries(summary.effects).map(([classId, effects]) => {
-            return <><div>&emsp;{classscoreServantClassNames[parseInt(classId)]}: +{effects.point} {formatEffects(effects)}</div></>
+            return <div key={`summary-${classId}`}>&emsp;{classscoreServantClassNames[parseInt(classId)]}: +{effects.point} {formatEffects(effects)}</div>
           }) }
         </Grid>
         <Grid item>
