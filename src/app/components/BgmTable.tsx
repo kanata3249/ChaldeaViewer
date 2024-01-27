@@ -391,7 +391,7 @@ export const BgmTable: FC<Prop> = (props) => {
         </Grid>
         <Grid item>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={modifyInventory} onChange={handleModifyInventory} />}
-                            label="購入状態変更時に所持数に反映" />
+                            label="所持アイテム数に反映" />
         </Grid>
         <Grid item>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
