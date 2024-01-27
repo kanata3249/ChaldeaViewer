@@ -397,16 +397,37 @@ export const ClassScoreTable: FC<Prop> = (props) => {
     saveFilter("ClassScoreTable", newFilterValues)
   }
 
-  const getClassScorePath = (classScores: ClassScores, index : number) => {
+  const getNodePath = (classScores: ClassScores, index: number) => {
     if (index < 0) {
       return []
     }
     const prevNodeIndex = classScores.findIndex((node) => node.spec.nodeName == classScores[index].spec.prevNodeName)
-    const path = getClassScorePath(classScores, prevNodeIndex)
+    const path = getNodePath(classScores, prevNodeIndex)
     if (prevNodeIndex >= 0) {
       path.push(classScores[prevNodeIndex])
     }
     return path
+  }
+
+  const filterRequiredNodes = (classScores: ClassScores, key: string, path: ClassScores) => {
+    const nodeNotInPath = classScores.filter((node) => node[key] && !path.find((entry) => entry.nodeName == node.nodeName))
+    const requiredNodeMap = nodeNotInPath.reduce((acc, node) => {
+      acc[node.nodeName] = node
+      const index = classScores.findIndex((entry) => entry.nodeName == node.nodeName)
+      getNodePath(classScores, index).forEach((nodeInPath) => {
+        acc[nodeInPath.nodeName] = nodeInPath
+      })
+      return acc
+    },{})
+    return path.filter((entry) => !requiredNodeMap[entry.nodeName])
+  }
+
+  const getDependedNodes = (classScores: ClassScores, entryNode: ClassScore) => {
+    const dependedNodes = classScores.filter((entry) => entry.spec.prevNodeName == entryNode.spec.nodeName)
+    return dependedNodes.reduce((acc, node) => {
+      acc.push(...getDependedNodes(classScores, node))
+      return acc
+    },[...dependedNodes])
   }
 
   const handleCheckChanged = (rowIndex: number, columnIndex: number, checked: boolean) => {
@@ -414,8 +435,13 @@ export const ClassScoreTable: FC<Prop> = (props) => {
     const updateNodeList = [ props.classscores[tableData[rowIndex].index] ]
     const inventoryStatus = props.getInventoryStatus()
 
-    if (checked && updatePath) {
-      updateNodeList.push( ...getClassScorePath(props.classscores, tableData[rowIndex].index) )
+    if (updatePath) {
+      if (checked) {
+        updateNodeList.push( ...getNodePath(props.classscores, tableData[rowIndex].index) )
+      } else {
+        updateNodeList.push( ...filterRequiredNodes(props.classscores, key, [ ...updateNodeList, ...getNodePath(props.classscores, tableData[rowIndex].index)]))
+        updateNodeList.push( ...getDependedNodes(props.classscores, props.classscores[tableData[rowIndex].index]))
+      }
     }
 
     const inventoryUpdated = updateNodeList.reduce((acc, node) => {
