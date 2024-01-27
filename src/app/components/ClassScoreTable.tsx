@@ -11,7 +11,7 @@ import { InventoryStatus, itemNames, itemName2Id } from '../../fgo/inventory'
 
 import { DialogProviderContext } from './DialogProvider'
 import { FilterDefinition, FilterValues } from './FilterDialog'
-import { saveFilter, loadFilter, saveModifyInventory, loadModifyInventory } from '../storage'
+import { saveFilter, loadFilter, saveUpdatePath, loadUpdatePath, saveModifyInventory, loadModifyInventory } from '../storage'
 
 type Prop = {
   classscores: ClassScores
@@ -114,15 +114,14 @@ const getTableData = (tableData: TableData, columnIndex: number, sort?: boolean)
   }
 }
 
-const updateInventory = (classscore: TableData, newState: boolean, oldState: boolean, inventoryStatus: InventoryStatus) => {
+const updateInventory = (classscore: ClassScore, newState: boolean, inventoryStatus: InventoryStatus) => {
+  const oldState = classscore.acquired
   const inc = !newState && oldState
 
   if (newState != oldState) {
-    classscore.itemIds.forEach((itemId, index) => {
-      inventoryStatus[itemId].stock += (inc ? 1 : -1) * classscore.itemAmounts[index]
+    Object.entries(classscore.spec.items).forEach(([itemId, amount]) => {
+      inventoryStatus[itemId].stock += (inc ? 1 : -1) * amount
     })
-    inventoryStatus[itemName2Id['星光の砂']].stock += (inc ? 1 : -1) * (classscore.sands || 0)
-    inventoryStatus[itemName2Id['QP']].stock += (inc ? 1 : -1) * (classscore.qp || 0)
     return true
   }
   return false
@@ -335,6 +334,7 @@ export const ClassScoreTable: FC<Prop> = (props) => {
   const [ tableSize, setTableSize ] = useState([1000, 800])
   const tableData = filterAndSort(calcTableData(props.classscores), filterValues, sortBy, sortOrder)
   const summary = calcSummary(props.classscores)
+  let updatePath = loadUpdatePath()
   let modifyInventory = loadModifyInventory('ClassScoreTable')
   const refs = {}
 
@@ -387,17 +387,41 @@ export const ClassScoreTable: FC<Prop> = (props) => {
     saveFilter("ClassScoreTable", newFilterValues)
   }
 
+  const getClassScorePath = (classScores: ClassScores, index : number) => {
+    if (index < 0) {
+      return []
+    }
+    const prevNodeIndex = classScores.findIndex((node) => node.spec.nodeName == classScores[index].spec.prevNodeName)
+    const path = getClassScorePath(classScores, prevNodeIndex)
+    if (prevNodeIndex >= 0) {
+      path.push(classScores[prevNodeIndex])
+    }
+    return path
+  }
+
   const handleCheckChanged = (rowIndex: number, columnIndex: number, checked: boolean) => {
-    props.classscores[tableData[rowIndex].index][columns[columnIndex].key] = checked
-    if (columns[columnIndex].key == 'acquired' && modifyInventory) {
-      const inventoryStatus = props.getInventoryStatus()
-      if (updateInventory(tableData[rowIndex], checked, tableData[rowIndex].acquired, inventoryStatus)) {
-        props.setInventoryStatus(inventoryStatus)
+    const key = columns[columnIndex].key
+    const updateNodeList = [ props.classscores[tableData[rowIndex].index] ]
+    const inventoryStatus = props.getInventoryStatus()
+
+    if (checked && updatePath) {
+      updateNodeList.push( ...getClassScorePath(props.classscores, tableData[rowIndex].index) )
+    }
+
+    const inventoryUpdated = updateNodeList.reduce((acc, node) => {
+      if (key == 'acquired' && modifyInventory) {
+        acc = updateInventory(node, checked, inventoryStatus) || acc
       }
+      node[key] = checked
+      return acc
+    }, false)
+
+    if (inventoryUpdated) {
+      props.setInventoryStatus(inventoryStatus)
     }
     props.onChange(props.classscores)
     setTableKey(tableKey + 1)
-  }
+}
 
   const handleClickClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
     const lines: string[] = []
@@ -412,6 +436,11 @@ export const ClassScoreTable: FC<Prop> = (props) => {
 
   const handleClickRecalc = (e: React.MouseEvent<HTMLButtonElement>) => {
     setTableKey(tableKey + 1)
+  }
+
+  const handleUpdatePath = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updatePath = e.target.checked
+    saveUpdatePath(updatePath)
   }
 
   const handleModifyInventory = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -494,6 +523,10 @@ export const ClassScoreTable: FC<Prop> = (props) => {
         </Grid>
         <Grid item>
           <Button onClick={handleClickRecalc} variant="outlined" >再計算</Button>
+        </Grid>
+        <Grid item>
+          <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={updatePath} onChange={handleUpdatePath} />}
+                            label="経路自動更新" />
         </Grid>
         <Grid item>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={modifyInventory} onChange={handleModifyInventory} />}

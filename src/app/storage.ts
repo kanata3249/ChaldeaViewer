@@ -5,7 +5,11 @@ import { Bgms, validateBgms } from './../fgo/bgms'
 import { FilterValues } from './components/FilterDialog'
 
 const defaultConfiguration = {
-  modifyInventory: false
+  modifyInventory: false,
+  modifyInventoryOnBgmTable: false,
+  modifyInventoryOnClassScoreTable: false,
+  modifyInventoryOnCostumeTable: false,
+  updatePath: false
 }
 
 const makeKey = (name: string) => {
@@ -132,6 +136,20 @@ export const loadFilter = (key: string): FilterValues => {
 
 export const saveFilter = (key: string, filterValues: FilterValues) => {
   localStorage.setItem(makeKey(`filterValues/${key}`), JSON.stringify(filterValues))
+}
+
+export const loadUpdatePath = (): boolean => {
+  const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
+
+  return configuration.updatePath
+}
+
+export const saveUpdatePath = (value: boolean) => {
+  const configuration = JSON.parse(localStorage.getItem(makeKey('configuration'))) || defaultConfiguration
+
+  configuration.updatePath = value
+  
+  localStorage.setItem(makeKey('configuration'), JSON.stringify(configuration))
 }
 
 export const loadModifyInventory = (table: string): boolean => {
