@@ -56,9 +56,13 @@ type TableData = {
 
 type TableSummary = {
   classscores: number
-  onsale: number
   reserved: number
   acquired: number
+  sands: {
+    all: number
+    reserved: number
+    acquired: number
+  }
   effects: {
     [classid: number]: {
       [effect: string]: string
@@ -266,11 +270,17 @@ const addEffectValue = (a, b) => {
 }
 
 const calcSummary = (classscores: ClassScores): TableSummary => {
+  const sandItemid = itemName2Id['星光の砂']
   return classscores.reduce((acc, classscore) => {
     acc.classscores++
-    classscore.reserved && !classscore.acquired && acc.reserved++
+    acc.sands.all += classscore.spec.items[sandItemid] || 0
+    if (classscore.reserved && !classscore.acquired) {
+      acc.reserved++
+      acc.sands.reserved += classscore.spec.items[sandItemid] || 0
+    }
     if (classscore.acquired) {
       acc.acquired++
+      acc.sands.acquired += classscore.spec.items[sandItemid] || 0
       const point = (Object.keys(classscore.spec.items).length > 1 ? 1 : 0) + (acc.effects[classscore.spec.class]?.point || 0)
       acc.effects[classscore.spec.class] = { ...acc.effects[classscore.spec.class],
         point,
@@ -278,7 +288,7 @@ const calcSummary = (classscores: ClassScores): TableSummary => {
       }
     }
     return acc
-  }, { classscores: 0, onsale: 0, reserved: 0, acquired: 0, effects: {} })
+  }, { classscores: 0, reserved: 0, acquired: 0, sands: { all: 0, reserved: 0, acquired: 0 }, effects: {} })
 }
 
 const filterAndSort = (tableData: TableData[], filters: FilterValues, sortColumn: number, sortOrder: number) => {
@@ -516,7 +526,7 @@ export const ClassScoreTable: FC<Prop> = (props) => {
     <div className={classes.container} ref={myRef}>
       <Grid container className={classes.controller} justifyContent="flex-end" alignItems="center" spacing={1} >
         <Grid item className={classes.summary} >
-          { `実装: ${summary.classscores}  強化予定: ${summary.reserved} 強化済み: ${summary.acquired} フィルタ: ${tableData.length}`}
+          { `実装: ${summary.classscores}  強化予定: ${summary.reserved} 強化済み: ${summary.acquired} フィルタ: ${tableData.length} 砂: 実装 ${summary.sands.all} 予定 ${summary.sands.reserved} 済 ${summary.sands.acquired}`}
           { Object.entries(summary.effects).map(([classId, effects]) => {
             return <div key={`summary-${classId}`}>&emsp;{classscoreServantClassNames[parseInt(classId)]}: +{effects.point} {formatEffects(effects)}</div>
           }) }
