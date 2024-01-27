@@ -439,7 +439,6 @@ export const ClassScoreTable: FC<Prop> = (props) => {
       if (checked) {
         updateNodeList.push( ...getNodePath(props.classscores, tableData[rowIndex].index) )
       } else {
-        updateNodeList.push( ...filterRequiredNodes(props.classscores, key, [ ...updateNodeList, ...getNodePath(props.classscores, tableData[rowIndex].index)]))
         updateNodeList.push( ...getDependedNodes(props.classscores, props.classscores[tableData[rowIndex].index]))
       }
     }
