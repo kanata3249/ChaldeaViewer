@@ -36,7 +36,7 @@ export const generateCleanClassScore = (spec: ClassScoreSpec) => {
     id: spec.id,
     nodeName: spec.nodeName,
     acquired: false,
-    reserved: true,
+    reserved: false,
     spec: spec
   }
 }
