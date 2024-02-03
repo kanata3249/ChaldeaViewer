@@ -33,490 +33,29 @@ const attributeNames = {
     "beast": "獣",
 }
 
-const traitnames =
-{
-    "alignmentBalanced": "中庸",
-    "alignmentChaotic": "混沌",
-    "alignmentEvil": "悪",
-    "alignmentGood": "善",
-    "alignmentLawful": "秩序",
-    "alignmentMadness": "狂",
-    "alignmentNeutral": "中立",
-    "alignmentSummer": "夏",
-    "100600": "花嫁",
-    "arthur": "アーサー",
-    "associatedToTheArgo": "アルゴノーツ",
-    "atalante": "",
-    "attributeBeast": "",
-    "attributeEarth": "",
-    "attributeHuman": "",
-    "attributeSky": "",
-    "attributeStar": "",
-    "basedOnServant": "サーヴァント",
-    "brynhildsBeloved": "愛する者",
-    "canBeInBattle": "",
-    "childServant": "子供",
-    "classAlterEgo": "",
-    "classArcher": "",
-    "classAssassin": "",
-    "classAvenger": "",
-    "classBeastI": "",
-    "classBeastII": "",
-    "classBeastIIIL": "",
-    "classBeastIIIR": "",
-    "classBerserker": "",
-    "classCaster": "",
-    "classForeigner": "",
-    "classGrandCaster": "",
-    "classLancer": "",
-    "classMoonCancer": "",
-    "classPretender": "",
-    "classRider": "",
-    "classRuler": "",
-    "classSaber": "",
-    "classShielder": "",
-    "demonBeast": "",
-    "demonic": "魔性",
-    "demonicBeastServant": "",
-    "divine": "神性",
-    "divineOrDemonOrUndead": "",
-    "divineSpirit": "神霊",
-    "dragon": "竜",
-    "dragonSlayer": "",
-    "existenceOutsideTheDomain": "領域外の生命",
-    "fae": "妖精",
-    "fairyTaleServant": "童話",
-    "feminineLookingServant": "性別不明",
-    "genderCaenisServant": "",
-    "genderFemale": "女性",
-    "genderMale": "男性",
-    "genderUnknown": "性別不明",
-    "genji": "源氏",
-    "giant": "巨人",
-    "greekMythologyMales": "ギリシャ男",
-    "hasCostume": "",
-    "hominidaeServant": "",
-    "humanoid": "人型",
-    "illya": "イリヤ",
-    "king": "王",
-    "knightsOfTheRound": "円卓",
-    "livingHuman": "今を生きる人類",
-    "mechanical": "機械",
-    "nobunaga": "信長",
-    "oni": "鬼",
-    "riding": "騎乗スキル",
-    "roman": "ローマ",
-    "saberClassServant": "",
-    "saberface": "アルトリア顔",
-    "shuten": "",
-    "skyOrEarth": "",
-    "skyOrEarthExceptPseudoAndDemi": "",
-    "superGiant": "超巨大",
-    "threatToHumanity": "人類の脅威",
-    "unknown": "",
-    "weakToEnumaElish": "エヌマ特攻有効",
-    "wildbeast": "猛獣",
-    "shinsengumiServant": "新撰組",
-    "2840": "梁山泊",
-    "holdingHolyGrail": "聖杯所持"
-}
-
-const targetTraitNames =
-{
-    "alignmentBalanced": "中庸",
-    "alignmentChaotic": "混沌",
-    "alignmentEvil": "悪",
-    "alignmentGood": "善",
-    "alignmentLawful": "秩序",
-    "alignmentMadness": "狂",
-    "alignmentNeutral": "中立",
-    "alignmentSummer": "夏",
-    "100600": "花嫁",
-    "arthur": "アーサー",
-    "associatedToTheArgo": "アルゴノーツ",
-    "atalante": "",
-    "attributeBeast": "",
-    "attributeEarth": "",
-    "attributeHuman": "",
-    "attributeSky": "",
-    "attributeStar": "",
-    "basedOnServant": "サーヴァント",
-    "brynhildsBeloved": "愛する者",
-    "buffGuts": "ガッツ状態",
-    "canBeInBattle": "",
-    "childServant": "子供",
-    "classAlterEgo": "",
-    "classArcher": "",
-    "classAssassin": "",
-    "classAvenger": "",
-    "classBeastI": "",
-    "classBeastII": "",
-    "classBeastIIIL": "",
-    "classBeastIIIR": "",
-    "classBerserker": "",
-    "classCaster": "",
-    "classForeigner": "フォーリナー",
-    "classGrandCaster": "",
-    "classLancer": "",
-    "classMoonCancer": "",
-    "classPretender": "",
-    "classRider": "",
-    "classRuler": "",
-    "classSaber": "",
-    "classShielder": "",
-    "demonBeast": "",
-    "demonic": "魔性",
-    "demonicBeastServant": "",
-    "divine": "神性",
-    "divineOrDemonOrUndead": "",
-    "divineSpirit": "神霊",
-    "dragon": "竜",
-    "dragonSlayer": "",
-    "existenceOutsideTheDomain": "領域外の生命",
-    "fae": "妖精",
-    "fairyTaleServant": "童話",
-    "feminineLookingServant": "性別不明",
-    "genderCaenisServant": "",
-    "genderFemale": "女性",
-    "genderMale": "男性",
-    "genderUnknown": "性別不明",
-    "genji": "源氏",
-    "giant": "巨人",
-    "greekMythologyMales": "ギリシャ男",
-    "hasCostume": "",
-    "havingAnimalsCharacteristics": "ケモノ科のサーヴァント",
-    "hominidaeServant": "ヒト科のサーヴァント",
-    "humanoid": "人型",
-    "illya": "イリヤ",
-    "king": "王",
-    "knightsOfTheRound": "円卓",
-    "livingHuman": "今を生きる人類",
-    "mechanical": "機械",
-    "nobunaga": "信長",
-    "oni": "鬼",
-    "riding": "騎乗スキル",
-    "roman": "ローマ",
-    "saberClassServant": "",
-    "saberface": "アルトリア顔",
-    "servant": "サーヴァント",
-    "servantsWithSkyAttribute": "天",
-    "shinsengumiServant": "新撰組",
-    "shuten": "酒呑童子",
-    "skyOrEarth": "",
-    "skyOrEarthExceptPseudoAndDemi": "",
-    "superGiant": "超巨大",
-    "summerModeServant": "夏モードのサーヴァント",
-    "threatToHumanity": "人類の脅威",
-    "unknown": "",
-    "weakToEnumaElish": "エヌマ特攻有効",
-    "wildbeast": "猛獣",
-    "valkyrie": "ワルキューレ",
-    "yuMeiren": "虞美人",
-    "2840": "梁山泊",
-    "holdingHolyGrail": "聖杯所持"
-}
-
-const individualTargetName = {
-    "1": "〔男性〕",
-    "2": "〔女性〕",
-    "103": "〔ライダー〕",
-    "109": "〔アルターエゴ〕",
-    "115": "〔ムーンキャンサー〕",
-    "200": "〔天〕",
-    "201": "〔地〕",
-    "202": "〔人〕",
-    "300": "〔秩序〕",
-    "301": "〔混沌〕",
-    "303": "〔善〕",
-    "304": "〔悪〕",
-    "1132": "〔鬼〕",
-    "1172": "〔人類の脅威〕",
-    "2000": "〔神性〕",
-    "2002": "〔竜〕",
-    "2004": "〔ローマ〕",
-    "2007": "〔アルトリア顔〕",
-    "2008": "〔エヌマ・エリシュ〕",
-    "2009": "〔騎乗スキル〕",
-    "2010": "〔アーサー〕",
-    "2011": "〔天または地の力を持つサーヴァント〕",
-    "2012": "〔愛する者〕",
-    "2019": "〔魔性〕",
-    "2075": "〔セイバークラスのサーヴァント〕",
-    "2076": "〔超巨大〕",
-    "2113": "〔王〕",
-    "2467": "〔急所判明〕 ",
-    "2666": "〔巨人〕",
-    "2759": "〔源氏〕",
-    "2827": "〔いいね！〕",
-    "2828": "〔王勇〕",
-    "2839": "〔新撰組〕",
-    "2840": "〔梁山泊〕",
-    "2857": "〔聖杯所持〕",
-    "2858": "〔7騎士のサーヴァント〕",
-    "3010": "〔精神異常〕",
-    "3011": "〔毒〕",
-    "3012": "〔魅了〕",
-    "3015": "〔やけど〕",
-    "3021": "〔回避〕",
-    "3026": "〔呪い〕",
-    "3025": "〔スキル封印〕"
-}
-
-const targetTextTable = {
-    "playerAndEnemy": {
-        "self": "自身",
-        "ptAll": "味方全体",
-        "ptOne": "味方単体",
-        "ptOther": "自身を除く味方全体",
-        "ptOtherFull":  "自身を除く味方全体",
-        "enemy": "敵単体",
-        "enemyAll": "敵全体"
-    },
-    "player": {
-        "self": "自身",
-        "ptAll": "味方全体",
-        "ptOne": "味方単体",
-        "ptOther": "自身を除く味方全体",
-        "ptOtherFull":  "自身を除く味方全体",
-        "enemy": "敵単体",
-        "enemyAll": "敵全体",
-        "commandTypeSelfTreasureDevice": "自身",
-    },
-    "enemy": {
-        "self": "",
-        "ptAll": "",
-        "ptOne": "",
-        "player": "",
-        "enemy": "敵単体",
-        "enemyAll": "敵全体"
-    }
-}
-
-const effectNames = {
-    'バスターアップ': 'Busterカード性能アップ',
-    'バスターアップ：水辺': 'Busterカード性能アップ',
-    'バスターアップ：千年城': '〔千年城〕 Busterカード性能アップ',
-    'アーツアップ': 'Artsカード性能アップ',
-    'アーツアップ：水辺または都市': 'Artsカード性能アップ',
-    'アーツアップ：千年城': '〔千年城〕 Artsカード性能アップ',
-    'クイックアップ': 'Quickカード性能アップ',
-    'クイックアップ：千年城': '〔千年城〕 Quickカード性能アップ',
-    'Extra Attackアップ': 'Extraカード性能アップ',
-    'アタックプラス': '与ダメージプラス',
-    'スター発生アップ': 'スター発生率アップ',
-    'クリティカル発生アップ': 'クリティカル発生率アップ',
-    'スター発生ダウン': 'スター発生率ダウン',
-    'クリティカル発生ダウン': 'クリティカル発生率ダウン',
-    'スター集中アップ': 'スター集中度アップ',
-    'スター集中アップ：Buster': 'Busterカードのスター集中度アップ',
-    'スター集中アップ：Arts': 'Artsカードのスター集中度アップ',
-    'スター集中アップ：Quick': 'Quickカードのスター集中度アップ',
-    'スター集中ダウン': 'スター集中度ダウン',
-    'クリティカル威力アップ：Buster': 'Busterカードのクリティカル威力アップ',
-    'クリティカル威力アップ：Arts': 'Artsカードのクリティカル威力アップ',
-    'クリティカル威力アップ：Quick': 'Quickカードのクリティカル威力アップ',
-    'ダメージカット': '被ダメージカット',
-    'ダメージプラス': '与ダメージプラス',
-    '被ダメージプラス': 'ダメージアップ',
-    'ヒット数アップ': '攻撃回数',
-    '即死': '即死効果',
-    '即死付与率アップ': '即死付与成功率アップ',
-    'バスター耐性ダウン': 'Busterカード耐性ダウン',
-    'アーツ耐性ダウン': 'Artsカード耐性ダウン',
-    'クイック耐性ダウン': 'Quickカード耐性ダウン',
-    '強化付与アップ': '強化付与成功率アップ',
-    '弱体付与アップ': '弱体付与成功率アップ',
-    '精神異常付与アップ': '精神異常付与成功率アップ',
-    'NP獲得アップ': 'NP獲得量アップ',
-    '毒': '毒（毎ターンHP）減少',
-    '呪い': '呪い（毎ターンHP）減少',
-    'やけど': 'やけど（毎ターンHP）減少',
-    'やけど(自己・非重複)': 'やけど（毎ターンHP）減少',
-    '延焼': 'やけどの効果量アップ',
-    'やけど無効': 'やけど無効状態',
-    '魅了': '魅了（行動不能）',
-    '石化': '石化（行動不能）',
-    '拘束': '拘束（行動不能）',
-    'スタン': 'スタン（行動不能）',
-    '恐怖': '毎ターン終了時 恐怖（行動不能）',
-    '特性付与〔竜〕': '〔竜〕特性追加',
-    '最大HPプラス': '最大HP増加',
-    '防御無視': '防御無視状態',
-    'HP回復量アップ': 'HP回復効果量アップ',
-    'スキルターン減少': 'スキルチャージ短縮',
-    '威力アップ・対超巨大エネミー': '〔超巨大〕威力アップ',
-    'ガッツ時発動': 'ガッツ発動時',
-    '被ダメージ時発動': '被ダメージ時',
-    '被ダメージ時NP獲得アップ': '被ダメージ時NP獲得量アップ',
-
-    '悪特性付与': '〔悪〕特性付与',
-    '善特性付与': '〔善〕特性付与',
-    '竜特性付与': '〔竜〕特性付与',
-    '猛獣特性付与': '〔猛獣〕特性付与',
-    '死霊特性付与': '〔死霊〕特性付与',
-   
-    '攻撃力アップ：神性': '攻撃力アップ',
-    'オーバーチャージ段階UP': 'オーバーチャージ段階',
-
-    'NiceShot!': '防御力ダウン',
-
-    '攻撃力アップ〔対セイバー〕': '対セイバー攻撃力アップ',
-    '攻撃力アップ〔対アーチャー〕': '対アーチャー攻撃力アップ',
-    '攻撃力アップ〔対ランサー〕': '対ランサー攻撃力アップ',
-    '攻撃力アップ〔対ライダー〕': '対ライダー攻撃力アップ',
-    '攻撃力アップ〔対キャスター〕': '対キャスター攻撃力アップ',
-    '攻撃力アップ〔対アサシン〕': '対アサシン攻撃力アップ',
-    '攻撃力アップ〔対バーサーカー〕': '対バーサーカー攻撃力アップ',
-    '攻撃力アップ〔対ルーラー〕': '対ルーラー攻撃力アップ',
-    '攻撃力アップ〔対アヴェンジャー〕': '対アヴェンジャー攻撃力アップ',
-    '攻撃力アップ〔対アルターエゴ〕': '対アルターエゴ攻撃力アップ',
-    '攻撃力アップ〔対フォーリナー〕': '対フォーリナー攻撃力アップ',
-    '攻撃力アップ〔対ムーンキャンサー〕': '対ムーンキャンサー攻撃力アップ',
-    '攻撃力アップ〔対プリテンダー〕': '対プリテンダー攻撃力アップ',
-    '攻撃力アップ〔対ビースト〕': '対ビースト攻撃力アップ',
-    '攻撃力アップ〔対エクストラクラス〕': '対エクストラクラス攻撃力アップ',
-
-    '被クリティカル発生耐性アップ〔対セイバー〕': 'セイバーからのクリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対アーチャー〕': 'アーチャーからのクリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対ランサー〕': 'ランサーからのクリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対ライダー〕': 'ライダーからのクリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対キャスター〕': 'キャスターからのクリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対アサシン〕': 'アサシンからのクリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対バーサーカー〕': 'バーサーカーからのクリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対ルーラー〕': 'ルーラーからのクリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対アヴェンジャー〕': 'アヴェンジャーからのクリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対アルターエゴ〕': 'アルターエゴからのクリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対フォーリナー〕': 'フォーリナーからのクリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対ムーンキャンサー〕': 'ムーンキャンサーからのクリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対プリテンダー〕': 'プリテンダーからのークリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対ビースト〕': 'ビーストからのークリティカル発生耐性アップ',
-    '被クリティカル発生耐性アップ〔対エクストラクラス〕': 'エクストラクラスからのクリティカル発生耐性アップ',
-
-    'タゲ集中アップ': 'ターゲット集中',
-}
-
-const appendSkillNames = {
-    '対ｾｲﾊﾞｰｸﾘﾃｨｶﾙ発生耐性': '対セイバークリティカル発生耐性',
-    '対ﾗﾝｻｰｸﾘﾃｨｶﾙ発生耐性': '対ランサークリティカル発生耐性',
-    '対ｱｰﾁｬｰｸﾘﾃｨｶﾙ発生耐性': '対アーチャークリティカル発生耐性',
-    '対ﾗｲﾀﾞｰｸﾘﾃｨｶﾙ発生耐性': '対ライダークリティカル発生耐性',
-    '対ｷｬｽﾀｰｸﾘﾃｨｶﾙ発生耐性': '対キャスタークリティカル発生耐性',
-    '対ｱｻｼﾝｸﾘﾃｨｶﾙ発生耐性': '対アサシンクリティカル発生耐性',
-    '対ﾊﾞｰｻｰｶｰｸﾘﾃｨｶﾙ発生耐性': '対バーサーカークリティカル発生耐性',
-    '対ﾙｰﾗｰｸﾘﾃｨｶﾙ発生耐性': '対ルーラークリティカル発生耐性',
-    '対ｱｳﾞｪﾝｼﾞｬｰｸﾘﾃｨｶﾙ発生耐性': '対アヴェンジャークリティカル発生耐性',
-    '対ｱﾙﾀｰｴｺﾞｸﾘﾃｨｶﾙ発生耐性': '対アルターエゴクリティカル発生耐性',
-    '対ﾌｫｰﾘﾅｰｸﾘﾃｨｶﾙ発生耐性': '対フォーリナークリティカル発生耐性',
-    '対ﾑｰﾝｷｬﾝｻｰｸﾘﾃｨｶﾙ発生耐性': '対ムーンキャンサークリティカル発生耐性',
-    '対ﾌﾟﾘﾃﾝﾀﾞｰｸﾘﾃｨｶﾙ発生耐性': '対プリテンダークリティカル発生耐性',
-    '対ﾋﾞｰｽﾄｸﾘﾃｨｶﾙ発生耐性': '対ビーストクリティカル発生耐性',
-    '対ｴｸｽﾄﾗｸﾗｽｸﾘﾃｨｶﾙ発生耐性': '対エクストラクラスクリティカル発生耐性',
-}
-
-const fieldNames = {
-    "fieldShore": "〔水辺〕",
-    "fieldCity": "〔都市〕",
-    "fieldSunlight": "〔陽射し〕",
-//    fieldIndividuality
-    "fieldForest": "〔森林〕",
-    "fieldImaginarySpace": "〔虚数空間〕",
-    "fieldShoreOrImaginarySpace": "〔水辺〕または〔虚数空間〕",
-    "fieldBurning": "〔炎上〕",
-}
-
-const stateNames = {
-    "buffNegativeEffect": "〔弱体〕",
-    "buffIncreaseDefence": "〔防御強化〕",
-    "buffPositiveEffect": "〔強化〕",
-    "buffEvadeAndInvincible": "〔無敵〕",
-    "buffSureHit": "〔必中〕",
-    "buffIncreaseDamage": "〔攻撃強化〕",
-    "buffMentalEffect": "〔精神異常〕",
-    "buffPoison": "〔毒〕",
-    "buffBurn": "〔炎上〕",
-    "buffEvade": "〔回避〕",
-    "buffGuts": "〔ガッツ〕",
-    "buffCurse": "〔呪い〕",
-
-}
-
-const addStateShortXStates = {
-    "970272": {
-        "Text": "毒（毎ターンHP）減少",
-        "Turn": 3,
-        "Count": 0,
-        "Value": -500
-    },
-    "966566": {
-        "Target": "味方全体",
-        "Text": "攻撃力アップ",
-        "Turn": 3,
-        "Count": 0,
-        "Value": "20%"
-    },
-    "968051": {
-        "Target": "味方全体",
-        "Text": "攻撃力アップ",
-        "Turn": 3,
-        "Count": 0,
-        "Value": "5%"
-    },
-    "970058": {
-        "Text": "宝具威力アップ",
-        "Turn": 5,
-        "Count": 0,
-        "Value": "20%"
-    },
-    "968983": {
-        "Text": "スター発生率アップ",
-        "Turn": 3,
-        "Count": 0,
-        "Value": "20%"
-    },
-    "968984": {
-        "Text": "クリティカル威力アップ",
-        "Turn": 3,
-        "Count": 0,
-        "Value": "20%"
-    },
-    "965948": {
-        "Text": "Quickカード耐性ダウン",
-        "Turn": 3,
-        "Count": 0,
-        "Value": "-10%"
-    },
-    "965699": {
-        "Text": "防御力ダウン",
-        "Turn": 3,
-        "Count": 0,
-        "Value": "-10%"
-    },
-    "968344": {
-        "Text": "防御力ダウン",
-        "Turn": 3,
-        "Count": 0,
-        "Value": "-10%"
-    },
-    "968815": {
-        "Text": "防御力ダウン",
-        "Turn": 3,
-        "Count": 0,
-        "Value": "-10%"
-    },
-    "9640409": {
-        "Text": "ローマ特性付与",
-        "Turn": 3
-    }
-}
+const { appendSkillNames } = require('./parser_data/appendSkillNames')
+const { traitNames, targetTraitNames } = require('./parser_data/traitNames')
+const { targetNames, individualTargetNames } = require('./parser_data/targetNames')
+const { effectNames } = require('./parser_data/effectNames')
+const { fieldNames } = require('./parser_data/fieldNames')
+const { stateNames } = require('./parser_data/stateNames')
+const { additionalEffects } = require('./parser_data/additionalEffects')
 
 const unknownTraits = {}
 
 const targettraits2string = (traits) => {
+    const allnegative = traits.length > 0 && traits.every((trait) => trait.negative)
     const traitsString = traits.reduce((acc, trait) => {
         const traitName = targetTraitNames[trait.id] || targetTraitNames[trait.name]
         if (traitName != null) {
             if (traitName && !acc.match(traitName)) {
-                acc += ` ${traitName}`
+                if (!allnegative && acc.length > 0) {
+                    acc += "または"
+                }
+                acc += traitName.startsWith('〔') ? traitName : `〔${traitName}〕`
+                if (trait.negative && !allnegative) {
+                    acc += "以外"
+                }
             }
         } else {
             unknownTraits[trait.name] = ""
@@ -524,12 +63,12 @@ const targettraits2string = (traits) => {
         return acc
     }, "").trim()
 
-    return traitsString
+    return `${traitsString}${allnegative ? "以外" : ""}`
 }
 
-const traits2characteristics = (traits) => {
+const traits2characteristics = (traits, ascensionAdd) => {
     const traitsString = traits.reduce((acc, trait) => {
-        const traitName = traitnames[trait.id] || traitnames[trait.name]
+        const traitName = traitNames[trait.id] || traitNames[trait.name]
         if (traitName != null) {
             if (traitName && !acc.match(traitName)) {
                 acc += ` ${traitName}`
@@ -540,7 +79,29 @@ const traits2characteristics = (traits) => {
         return acc
     }, "").trim()
 
-    const traitsString2 = traitsString.replace(/(男性|女性|人型|サーヴァント) ?/g, "").trim()
+    const additionalAscentionTraits = Object.entries(ascensionAdd).reduce((acc, [ascention, ascensionTraits]) => {
+        ascensionTraits.reduce((acc2, ascentionTrait) => {
+            if (traits.findIndex((trait) => trait.id == ascentionTrait.id) < 0) {
+                const ascentions = acc2[ascentionTrait.id]?.ascentions || []
+                acc2[ascentionTrait.id] = { id:ascentionTrait.id, name: ascentionTrait.name, ascentions: [ ...ascentions, ascention ] }
+            }
+            return acc2
+        },acc)
+        return acc
+    },{})
+    const additionalAscentionTraitsString = Object.values(additionalAscentionTraits).reduce((acc, ascentionTrait) => {
+        const traitName = traitNames[ascentionTrait.id] || traitNames[ascentionTrait.name]
+        if (traitName != null) {
+            
+            acc += ` ${traitName}@${ascentionTrait.ascentions[0]}`
+            if (ascentionTrait.ascentions.length >= 2) {
+                acc += `-${ascentionTrait.ascentions.slice(-1)[0]}`
+            }
+        }
+        return acc
+    },"")
+
+    const traitsString2 = traitsString.replace(/(男性|女性|人型|サーヴァント) ?/g, "").trim() + additionalAscentionTraitsString
     const traitsString3 = traitsString2.match(/エヌマ特攻有効/) ? traitsString2.replace(/ ?エヌマ特攻有効/, "") : `${traitsString2} エヌマ特攻無効`
 
     return traitsString3.trim()
@@ -602,8 +163,8 @@ const checkNPTypes = ((noblePhantasms) => {
 
 const individualTargetText = (target) => {
     if (target) {
-        if (individualTargetName[target]) {
-            return individualTargetName[target]
+        if (individualTargetNames[target]) {
+            return individualTargetNames[target]
         } else {
             console.log("unknown individual target", target)
         }
@@ -613,8 +174,8 @@ const individualTargetText = (target) => {
 
 const individualSumTargetText = (targetList) => {
     return targetList.map((target) => {
-        if (individualTargetName[target]) {
-            return individualTargetName[target]
+        if (individualTargetNames[target]) {
+            return individualTargetNames[target]
         } else {
             console.log("unknown individual target", target)
             return `〔${target}〕`
@@ -623,9 +184,9 @@ const individualSumTargetText = (targetList) => {
 }
 
 const targetText = (team, type, tvals) => {
-    const targetTraits = tvals ? targettraits2string(tvals) : null
-    if (targetTextTable[team] && targetTextTable[team][type]) {
-      return targetTextTable[team][type] + (targetTraits ? `〔${targetTraits.split(/ /).join("〕または〔")}〕` : "")
+    const targetTraits = tvals ? targettraits2string(tvals) : ""
+    if (targetNames[team] && targetNames[team][type]) {
+      return targetNames[team][type] + targetTraits
     }
     return ""
 }
@@ -775,6 +336,9 @@ const parseEffectStateValues = (growthType, modifier, prefix, suffix, values) =>
                 if (values[0][0].Rate != values[1][0].Rate) {
                     return formatEffectValue(undefined, value[0].Rate, value[0].RatioHPLow, undefined, modifier, prefix, suffix)
                 }
+                if (values[0][0].UseRate != values[1][0].UseRate) {
+                    return formatEffectValue(undefined, undefined, value[0].RatioHPLow, value[0].UseRate, modifier, prefix, suffix)
+                }
                 return formatEffectValue(undefined, undefined, value[0].RatioHPLow, undefined, modifier, prefix, suffix)
             })
         case "LvOC":
@@ -905,6 +469,7 @@ const parseTraitStateVals =  ((func) => {
         if (stateNames[state.name]) {
             acc.push(stateNames[state.name])
         } else {
+            if (stateNames[state.name] === undefined)
             console.log("unknown traitVals", state)
         }
         return acc
@@ -963,12 +528,18 @@ const parseEffectProc = (func) => {
 
     return ''
 }
+const cardNames = {
+    "cardBuster": "Busterカード"
+}
 
 const parseEffectName = (func) => {
     const name = effectNames[func.funcPopupText] || func.funcPopupText
-    const modname = name.replace(/(.*)(〔.*〕)/, "$2$1").replace(/(.*)・対(.*)/, "〔$2〕$1")
+    const modname = name.replace(/(.*)(〔.*〕)/, "$2$1").replace(/(.*)・対\s*(.*)/, "〔$2〕$1").replace(/(〔.*〕)フィールドセット/,"フィールドセット$1")
     const field = parseQuestTvals(func)
     const cond = func.svals[0].RatioHPLow > 0 ? "HPが少ないほど" : ""
+    const gutsBlockNegative = func.buffs[0]?.id == 3761
+    const card = cardNames[func.buffs[0]?.ckSelfIndv[0]?.name] || ""
+    const nocard = modname.startsWith(card)
     const add = []
     if (func.svals[0].Turn > 0) {
         add.push(`${func.svals[0].Turn}T`)
@@ -985,7 +556,7 @@ const parseEffectName = (func) => {
         add.push(proc)
     }
     const addStr = add.length ? `(${add.join("/")})` : ""
-    return `${field}${cond}${modname}${addStr}`
+    return `${field}${cond}${nocard ? "" : card + "の"}${modname}${gutsBlockNegative ? "(重複可能)" : ""}${addStr}`
 }
 
 const parseAddStateExternalBuffEffectNameX = (addStateShortXState) => {
@@ -996,17 +567,18 @@ const parseAddStateExternalBuffEffectNameX = (addStateShortXState) => {
     if (addStateShortXState.Count > 0) {
         add.push(`${addStateShortXState.Count}回`)
     }
-    const target = addStateShortXState.Target?.length ? addStateShortXState.Target + "の" : ""
-    const stateX = target + addStateShortXState.Text + (add.length ? `(${add.join("/")})` : "")
+    const target = addStateShortXState.Target?.length ? addStateShortXState.Target : ""
+    const conjuction = target.length > 0 ? ( addStateShortXState.Text.endsWith('〕') ? 'に' : 'の') : ""
+    const stateX = target + conjuction + addStateShortXState.Text + (add.length ? `(${add.join("/")})` : "")
 
     return stateX
 }
 
 const parseAddStateExternalBuffEffectName = (func) => {
-    const name = func.buffs[0] ? (effectNames[func.buffs[0].name] || func.buffs[0].name) : (effectNames[func.funcPopupText] || func.funcPopupText)
-    const modname = name.replace(/(.*)(〔.*〕)/, "$2$1").replace(/追加効果/,"")
+    const name = func.buffs[0] ? (effectNames[func.buffs[0].name.replace(/\(.*\)/,"")] || func.buffs[0].name) : (effectNames[func.funcPopupText.replace(/\(.*\)/,"")] || func.funcPopupText)
+    const modname = name.replace(/\(.*\)/,"").replace(/(.*)(〔.*〕)/, "$2$1").replace(/追加効果/,"")
     const stateId = func.svals[0].Value
-    const addStateShortXState = addStateShortXStates[stateId] || { Text: "", Turn: 0, Count: 0 }
+    const addStateShortXState = additionalEffects[stateId] || { Text: "", Turn: 0, Count: 0 }
     const stateX = parseAddStateExternalBuffEffectNameX(addStateShortXState)
 
     const field = parseQuestTvals(func)
@@ -1035,7 +607,31 @@ const parseAddStateShortCommandAttackEffectName = (func) => {
 }
 
 const parseAddStateShortSelfTurnendEffectName = (func) => {
-    return parseAddStateExternalBuffEffectName(func)
+    const name = func.buffs[0] ? (effectNames[func.buffs[0].name.replace(/\(.*\)/,"")] || func.buffs[0].name) : (effectNames[func.funcPopupText.replace(/\(.*\)/,"")] || func.funcPopupText)
+    const modname = name.replace(/\(.*\)/,"").replace(/(.*)(〔.*〕)/, "$2$1").replace(/追加効果/,"")
+    const stateId = func.svals[0].Value
+    const addStateShortXState = additionalEffects[stateId] || { Text: "", Turn: 0, Count: 0 }
+    const stateX = parseAddStateExternalBuffEffectNameX(addStateShortXState)
+
+    const field = parseQuestTvals(func)
+    const cond = func.svals[0].RatioHPLow > 0 ? "HPが少ないほど" : ""
+    const add = []
+    if (func.svals[0].Turn > 0) {
+        add.push(`${func.svals[0].Turn}T`)
+    }
+    if (func.svals[0].Count > 0) {
+        add.push(`${func.svals[0].Count}回`)
+    }
+    const rate = parseEffectRate(func)
+    if (rate.length) {
+        add.push(rate)
+    }
+    const proc = parseEffectProc(func)
+    if (proc.length) {
+        add.push(proc)
+    }
+    const addStr = add.length ? `(${add.join("/")})` : ""
+    return `${field}${cond}${modname}${addStr} ${stateX}`.trim()
 }
 
 const parseAddStateDamageEffectName = (func) => {
@@ -1059,7 +655,7 @@ const parseAddState = (func) => {
     if (func.buffs[0].type == "damageFunction") {
         return parseAddStateDamage(func)
     }
-    if (func.buffs[0].type == "gutsFunction") {
+    if (func.buffs[0].type.startsWith("gutsFunction")) {
         return parseAddStateGuts(func)
     }
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
@@ -1108,13 +704,15 @@ const parseAddStateSelfTurnend = (func) => {
     const effectName = parseAddStateShortSelfTurnendEffectName(func)
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
     const values = parseEffectStateValues(growthType, dividerByEffectName(effectName), prefixByEffectName(effectName), suffixByEffectName(effectName), [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
-    if (addStateShortXStates[func.svals[0].Value]) {
-        const addStateShortValue = addStateShortXStates[func.svals[0].Value].Value
-        values.fill(`${addStateShortValue}`)
+    if (additionalEffects[func.svals[0].Value]) {
+        const addStateShortValue = additionalEffects[func.svals[0].Value].Value
+        if (Array.isArray(addStateShortValue))
+            values.splice(0, values.length, ...addStateShortValue)
+        else
+            values.fill(`${addStateShortValue}`)
     } else {
-        console.log("unknown addStateGuts state: ", func.svals[0].Value)
+        console.log("unknown addStateShortCommandAttack state: ", func.svals[0].Value)
     }
-
     return {
         target,
         text: effectName,
@@ -1128,8 +726,8 @@ const parseAddStateDamage = (func) => {
     const effectName = parseAddStateDamageEffectName(func)
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
     const values = parseEffectStateValues(growthType, dividerByEffectName(effectName), prefixByEffectName(effectName), suffixByEffectName(effectName), [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
-    if (addStateShortXStates[func.svals[0].Value]) {
-        const addStateShortValue = addStateShortXStates[func.svals[0].Value].Value
+    if (additionalEffects[func.svals[0].Value]) {
+        const addStateShortValue = additionalEffects[func.svals[0].Value].Value
         values.fill(`${addStateShortValue}`)
     } else {
         console.log("unknown addStateDamage state: ", func.svals[0].Value)
@@ -1148,8 +746,8 @@ const parseAddStateGuts = (func) => {
     const effectName = parseAddStateShortGutsEffectName(func)
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
     const values = Array(func.svals.length).fill("")
-    if (addStateShortXStates[func.svals[0].Value]) {
-        const addStateShortValue = addStateShortXStates[func.svals[0].Value].Value
+    if (additionalEffects[func.svals[0].Value]) {
+        const addStateShortValue = additionalEffects[func.svals[0].Value].Value
         values.fill(`${addStateShortValue}`)
     } else {
         console.log("unknown addStateGuts state: ", func.svals[0].Value)
@@ -1172,7 +770,7 @@ const parseAddStateShort = (func) => {
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
     const values = parseEffectValues(growthType, dividerByEffectName(effectName), prefixByEffectName(effectName), suffixByEffectName(effectName), [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
 
-    if (effectName.match(/やけど無効/) && !func.funcPopupText.match(/やけど無効/)) {
+    if (func.funcPopupText.length == 0 || (effectName.match(/やけど無効/) && !func.funcPopupText.match(/やけど無効/))) {
         return null
     }
     return {
@@ -1188,9 +786,12 @@ const parseAddStateShortCommandAttack = (func) => {
     const effectName = parseAddStateShortCommandAttackEffectName(func)
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
     const values = Array(func.svals.length).fill("")
-    if (addStateShortXStates[func.svals[0].Value]) {
-        const addStateShortValue = addStateShortXStates[func.svals[0].Value].Value
-        values.fill(`${addStateShortValue}`)
+    if (additionalEffects[func.svals[0].Value]) {
+        const addStateShortValue = additionalEffects[func.svals[0].Value].Value
+        if (Array.isArray(addStateShortValue))
+            values.splice(0, values.length, ...addStateShortValue)
+        else
+            values.fill(`${addStateShortValue}`)
     } else {
         console.log("unknown addStateShortCommandAttack state: ", func.svals[0].Value)
     }
@@ -1203,9 +804,12 @@ const parseAddStateShortCommandAttack = (func) => {
     }
 }
 
+const parseSubStateCount = (count) => {
+    return count ? `${count}つ` : ''
+}
 const parseSubState = (func) => {
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
-    const effectName = parseTraitStateVals(func) + "状態を解除"
+    const effectName = parseTraitStateVals(func) + "状態を" + parseSubStateCount(func.svals[0].Value2) + "解除"
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
     const values = parseEffectValues(growthType, dividerByEffectName(effectName), prefixByEffectName(effectName), suffixByEffectName(effectName), [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
 
@@ -1600,7 +1204,7 @@ const parseServantsJson = (json, servantId) => {
         const rare = servantData.rarity
         const gender = genderNames[servantData.gender]
         const attributes = attributeNames[servantData.attribute]
-        const characteristics = traits2characteristics(servantData.traits)
+        const characteristics = traits2characteristics(servantData.traits, servantData.ascensionAdd.individuality.ascension)
         const hp = {
             min: servantData.hpBase,
             max: servantData.hpMax,
