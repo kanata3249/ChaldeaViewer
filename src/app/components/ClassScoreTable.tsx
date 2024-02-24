@@ -165,10 +165,15 @@ const filterDefinition: FilterDefinition[] = [
   {
     name: "解放状態", key: "acquired", type: "check",
     buttons: [
-      { label: "予定なし", key: "notreserved" },
-      { label: "解放予定", key: "reserved" },
       { label: "未解放", key: "notacquired" },
       { label: "解放済み", key: "acquired" },
+    ]
+  },
+  {
+    name: "解放予定", key: "reserved", type: "check",
+    buttons: [
+      { label: "予定なし", key: "notreserved" },
+      { label: "解放予定", key: "reserved" },
     ]
   },
 ]
@@ -306,13 +311,19 @@ const filterAndSort = (tableData: TableData[], filters: FilterValues, sortColumn
         case "acquired":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
             switch (filterKey) {
-            case 'notreserved':
-              return enabled && !row.reserved && !row.acquired
             case 'notacquired':
               return enabled && !row.acquired
-            case 'reserved':
             case 'acquired':
-              return enabled && row[filterKey]
+              return enabled && row.acquired
+            }
+          })
+        case "reserved":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            switch (filterKey) {
+            case 'notreserved':
+              return enabled && !row.reserved
+            case 'reserved':
+              return enabled && row.reserved
             }
           })
         default:
