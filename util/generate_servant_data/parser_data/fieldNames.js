@@ -7,6 +7,7 @@ const fieldNames = {
     "fieldImaginarySpace": "〔虚数空間〕",
     "fieldShoreOrImaginarySpace": "〔水辺〕または〔虚数空間〕",
     "fieldBurning": "〔炎上〕",
+    "fieldDarkness": "〔暗闇〕",
 }
 
 module.exports = {
