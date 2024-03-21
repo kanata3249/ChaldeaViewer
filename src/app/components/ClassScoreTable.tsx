@@ -73,6 +73,7 @@ type TableSummary = {
 const classscoreServantClassNames = {
   ...servantClassNames,
 
+  "7": "裁讐月盾",
   "9": "分降詐獣"
 }
 
@@ -142,6 +143,7 @@ const filterDefinition: FilterDefinition[] = [
       { label: "キャスター", key: "術" },
       { label: "アサシン", key: "殺" },
       { label: "バーサーカー", key: "狂" },
+      { label: "EX1", key: "裁讐月盾" },
       { label: "EX2", key: "分降詐獣" },
     ]
   },
