@@ -428,6 +428,50 @@ const parseDamageNpIndividualEffectValues = (growthType, modifier, prefix, suffi
     }
 }
 
+const parseDamageNpIndividualSumEffectValues = (growthType, modifier, prefix, suffix, values) => {
+    if (values[1]) {
+        switch(growthType) {
+        case "":
+        case "Lv":
+            return values[0].map((value) => {
+                if (typeof value.Value === "undefined") {
+                    return ""
+                } else {
+                    return `${prefix}${parseInt(value.Value) / modifier}${suffix}(特攻:${parseInt(value.Correction) / 10}*N(最大${value.ParamAddMaxCount})%)`
+                }
+            })
+        case "OC":
+            return values.map((value) => {
+                if (typeof value[0].Value === "undefined") {
+                    return ""
+                } else {
+                    return `${prefix}${parseInt(value[0].Value) / modifier}${suffix}`
+                }
+            })
+        case "LvOC":
+            return [
+                `${parseInt(values[0][0].Value) / 10}%(特攻:${parseInt(values[0][0].Correction) / 10}*N(最大${values[0][0].ParamAddMaxCount})%)`,
+                `${parseInt(values[0][1].Value) / 10}%(特攻:${parseInt(values[1][0].Correction) / 10}*N(最大${values[1][0].ParamAddMaxCount})%)`,
+                `${parseInt(values[0][2].Value) / 10}%(特攻:${parseInt(values[2][0].Correction) / 10}*N(最大${values[2][0].ParamAddMaxCount})%)`,
+                `${parseInt(values[0][3].Value) / 10}%(特攻:${parseInt(values[3][0].Correction) / 10}*N(最大${values[3][0].ParamAddMaxCount})%)`,
+                `${parseInt(values[0][4].Value) / 10}%(特攻:${parseInt(values[4][0].Correction) / 10}*N(最大${values[4][0].ParamAddMaxCount})%)`,
+            ]
+        }
+    } else {
+        return values[0].map((value) => {
+            if (value.Value) {
+                if (parseInt(value.Value) % modifier) {
+                    return `${prefix}${(parseInt(value.Value) / modifier).toFixed(2)}${suffix}`
+                } else {
+                    return `${prefix}${parseInt(value.Value) / modifier}${suffix}`
+                }
+            } else {
+                return ""
+            }
+        })
+    }
+}
+
 const prefixByEffectName = (effectName) => {
     if (effectName.match(/(ダウン|減少|カット|短縮)/)) {
         return "-"
@@ -470,7 +514,7 @@ const parseTraitStateVals =  ((func) => {
             acc.push(stateNames[state.name])
         } else {
             if (stateNames[state.name] === undefined)
-            console.log("unknown traitVals", state)
+            console.log("unknown traitStateVals", state)
         }
         return acc
     }, [])
@@ -532,11 +576,19 @@ const cardNames = {
     "cardBuster": "Busterカード"
 }
 
+const parseEffectNameCondition = (func) => {
+    if (func.svals[0].TriggeredTargetHpRateRange) {
+        const threshold = func.svals[0].TriggeredTargetHpRateRange.match(/\d+/)[0]
+        return `HPが${threshold/10}%以下の時、`
+    }
+    return func.svals[0].RatioHPLow > 0 ? "HPが少ないほど" : ""
+}
+
 const parseEffectName = (func) => {
     const name = effectNames[func.funcPopupText] || func.funcPopupText
     const modname = name.replace(/(.*)(〔.*〕)/, "$2$1").replace(/(.*)・対\s*(.*)/, "〔$2〕$1").replace(/(〔.*〕)フィールドセット/,"フィールドセット$1")
     const field = parseQuestTvals(func)
-    const cond = func.svals[0].RatioHPLow > 0 ? "HPが少ないほど" : ""
+    const cond = parseEffectNameCondition(func)
     const gutsBlockNegative = func.buffs[0]?.id == 3761
     const card = cardNames[func.buffs[0]?.ckSelfIndv[0]?.name] || ""
     const nocard = modname.startsWith(card)
@@ -863,6 +915,20 @@ const parseLossNp = (func) => {
     }
 }
 
+const parseGainMultiplyNp = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = "NP倍化"
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = parseEffectValues(growthType, 10, prefixByEffectName(effectName), '%', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
 const parseGainHp = (func) => {
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
     const effectName = "HP回復"
@@ -879,7 +945,7 @@ const parseGainHp = (func) => {
 
 const parseGainStar = (func) => {
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
-    const effectName = "スター獲得"
+    const effectName = parseEffectName(func)
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
     const values = parseEffectValues(growthType, 1, '', "個", [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
     
@@ -965,7 +1031,7 @@ const parseDamageNpIndividualSum = (func) => {
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals) + individualSumTargetText(func.svals[0].TargetList)
     const effectName = "特攻宝具攻撃"
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
-    const values = parseDamageNpIndividualEffectValues(growthType, 10, prefixByEffectName(effectName), '%', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = parseDamageNpIndividualSumEffectValues(growthType, 10, prefixByEffectName(effectName), '%', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
     
     return {
         target,
@@ -1045,6 +1111,21 @@ const parseShortenSkill = (func) => {
     }
 }
 
+const parseTransformServant = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = "〔スーパー青子〕に変身"
+
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = [ "-", "-", "-", "-", "-" ]
+    
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
 const parseInstantDeath = (func) => {
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
     const effectName = parseEffectName(func)
@@ -1060,6 +1141,52 @@ const parseInstantDeath = (func) => {
     }
 }
 
+const parseForceInstantDeath = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = "即死"
+
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = parseEffectValues(growthType, 1, prefixByEffectName(effectName), '', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
+const parseShotenBuffcount = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = func.funcPopupText
+
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = parseEffectValues(growthType, 1, prefixByEffectName(effectName), '', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
+const parseDisplayBuffstring = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = func.funcPopupText
+
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = parseEffectValues(growthType, 1, prefixByEffectName(effectName), '', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
+
 const parseNone = (func) => null
 
 const functionParser = {
@@ -1071,6 +1198,7 @@ const functionParser = {
     "instantDeath": parseInstantDeath,
     "gainNp": parseGainNp,
     "lossNp": parseLossNp,
+    "gainMultiplyNp": parseGainMultiplyNp,
     "gainHp": parseGainHp,
     "lossHp": parseLossHp,
     "lossHpSafe": parseLossHpSafe,
@@ -1084,6 +1212,10 @@ const functionParser = {
     "damageNpIndividualSum": parseDamageNpIndividualSum,
     "damageNpStateIndividualFix": parseDamageNpStateIndividualFix,
     "damageNpHpratioLow": parseDamageNpHpratioLow,
+    "forceInstantDeath": parseForceInstantDeath,
+    "transformServant": parseTransformServant,
+    "shortenBuffcount": parseShotenBuffcount,
+    "displayBuffstring": parseDisplayBuffstring,
 }
 
 const parseFunction = (func) => {

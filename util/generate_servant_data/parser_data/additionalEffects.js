@@ -132,6 +132,11 @@ const additionalEffects = {
         "Value": "10%"
     },
     "970470": {},
+    "970477": {
+        "Text": "やけど状態付与",
+        "Turn": 3,
+        "Value": "-500"
+    },
     "970478": {
         "Text": "クリティカル威力アップ",
         "Turn": 3,
@@ -141,9 +146,19 @@ const additionalEffects = {
         "Text": "NP増加",
         "Value": "10%"
     },
+    "970480": {
+        "Text": "NP増加",
+        "Value": "10%"
+    },
     "970482": {
         "Text": "NP増加",
         "Value": "10%"
+    },
+    "970481": {
+        "Text": "被強化成功率ダウン",
+        "Target": "敵単体",
+        "Turn": 1,
+        "Value": "-10%"
     },
     "992659": {
         "Text": "毒（毎ターンHP）減少",
@@ -152,6 +167,14 @@ const additionalEffects = {
     },
     "930010": null,
     "990451": null,
+    "970504": {
+        "Text": "ガッツ発動時 HP回復",
+        "Value": "HP2000",
+    },
+    "961269": {
+        "Text": "",
+        "Value": ""
+    },
 }
 
 module.exports = {

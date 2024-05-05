@@ -18,6 +18,7 @@ const stateNames = {
     "kingproteaProliferationNPDefense": "",
     "manuscriptComplete": "〔原稿完成〕",
     "protoMerlinNPChargeBlock": "",
+    "normalAokoBuff": "〔ノーマル青子〕",
     "unknown": "〔ハッピーハロウィン〕"
 }
 

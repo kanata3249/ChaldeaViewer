@@ -84,7 +84,7 @@ const traitNames =
     "wildbeast": "猛獣",
     "shinsengumiServant": "新撰組",
     "2840": "梁山泊",
-    "holdingHolyGrail": "聖杯所持"
+    "holdingHolyGrail": "聖杯所持",
 }
 
 const targetTraitNames =
@@ -163,6 +163,7 @@ const targetTraitNames =
     "oni": "鬼",
     "riding": "騎乗スキル",
     "roman": "ローマ",
+    "robinCounter": "コマドリカウンター",
     "saberClassServant": "",
     "saberface": "アルトリア顔",
     "servant": "サーヴァント",
@@ -186,7 +187,7 @@ const targetTraitNames =
     "artsBuff": "Artsカード性能アップ",
     "busterBuff": "Busterカード性能アップ",
     "groupServant": "複数で一騎のサーヴァント",
-
+    "2911": "ノーマル青子",
 }
 
 module.exports = {
