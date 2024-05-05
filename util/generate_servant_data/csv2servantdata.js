@@ -164,6 +164,9 @@ const derrivedSkill = {
 
 const isDerrivedSkill = (a, b) => {
   let matched = false
+  if (a.condition != b.condition) {
+    return false
+  }
   if (derrivedSkill[a.name]) {
     return derrivedSkill[a.name] == b.name
   }
@@ -245,6 +248,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
     const skillType = skill.NobleTraits ? "np" : skill.CT ? "active" : "passive"
     const npType = nobleTraits2npType(skill.NobleTraits)
     const name = skillType != "np" ? skill.SkillName : skill.SkillName.replace(/^(.*[A-Z\+\-－]+).*$/, "$1")
+    const condition = skill.Condition.length > 0 ? skill.Condition : undefined
     const owners = skill.Owners.split("\n").map((owner) => owner.replace(/s(\d+)/,"$1"))
     const effects = []
 
@@ -334,6 +338,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
     skills[skillId] = {
       id: skillId,
       name: name,
+      condition,
       type: skillType,
       effects: effects,
     }
@@ -359,7 +364,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
     owners.forEach((owner) => {
       if (servantList[owner]) {
         if (skillType == "np") {
-          const oldNpIndex = servantList[owner].skills[skillType].findIndex((npId) => (skills[npId].npType == npType))
+          const oldNpIndex = servantList[owner].skills[skillType].findIndex((npId) => (skills[npId].npType == npType && skills[npId].condition == condition))
           if (oldNpIndex >= 0) {
             servantList[owner].skills[skillType][oldNpIndex] = skillId
           } else {
@@ -378,6 +383,15 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
               servantList[owner].skills.active[1] = skillId
             else if (servantList[owner].skills.active[2] >= 0 && isDerrivedSkill(skills[skillId], skills[servantList[owner].skills.active[2]]))
               servantList[owner].skills.active[2] = skillId
+            else {
+              if (condition) {
+                // 青崎青子
+                servantList[owner].skills[skillType].push(-1)
+                servantList[owner].skills[skillType].push(-1)
+                servantList[owner].skills[skillType].push(-1)
+              }
+              servantList[owner].skills[skillType][4 - 1] = skillId
+            }
           } else {
             servantList[owner].skills[skillType][skillNo - 1] = skillId
           }

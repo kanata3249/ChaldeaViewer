@@ -48,7 +48,7 @@ const createServantSkillsTableData = (servant: Servant): ServantSkillsTableData[
 
         return {
           id: skillId,
-          name: skillSpec.name,
+          name: skillSpec.name + (skillSpec.condition ? `〔${skillSpec.condition}〕` : ''),
           type: type,
           ct: skillSpec.ct,
           npType: skillSpec.npType,

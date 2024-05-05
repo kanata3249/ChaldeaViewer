@@ -132,7 +132,7 @@ const genSkillCsv = (servant, skill) => {
         })
         return acc
     },{})
-    return `,"${skill.name}","s${servant.id}","[[${servant.name}]]","${npType}",,,,,,,${ct},,,,,,`
+    return `,"${skill.name}","s${servant.id}","[[${servant.name}]]",,"${npType}",,,,,,,${ct},,,,,,`
             + `"${effects.applyUser?.join('\n')}","${effects.target?.join('\n')}","${effects.target2?.join('\n')}","${effects.pretext?.join('\n')}","${effects.mainText?.join('\n')}","${effects.postText?.join('\n')}"`
             + `,"${effects.grow?.join('\n')}",`
             + effects.values?.map((value) => `"${value.join('\n')}"`).join(',')

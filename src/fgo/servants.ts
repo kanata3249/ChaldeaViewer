@@ -4,6 +4,7 @@ import pako from 'pako'
 export type ServantSkillSpec = {
   id: number
   name: string
+  condition?: string
   type: "np" | "active" | "passive" | "append"
   npType?: string
   ct?: number
