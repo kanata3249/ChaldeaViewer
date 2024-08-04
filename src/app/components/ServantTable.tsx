@@ -150,16 +150,32 @@ const parseSkillLevel = (text: string) => {
 }
 
 const parseAppendSkillLevel = (text: string) => {
-  const result = [ -1, -1, -1 ]
+  const result = [ -1, -1, -1, -1, -1 ]
 
-  const values = text.match(/(\d+)\s*\/(\d+)\s*\/(\d+)/) || [ "", "", "", "" ]
+  const values = text.match(/(\d+)\s*\/(\d+)\s*\/(\d+)\s*\/(\d+)\s*\/(\d+)/) || [ "", "", "", "", "", "" ]
   if (values[0].length) {
     result[0] = Number.parseInt(values[1])
     result[1] = Number.parseInt(values[2])
     result[2] = Number.parseInt(values[3])
+    result[3] = Number.parseInt(values[4])
+    result[4] = Number.parseInt(values[5])
   } else {
     let value = Number.parseInt(text)
-    if (value >= 0 && value <= 101010) {
+    if (value >= 0 && value <= 1010101010) {
+      if ((value % 10) != 0) {
+        result[4] = value % 10
+        value = (value / 10) >> 0
+      } else {
+        result[4] = value % 100
+        value = (value / 100) >> 0
+      }
+      if ((value % 10) != 0) {
+        result[3] = value % 10
+        value = (value / 10) >> 0
+      } else {
+        result[3] = value % 100
+        value = (value / 100) >> 0
+      }
       if ((value % 10) != 0) {
         result[2] = value % 10
         value = (value / 10) >> 0
@@ -215,11 +231,14 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
       return row[key]
     case 'skillLevel':
     case 'maxSkillLevel':
+      if (sort)
+        return row.servant[key].reduce((acc, level) => acc * (level + 1), 1)
+      return row.servant[key].join('/')
     case 'appendSkillLevel':
     case 'maxAppendSkillLevel':
       if (sort)
         return row.servant[key].reduce((acc, level) => acc * (level + 1), 1)
-      return `${row.servant[key][0]}/${row.servant[key][1]}/${row.servant[key][2]}`
+      return row.servant[key].join('/')
     case 'class':
       if (sort)
         return row.servant.spec[key]
@@ -236,10 +255,9 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
       return row.servant.spec[key]
     case 'leveling':
       if ((row.servant.npLevel > 0)
-          && (row.servant.ascension < row.servant.maxAscension || row.servant.skillLevel[0] < row.servant.maxSkillLevel[0]
-              || row.servant.skillLevel[1] < row.servant.maxSkillLevel[1] || row.servant.skillLevel[2] < row.servant.maxSkillLevel[2])
-              || row.servant.appendSkillLevel[0] < row.servant.maxAppendSkillLevel[0] || row.servant.appendSkillLevel[1] < row.servant.maxAppendSkillLevel[1]
-              || row.servant.appendSkillLevel[2] < row.servant.maxAppendSkillLevel[2])
+          && (row.servant.ascension < row.servant.maxAscension
+              || row.servant.skillLevel.some((v, index) => v < row.servant.maxSkillLevel[index])
+              || row.servant.appendSkillLevel.some((v, index) => v < row.servant.maxAppendSkillLevel[index])))
         return "育成中"
       return ""
     case 'items':
@@ -251,7 +269,7 @@ const getTableData = (servantTableData: ServantTableData, columnIndex: number, s
         return ""
       }
     case 'itemsForAP':
-      if (row.servant.appendSkillLevel[0] < 9 || row.servant.appendSkillLevel[1] < 9 || row.servant.appendSkillLevel[2] < 9) {
+      if (row.servant.appendSkillLevel.some((v) => v < 9)) {
         return row.servant.totalItemsForMax.appendSkill
       } else {
         return ""
@@ -296,7 +314,7 @@ const updateInventoryForSkill = (servantSpec: ServantSpec, newSkillLevel: number
 }
 
 const updateInventoryForAppendSkill = (servantSpec: ServantSpec, newAppendSkillLevel: number[], oldAppendSkillLevel: number[], inventoryStatus: InventoryStatus) => {
-  const skillNos = [ 0, 1, 2 ]
+  const skillNos = [ 0, 1, 2, 3, 4 ]
   let updated = false
 
   skillNos.forEach((skillNo: number) => {
@@ -377,6 +395,8 @@ const setTableData = (servantTableData: ServantTableData, columnIndex: number, v
           row.servant.maxAppendSkillLevel[0] = Math.max(row.servant.appendSkillLevel[0], row.servant.maxAppendSkillLevel[0])
           row.servant.maxAppendSkillLevel[1] = Math.max(row.servant.appendSkillLevel[1], row.servant.maxAppendSkillLevel[1])
           row.servant.maxAppendSkillLevel[2] = Math.max(row.servant.appendSkillLevel[2], row.servant.maxAppendSkillLevel[2])
+          row.servant.maxAppendSkillLevel[3] = Math.max(row.servant.appendSkillLevel[3], row.servant.maxAppendSkillLevel[3])
+          row.servant.maxAppendSkillLevel[4] = Math.max(row.servant.appendSkillLevel[4], row.servant.maxAppendSkillLevel[4])
         }
       }
       break
@@ -641,8 +661,8 @@ const calcServantSummary = (servants: Servants) => {
       acc.servants++
       servant.npLevel > 0 && acc.summoned++
       servant.ascension == 4 && acc.maxAscension++
-      (servant.skillLevel[0] >= 9 && servant.skillLevel[1] >= 9 && servant.skillLevel[2] >= 9) && acc.maxSkill++
-      (servant.appendSkillLevel[0] >= 9 && servant.appendSkillLevel[1] >= 9 && servant.appendSkillLevel[2] >= 9) && acc.maxAppendSkill++
+      servant.skillLevel.every((v) => v >= 9) && acc.maxSkill++
+      servant.appendSkillLevel.every((v) => v >= 9) && acc.maxAppendSkill++
     }
 
     return acc

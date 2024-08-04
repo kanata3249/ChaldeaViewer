@@ -202,8 +202,8 @@ export const calcInventoryStatus = (inventory: Inventory, servants: Servants, cl
 
   servants.forEach((servant) => {
     if (servant.ascension < 4
-       || servant.skillLevel[0] < 9 || servant.skillLevel[1] < 9 || servant.skillLevel[2] < 9
-       || servant.appendSkillLevel[0] < 9 || servant.appendSkillLevel[1] < 9 || servant.appendSkillLevel[2] < 9) {
+       || servant.skillLevel.some((v) => v < 9)
+       || servant.appendSkillLevel.some((v) => v < 9)) {
       Object.entries(servant.itemCounts).forEach(([itemId, counts]) => {
         if (Number(itemId) >= 800)
           return
@@ -310,7 +310,8 @@ const itemsForServant = (servant: Servant) => {
     })
   })
 
-  skillNos.forEach((skillNo) => {
+  const appendSkillNos = [0, 1, 2, 3, 4]
+  appendSkillNos.forEach((skillNo) => {
     appendSkillItems.forEach((items, skillLevel) => {
       Object.entries(items).forEach(([itemId, count]) => {
         if (Number(itemId) == 900 && skillLevel + 1 == 9) {

@@ -153,7 +153,7 @@ export const generateCleanServant = (spec: ServantSpec) => {
     id: spec.id,
     ascension: 0, maxAscension: 4,
     skillLevel: [1, 1, 1], maxSkillLevel: [9, 9, 9],
-    appendSkillLevel: [0, 0, 0], maxAppendSkillLevel: [0, 0, 0],
+    appendSkillLevel: [0, 0, 0, 0, 0], maxAppendSkillLevel: [0, 0, 0, 0, 0],
     npLevel: 0, level: 1, hpMod: 0, attackMod: 0,
     duplicated: false,
     spec: spec,
@@ -196,8 +196,8 @@ export const importMSServants = (msServants: string): Servants =>
       servants[idx].maxAscension = maxAscension
       servants[idx].skillLevel = [ s1, s2, s3 ]
       servants[idx].maxSkillLevel = [ maxS1, maxS2, maxS3 ]
-      servants[idx].appendSkillLevel = [ as1, as2, as3 ]
-      servants[idx].maxAppendSkillLevel = [ maxAS1, maxAS2, maxAS3 ]
+      servants[idx].appendSkillLevel = [ as1, as2, as3, 0, 0 ]
+      servants[idx].maxAppendSkillLevel = [ maxAS1, maxAS2, maxAS3, 0, 0 ]
       servants[idx].npLevel = 1
       servants[idx].level = estimatedLevelByAscensionAndRare[servantSpecs[id].rare][ascension]
     }
@@ -231,7 +231,7 @@ const validateServant = (servant: Servant) => {
 
   const result = {
       id, ascension, maxAscension, skillLevel, maxSkillLevel,
-      appendSkillLevel: appendSkillLevel || [ 0, 0, 0 ], maxAppendSkillLevel: maxAppendSkillLevel || [ 0, 0, 0 ],
+      appendSkillLevel: [ ...appendSkillLevel, 0, 0, 0, 0, 0 ].slice(0, 5), maxAppendSkillLevel: [ ...maxAppendSkillLevel, 0, 0, 0, 0, 0 ].slice(0, 5),
       npLevel, level, hpMod, attackMod,
       duplicated: false,
       spec: servantSpecs[servant.id],
