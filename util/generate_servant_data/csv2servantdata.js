@@ -493,6 +493,34 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
     }],
   }
   skillId++
+  skills2[skillId] = {
+    id: skillId,
+    name: "特撃技巧向上",
+    type: "append",
+    effects: [{
+      target: "自身",
+      text: "クリティカル威力アップ",
+      grow: "Lv",
+      values: [
+        "20%", "21%", "22%", "23%", "24%", "25%", "26%", "27%", "28%", "30%"
+      ]
+    }],
+  }
+  skillId++
+  skills2[skillId] = {
+    id: skillId,
+    name: "スキル再装填",
+    type: "append",
+    effects: [{
+      target: "自身",
+      text: "スキル使用時 スキルチャージ短縮(スキル毎に1回限り)",
+      grow: "Lv",
+      values: [
+        "1回", "1回", "1回", "1回", "1回", "2回", "2回", "2回", "2回", "3回"
+      ]
+    }],
+  }
+  skillId++
   appendskill_array.forEach((servant) => {
     const name = servant["アペンドスキル 3"]
     if (!appendSkills[name]) {
@@ -514,7 +542,7 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
       appendSkills[name] = skillId
     }
     if (servantList[servant["No."]])
-      servantList[servant["No."]].skills.append = [ 10000, 10001, appendSkills[name] ]
+      servantList[servant["No."]].skills.append = [ 10000, 10001, appendSkills[name], 10002, 10003 ]
   })
 
   try {

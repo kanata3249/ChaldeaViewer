@@ -150,12 +150,12 @@ const genSkillsCsv = (servantList, servantIds) => {
 }
 
 const genAppendSkillsCsv = (servantList, servantIds) => {
-    //"No.","Rare","Name","Class","アペンドスキル 1","アペンドスキル 2","アペンドスキル 3"
+    //"No.","Rare","Name","Class","アペンドスキル 1","アペンドスキル 2","アペンドスキル 3","アペンドスキル 4","アペンドスキル 5"
     return Object.values(servantList).reduce((acc, servant) => {
         if (servantIds.includes(servant.id)) {
             acc.push(
                 `${servant.id},${servant.rare},"${servant.name}","${servant.class}",`
-                + `"${servant.skills.append[0].name}","${servant.skills.append[1].name}","${servant.skills.append[2].name}"`
+                + `"${servant.skills.append[0].name}","${servant.skills.append[1].name}","${servant.skills.append[2].name}","${servant.skills.append[3].name}","${servant.skills.append[4].name}"`
             )
 }
         return acc
@@ -164,7 +164,7 @@ const genAppendSkillsCsv = (servantList, servantIds) => {
 
 const atlasjson = JSON.parse(fs.readFileSync(process.argv[2]))
 const gencsv = process.argv[3] == "gencsv"
-const gencsvIds = gencsv && process.argv[4].split(',').map((v) => parseInt(v, 10)) || [1]
+const gencsvIds = gencsv && process.argv[4]?.split(',').map((v) => parseInt(v, 10)) || [1]
 const debugServantId = process.argv[gencsv ? 5 : 3]
 const spread = (start, end) => {
     return Array(Math.max(end - start + 1, 1)).fill(start).map((v, index) => v + index)
