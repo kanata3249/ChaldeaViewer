@@ -116,6 +116,7 @@ const splitSkillText = ((text) => {
 const genSkillCsv = (servant, skill) => {
     const npType = skill.npType?.split(/ /).join('\n') || ""
     const ct = skill.ct || ""
+    const num = skill.num || ""
     const effects = skill.effects.reduce((acc, effect) => {
         const [ _, target, target2 ] = effect.target.match(/([^〔]+)(〔.+〕)?/)
         const [ preText, mainText, postText ] = splitSkillText(effect.text)
@@ -132,7 +133,7 @@ const genSkillCsv = (servant, skill) => {
         })
         return acc
     },{})
-    return `,"${skill.name}","s${servant.id}","[[${servant.name}]]",,"${npType}",,,,,,,${ct},,,,,,`
+    return `,"${skill.name}","s${servant.id}","[[${servant.name}]]",,"${npType}",,,,,,,${num},${ct},,,,,,`
             + `"${effects.applyUser?.join('\n')}","${effects.target?.join('\n')}","${effects.target2?.join('\n')}","${effects.pretext?.join('\n')}","${effects.mainText?.join('\n')}","${effects.postText?.join('\n')}"`
             + `,"${effects.grow?.join('\n')}",`
             + effects.values?.map((value) => `"${value.join('\n')}"`).join(',')

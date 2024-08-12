@@ -1272,6 +1272,7 @@ const parseSkillsSpec = ((skills) => {
     return skills.reduce((acc, skill) => {
         const skillSpec = {
             name: skill.name,
+            num: skill.num,
             type: "active",
             effects: parseFunctions(skill.functions),
             ct: skill.coolDown[0],
