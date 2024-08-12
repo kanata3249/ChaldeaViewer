@@ -207,7 +207,7 @@ const parseGrowthType = (values) => {
             }
         }
     } else {
-        if (JSON.stringify(values[0][0]) == JSON.stringify(values[0][1])) {
+        if (JSON.stringify(values[0][0]) == JSON.stringify(values[0][6])) {
             return ""
         } else {
             return "Lv"
@@ -303,6 +303,9 @@ const parseEffectValues = (growthType, modifier, prefix, suffix, values) => {
         }
     } else {
         return values[0].map((value) => {
+            if (values[0][0].Count != values[0][6].Count) {
+                return formatEffectValue(value.Count, undefined, undefined, undefined, modifier, prefix, suffix)
+            }
             if (values[0][0].Rate != values[0][1].Rate) {
                 return formatEffectValue(value.Value, value.Rate, value.RatioHPLow, undefined, modifier, prefix, suffix)
             }
@@ -710,6 +713,9 @@ const parseAddState = (func) => {
     if (func.buffs[0].type.startsWith("gutsFunction")) {
         return parseAddStateGuts(func)
     }
+    if (func.buffs[0].type.startsWith("shortenSkillAfterUseSkill")) {
+        return parseShortenSkillAfterUse(func)
+    }
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
     const effectName = parseEffectName(func)
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
@@ -1111,6 +1117,19 @@ const parseShortenSkill = (func) => {
     }
 }
 
+const parseShortenSkillAfterUse = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = "スキル使用時 スキルチャージ短縮(スキル毎に1回限り)"
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = parseEffectValues(growthType, 1, '', '回', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
 const parseTransformServant = (func) => {
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
     const effectName = "〔スーパー青子〕に変身"
@@ -1216,6 +1235,7 @@ const functionParser = {
     "transformServant": parseTransformServant,
     "shortenBuffcount": parseShotenBuffcount,
     "displayBuffstring": parseDisplayBuffstring,
+    "shortenSkillAfterUseSkill": parseShortenSkillAfterUse,
 }
 
 const parseFunction = (func) => {
