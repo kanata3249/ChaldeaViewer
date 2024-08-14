@@ -193,7 +193,7 @@ const skills = {}
 const skillIds = {}
 
 const saveSkills = (skillArray) => {
-    return skillArray.map((skill) => {
+    return skillArray.map(({ num, ...skill }) => {
         const savedSkillId = skillIds[JSON.stringify(skill, null, 2)]
         if (!savedSkillId) {
             const newId = Object.keys(skills).length + 1

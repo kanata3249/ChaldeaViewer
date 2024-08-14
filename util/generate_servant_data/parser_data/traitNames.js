@@ -109,6 +109,7 @@ const targetTraitNames =
     "basedOnServant": "サーヴァント",
     "brynhildsBeloved": "愛する者",
     "buffGuts": "ガッツ状態",
+    "buffBurn": "〔やけど〕状態",
     "canBeInBattle": "",
     "childServant": "子供",
     "classAlterEgo": "",
