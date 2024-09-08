@@ -125,7 +125,7 @@ const targetTraitNames =
     "classForeigner": "フォーリナー",
     "classGrandCaster": "",
     "classLancer": "",
-    "classMoonCancer": "",
+    "classMoonCancer": "ムーンキャンサー",
     "classPretender": "",
     "classRider": "",
     "classRuler": "",
@@ -189,6 +189,8 @@ const targetTraitNames =
     "busterBuff": "Busterカード性能アップ",
     "groupServant": "複数で一騎のサーヴァント",
     "2911": "ノーマル青子",
+    "protectedByBBDubai": "保護対象",
+    "bunnyServant": "バニー系のサーヴァント",
 }
 
 module.exports = {

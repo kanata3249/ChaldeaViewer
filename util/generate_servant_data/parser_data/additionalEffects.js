@@ -207,6 +207,11 @@ const additionalEffects = {
         "Text": "NP増加",
         "Value": "10%"
     },
+    "970549": {
+        "Text": "宝具威力アップ",
+        "Value": "10%",
+        "Turn": 3
+    },
     "970554": {
         "Text": "HP回復",
         "Value": [

@@ -165,7 +165,7 @@ const checkNPTypes = ((noblePhantasms) => {
 const individualTargetText = (target) => {
     if (target) {
         if (individualTargetNames[target]) {
-            return individualTargetNames[target]
+            return `〔${individualTargetNames[target]}〕`
         } else {
             console.log("unknown individual target", target)
         }
@@ -176,7 +176,7 @@ const individualTargetText = (target) => {
 const individualSumTargetText = (targetList) => {
     return targetList.map((target) => {
         if (individualTargetNames[target]) {
-            return individualTargetNames[target]
+            return `〔${individualTargetNames[target]}〕`
         } else {
             console.log("unknown individual target", target)
             return `〔${target}〕`
@@ -188,11 +188,21 @@ const overWriteTargetText = (targetList) => {
     return targetList?.map((targetTvals) => {
         return targetTvals.reduce((acc, target) => {
             if (individualTargetNames[target.id]) {
-                acc.push(individualTargetNames[target.id])
+                acc.push(`〔${individualTargetNames[target.id]}〕`)
             }
             return acc
         },[]).join("の")
     }).join("または") || ""
+}
+
+const andCheckIndividuality = (tvals) => {
+    const individuality = tvals.reduce((acc, id) => {
+        if (individualTargetNames[id]) {
+            acc.push(individualTargetNames[id])
+        }
+        return acc
+    },[]).join('の')
+    return `〔${individuality}〕`
 }
 
 const targetText = (team, type, tvals) => {
@@ -948,6 +958,20 @@ const parseGainNp = (func) => {
     }
 }
 
+const parseGainNpIndividualSum = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
+    const effectName = "敵の数に応じてNP増加"
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = parseEffectValues(growthType, 100, prefixByEffectName(effectName), '%', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
 const parseLossNp = (func) => {
     const target = targetText(func.funcTargetTeam, func.funcTargetType, func.functvals)
     const effectName = "NP減少"
@@ -1079,6 +1103,20 @@ const parseDamageNpIndividualSum = (func) => {
     const effectName = "特攻宝具攻撃"
     const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
     const values = parseDamageNpIndividualSumEffectValues(growthType, 10, prefixByEffectName(effectName), '%', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    
+    return {
+        target,
+        text: effectName,
+        grow: growthType,
+        values
+    }
+}
+
+const parseDamageNpAndCheckIndividuality = (func) => {
+    const target = targetText(func.funcTargetTeam, func.funcTargetType, null) + andCheckIndividuality(func.svals[0].AndCheckIndividualityList)
+    const effectName = "特攻宝具攻撃"
+    const growthType = parseGrowthType([func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
+    const values = parseDamageNpIndividualEffectValues(growthType, 10, prefixByEffectName(effectName), '%', [func.svals, func.svals2, func.svals3, func.svals4, func.svals5])
     
     return {
         target,
@@ -1267,6 +1305,7 @@ const functionParser = {
     "moveState": parseMoveState,
     "instantDeath": parseInstantDeath,
     "gainNp": parseGainNp,
+    "gainNpIndividualSum": parseGainNpIndividualSum,
     "lossNp": parseLossNp,
     "gainMultiplyNp": parseGainMultiplyNp,
     "gainHp": parseGainHp,
@@ -1281,6 +1320,7 @@ const functionParser = {
     "damageNpIndividual": parseDamageNpIndividual,
     "damageNpIndividualSum": parseDamageNpIndividualSum,
     "damageNpStateIndividualFix": parseDamageNpStateIndividualFix,
+    "damageNpAndCheckIndividuality": parseDamageNpAndCheckIndividuality,
     "damageNpHpratioLow": parseDamageNpHpratioLow,
     "forceInstantDeath": parseForceInstantDeath,
     "transformServant": parseTransformServant,
