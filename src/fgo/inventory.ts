@@ -91,6 +91,11 @@ const itemId2msItemId = {
   614: 114,
   615: 115,
   616: 116,
+
+  700: -1,
+  701: -1,
+  702: -1,
+  703: -1,
 }
 
 export const importMSInventory = (msInventory: string): Inventory =>
@@ -108,7 +113,9 @@ export const exportMSInventory = (inventory: Inventory): string =>
 {
   return JSON.stringify(
     Object.keys(itemNames).reduce((acc, itemId) => {
-      acc[itemId2msItemId[itemId] || itemId] = inventory[itemId]
+      if (!itemId2msItemId[itemId] || itemId2msItemId[itemId] >= 0) {
+        acc[itemId2msItemId[itemId] || itemId] = inventory[itemId]
+      }
       return acc
     }, {"900":0}))
 }
