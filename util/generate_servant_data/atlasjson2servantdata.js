@@ -166,7 +166,9 @@ const genAppendSkillsCsv = (servantList, servantIds) => {
 const atlasjson = JSON.parse(fs.readFileSync(process.argv[2]))
 const gencsv = process.argv[3] == "gencsv"
 const gencsvIds = gencsv && process.argv[4]?.split(',').map((v) => parseInt(v, 10)) || [1]
-const debugServantId = process.argv[gencsv ? 5 : 3]
+const getid = process.argv[3] == "getid"
+const getidPattern = getid && process.argv[4] || ''
+const debugServantId = process.argv[(gencsv || getid) ? 5 : 3]
 const spread = (start, end) => {
     return Array(Math.max(end - start + 1, 1)).fill(start).map((v, index) => v + index)
 }
@@ -186,6 +188,14 @@ if (gencsv) {
     } catch(e) {
         console.log(e)
     }
+}
+
+if (getid) {
+    Object.values(servants).forEach((servant) => {
+        if (servant.name.match(getidPattern)) {
+            console.log(servant.id, servant.name)
+        }
+    })
 }
 
 const servantNames = {}
