@@ -50,8 +50,11 @@ type TableData = {
   itemAmounts: number[]
   sands: number
   qp: number
+  torches: number[]
   pathSands: number
   pathAcquiredSands: number
+  pathTorches: number[]
+  pathAcquiredTorches: number[]
 }
 
 type TableSummary = {
@@ -87,11 +90,18 @@ const columns : TableColumnInfo[] = [
   { label: '素材数', key: 'itemAmounts', align: "right", width: 80 },
   { label: '砂', key: 'sands', align: "right", width: 80 },
   { label: '残経路砂', key: 'pathSandsLeft', align: "right", width: 80 },
+  { label: '残トーチ', key: 'pathTorchesLeft', align: "center", width: 80 },
   { label: '経路砂', key: 'pathSands', align: "right", width: 80 },
+  { label: '経路トーチ', key: 'pathTorches', align: "center", width: 80 },
   { label: 'QP', key: 'qp', align: "right", width: 80 },
   { label: '解放予定', key: 'reserved', align: "center", width: 80, editable: true, type: "boolean" },
   { label: '解放済み', key: 'acquired', align: "center", width: 80, editable: true, type: "boolean" },
 ]
+
+const touchesText = (toches : number[]) => {
+  const marks = [ '新', '明', '極' ]
+  return toches.map((v, index) => v ? marks[index] : '').join('')
+}
 
 const getTableData = (tableData: TableData, columnIndex: number, sort?: boolean) => {
   const key = columns[columnIndex].key
@@ -113,6 +123,10 @@ const getTableData = (tableData: TableData, columnIndex: number, sort?: boolean)
       return row.pathSands - row.pathAcquiredSands
     case 'pathSands':
       return row.pathSands
+    case 'pathTorchesLeft':
+      return touchesText(row.pathTorches.map((v, index) => v - row.pathAcquiredTorches[index]))
+    case 'pathTorches':
+      return touchesText(row.pathTorches)
   
     default:
       return row[key]
@@ -250,13 +264,16 @@ const calcTableData = (classscores: ClassScores): TableData[] => {
       reserved: classscore.reserved, acquired: classscore.acquired,
       itemIds: itemIds, itemNames: itemTexts, itemAmounts: itemAmounts,
       sands: classscore.spec.items[700], qp: classscore.spec.items[900],
-      pathSands: 0, pathAcquiredSands: 0
+      torches: [ classscore.spec.items[701] || 0, classscore.spec.items[702] || 0, classscore.spec.items[703] || 0 ],
+      pathSands: 0, pathAcquiredSands: 0, pathTorches: [0, 0, 0], pathAcquiredTorches: [0, 0, 0]
     }
   }).map((row, index, array) => {
     if (row.prevNodeName.length) {
       const prevNode = array.find((v) => v.nodeName == row.prevNodeName)
       row.pathSands = prevNode.pathSands + (prevNode.sands || 0)
       row.pathAcquiredSands = prevNode.pathAcquiredSands + (prevNode.acquired ? (prevNode.sands || 0) : 0)
+      row.pathTorches = prevNode.pathTorches.map((a, index) => a + prevNode.torches[index])
+      row.pathAcquiredTorches = prevNode.pathAcquiredTorches.map((a, index) => a + (prevNode.acquired ? prevNode.torches[index] : 0))
     }
     return row
   }).sort((a, b) => {
