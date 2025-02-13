@@ -6,30 +6,18 @@
 //
 
 fs = require('fs')
+promisify = require('util').promisify
 csv = require('csvtojson')
 pako = require('pako')
+atlasJsonParser = require('./atlasJsonParser')
 ids = require('./ids')
-
-const parseItems = (itemsText) => {
-  return itemsText.split("\n").reduce((acc, itemText) => {
-    if (itemText.length) {
-    const [item, count] = itemText.split("x")
-    if (count) {
-      if (ids.itemName2Id[item]) {
-        acc[ids.itemName2Id[item]] = Number(count)
-      }
-    } else {
-      acc[ids.itemName2Id["QP"]] = parseInt(itemText)
-    }
-    }
-    return acc
-  },{})
-}
-
-const csvs = process.argv.slice(2)
 
 const csv2json = async (file) => {
   return await csv({checkType:true}).fromFile(file)
+}
+
+const loadjson = async (file) => {
+  return await promisify(fs.readFile)(file).then((raw) => JSON.parse(raw))
 }
 
 const D_MUD = 'ガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポヴヷヺ';
@@ -193,8 +181,41 @@ const nobleTraits2npType = (nobleTraits) => {
   return ""
 }
 
-Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(csvs[3])])
-.then(([servant_array, skill_array, items_array, appendskill_array]) => {
+const genItemsArray = (servantList) => {
+  return Object.values(servantList).reduce((acc, servant) => {
+    const itemsByLevelString = (itemsByLevel) => itemsByLevel.map((items) => {
+      const itemIds = Object.keys(items).map((name) => ids.itemName2Id[name]).filter((id) => id !== undefined)
+      itemIds.sort((a, b) => {
+        const aa = a >= 600 ? -a : a
+        const bb = b >= 600 ? -b : b
+        return aa - bb
+      })
+      return itemIds.reduce((acc, itemId) => {
+        acc[itemId] = items[ids.itemNames[itemId]] >> 0
+        return acc
+      }, {})
+    })
+    if (servant.id)
+      acc.push({ id: servant.id, items: { ascension: itemsByLevelString(servant.items.ascension), skills: itemsByLevelString(servant.items.skill), appendSkills: itemsByLevelString(servant.items.appendSkill) }})
+    return acc
+  }, [])
+}
+
+const genAppendSkill3Array = (servantList) => {
+  //"No.","Rare","Name","Class","アペンドスキル 1","アペンドスキル 2","アペンドスキル 3","アペンドスキル 4","アペンドスキル 5"
+  return Object.values(servantList).reduce((acc, servant) => {
+    if (servant.id)
+      acc.push({ id: servant.id, name: servant.skills.append[2].name })
+    return acc
+  },[])
+}
+
+const csvs = process.argv.slice(3)
+Promise.all([loadjson(process.argv[2]), csv2json(csvs[0]), csv2json(csvs[1])])
+.then(([atlasjson, servant_array, skill_array]) => {
+
+  const atlasServants = atlasJsonParser.parseServantsJson(atlasjson, undefined)
+  const materialNames = atlasJsonParser.getMaterialNames()
 
   const servantId2msId = {}
   const servantList = {}
@@ -424,43 +445,15 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
     return acc
   }, {})
 
-  // items.csv
+  const items_array = genItemsArray(atlasServants)
   items_array.forEach((servant) => {
-    const items = {
-      ascension: [
-        parseItems(servant["再臨素材 1"]),
-        parseItems(servant["再臨素材 2"]),
-        parseItems(servant["再臨素材 3"]),
-        parseItems(servant["再臨素材 4"]),
-      ],
-      skill: [
-        parseItems(servant["スキル素材 1"]),
-        parseItems(servant["スキル素材 2"]),
-        parseItems(servant["スキル素材 3"]),
-        parseItems(servant["スキル素材 4"]),
-        parseItems(servant["スキル素材 5"]),
-        parseItems(servant["スキル素材 6"]),
-        parseItems(servant["スキル素材 7"]),
-        parseItems(servant["スキル素材 8"]),
-        parseItems(servant["スキル素材 9"]),
-      ],
-      appendSkill: [
-        parseItems(servant["APスキル素材 1"]),
-        parseItems(servant["APスキル素材 2"]),
-        parseItems(servant["APスキル素材 3"]),
-        parseItems(servant["APスキル素材 4"]),
-        parseItems(servant["APスキル素材 5"]),
-        parseItems(servant["APスキル素材 6"]),
-        parseItems(servant["APスキル素材 7"]),
-        parseItems(servant["APスキル素材 8"]),
-        parseItems(servant["APスキル素材 9"]),
-      ]
-
+    if (servantList[servant.id]) {
+      servantList[servant.id].items = {
+        ascension: servant.items.ascension,
+        skill: servant.items.skills,
+        appendSkill: servant.items.appendSkills,
+      }
     }
-    const servantId = servant["No."]
-    if (servantList[servantId])
-      servantList[servantId].items = items
-    //    console.log("items for servant id: ", servant.id, items)
   })
 
   skillId = 10000
@@ -521,8 +514,9 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
     }],
   }
   skillId++
-  appendskill_array.forEach((servant) => {
-    const name = servant["アペンドスキル 3"]
+  const appendskill3_array = genAppendSkill3Array(atlasServants)
+  appendskill3_array.forEach((servant) => {
+    const name = servant.name
     if (!appendSkills[name]) {
       const text = name.replace(/対(.*)攻撃適性/, "対$1攻撃力アップ").replace(/対(.*)クリティカル発生耐性/, "$1からのクリティカル発生耐性アップ")
       skillId++
@@ -541,8 +535,8 @@ Promise.all([csv2json(csvs[0]), csv2json(csvs[1]), csv2json(csvs[2]), csv2json(c
       }
       appendSkills[name] = skillId
     }
-    if (servantList[servant["No."]])
-      servantList[servant["No."]].skills.append = [ 10000, 10001, appendSkills[name], 10002, 10003 ]
+    if (servantList[servant.id])
+      servantList[servant.id].skills.append = [ 10000, 10001, appendSkills[name], 10002, 10003 ]
   })
 
   try {
