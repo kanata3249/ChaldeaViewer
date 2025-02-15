@@ -63,33 +63,6 @@ const genServantCsv = (servantList, atlasjson, servantIds) => {
     }).join("")
 }
 
-const genItemsCsv = (servantList, servantIds) => {
-    return Object.values(servantList).reduce((acc, servant) => {
-        if (servantIds.includes(servant.id)) {
-            const itemsCsv = [ ...servant.items.ascension, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, ...servant.items.skill, ...servant.items.appendSkill ].map((items) => {
-                const itemIds = Object.keys(items).map((name) => ids.itemName2Id[name]).filter((id) => id !== undefined)
-                itemIds.sort((a, b) => {
-                    const aa = a >= 600 ? -a : a
-                    const bb = b >= 600 ? -b : b
-                    return aa - bb
-                })
-                return itemIds.map((itemId) => {
-                    const itemName = ids.itemNames[itemId]
-                    if (itemName == "QP") {
-                        return `${items[itemName]}万QP`
-                    } else {
-                        return `${itemName}x${items[itemName]}`
-                    }
-                }, []).join('\n')
-            })
-            acc.push(
-                `${servant.id},${servant.rare},"${servant.name}","${itemsCsv.join('","')}"`
-            )
-        }
-        return acc
-    }, []).join('\n')
-}
-
 const splitSkillText = ((text) => {
     const result = { preText: "", mainText: text, postText: "" }
 
@@ -146,19 +119,6 @@ const genSkillsCsv = (servantList, servantIds) => {
             servant.skills.active.forEach((skill) => acc.push(genSkillCsv(servant, skill)))
             servant.skills.passive.forEach((skill) => acc.push(genSkillCsv(servant, skill)))
         }
-        return acc
-    }, []).join('\n')
-}
-
-const genAppendSkillsCsv = (servantList, servantIds) => {
-    //"No.","Rare","Name","Class","アペンドスキル 1","アペンドスキル 2","アペンドスキル 3","アペンドスキル 4","アペンドスキル 5"
-    return Object.values(servantList).reduce((acc, servant) => {
-        if (servantIds.includes(servant.id)) {
-            acc.push(
-                `${servant.id},${servant.rare},"${servant.name}","${servant.class}",`
-                + `"${servant.skills.append[0].name}","${servant.skills.append[1].name}","${servant.skills.append[2].name}","${servant.skills.append[3].name}","${servant.skills.append[4].name}"`
-            )
-}
         return acc
     }, []).join('\n')
 }

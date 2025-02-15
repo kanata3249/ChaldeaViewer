@@ -202,7 +202,6 @@ const genItemsArray = (servantList) => {
 }
 
 const genAppendSkill3Array = (servantList) => {
-  //"No.","Rare","Name","Class","アペンドスキル 1","アペンドスキル 2","アペンドスキル 3","アペンドスキル 4","アペンドスキル 5"
   return Object.values(servantList).reduce((acc, servant) => {
     if (servant.id)
       acc.push({ id: servant.id, name: servant.skills.append[2].name })
@@ -542,7 +541,7 @@ Promise.all([loadjson(process.argv[2]), csv2json(csvs[0]), csv2json(csvs[1])])
   try {
     fs.writeFileSync("servantdata.json",  JSON.stringify(servantList))
     fs.writeFileSync("servantdata.json.gz",  pako.deflate(JSON.stringify(servantList)))
-    fs.writeFileSync("./servantId2msId.json", JSON.stringify(servantId2msId))
+    fs.writeFileSync("servantId2msId.json", JSON.stringify(servantId2msId))
     fs.writeFileSync("servantNames.json", JSON.stringify(servantNames))
     fs.writeFileSync("skills.json",  JSON.stringify(skills2))
     fs.writeFileSync("skills.json.gz", pako.deflate(JSON.stringify(skills2)))
