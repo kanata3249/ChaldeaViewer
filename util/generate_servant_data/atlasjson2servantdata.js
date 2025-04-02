@@ -123,24 +123,30 @@ const genSkillsCsv = (servantList, servantIds) => {
     }, []).join('\n')
 }
 
-const atlasjson = JSON.parse(fs.readFileSync(process.argv[2]))
-const gencsv = process.argv[3] == "gencsv"
-const gencsvIds = gencsv && process.argv[4]?.split(',').map((v) => parseInt(v, 10)) || [1]
-const getid = process.argv[3] == "getid"
-const getidPattern = getid && process.argv[4] || ''
-const debugServantId = process.argv[(gencsv || getid) ? 5 : 3]
 const spread = (start, end) => {
     return Array(Math.max(end - start + 1, 1)).fill(start).map((v, index) => v + index)
 }
+
+const atlasjson = JSON.parse(fs.readFileSync(process.argv[2]))
+const gencsv = process.argv[3] == "gencsv"
+const gencsvIds = gencsv && (process.argv[4]?.split(',').map((v) => {
+    const startend = v.split('-')
+    if (startend.length >= 2) {
+        return spread(parseInt(startend[0], 10), parseInt(startend[1] || '999'), 10)
+    }
+    return parseInt(v, 10) || 0
+}).flat() || spread(1, 999))
+const getid = process.argv[3] == "getid"
+const getidPattern = getid && process.argv[4] || ''
+const debugServantId = process.argv[(gencsv || getid) ? 5 : 3]
 
 const servants = atlasJsonParser.parseServantsJson(atlasjson, debugServantId)
 const materialNames = atlasJsonParser.getMaterialNames()
 
 if (gencsv) {
     try {
-        const ids = gencsvIds.length == 1 ? spread(gencsvIds[0], 999) : gencsvIds
-        fs.writeFileSync("91_servants.csv", genServantCsv(servants, atlasjson, ids))
-        fs.writeFileSync("92_skills.csv", genSkillsCsv(servants, ids))
+        fs.writeFileSync("91_servants.csv", genServantCsv(servants, atlasjson, gencsvIds))
+        fs.writeFileSync("92_skills.csv", genSkillsCsv(servants, gencsvIds))
         fs.writeFileSync("99_materialNames.json", JSON.stringify(materialNames, null, " "))
 
     } catch(e) {
