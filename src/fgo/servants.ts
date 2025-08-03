@@ -91,6 +91,7 @@ export const servantClassNames = {
   11: "降",
   12: "詐",
   13: "獣",
+  14: "反",
   20: "盾",
 }
 

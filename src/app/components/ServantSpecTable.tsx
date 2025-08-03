@@ -276,6 +276,7 @@ const filterDefinition: FilterDefinition[] = [
       { label: "フォーリナー", key: "降" },
       { label: "プリテンダー", key: "詐" },
       { label: "ビースト", key: "獣" },
+      { label: "アンビースト", key: "反" },
       { label: 'シールダー', key: "盾" },
     ]
   },
