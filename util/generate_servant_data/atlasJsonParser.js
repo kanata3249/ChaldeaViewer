@@ -229,7 +229,7 @@ const parseGrowthType = (values) => {
             }
         }
     } else {
-        if (JSON.stringify(values[0][0]) == JSON.stringify(values[0][6])) {
+        if (values[0].length == 1 || JSON.stringify(values[0][0]) == JSON.stringify(values[0][6])) {
             return ""
         } else {
             return "Lv"
@@ -325,16 +325,16 @@ const parseEffectValues = (growthType, modifier, prefix, suffix, values) => {
         }
     } else {
         return values[0].map((value) => {
-            if (values[0][0].Count != values[0][6].Count) {
+            if (values[0][6] && values[0][0].Count != values[0][6].Count) {
                 return formatEffectValue(value.Count, undefined, undefined, undefined, modifier, prefix, suffix)
             }
-            if (values[0][0].Rate != values[0][1].Rate) {
+            if (values[0][1] && values[0][0].Rate != values[0][1].Rate) {
                 return formatEffectValue(value.Value, value.Rate, value.RatioHPLow || value.Target, undefined, modifier, prefix, suffix)
             }
-            if (values[0][0].UseRate != values[0][1].UseRate) {
+            if (values[0][1] && values[0][0].UseRate != values[0][1].UseRate) {
                 return formatEffectValue(value.Value, undefined, value.RatioHPLow || value.Target, value.UseRate, modifier, prefix, suffix)
             }
-            if (values[0][1].Value) {
+            if (values[0][1]?.Value) {
                 return formatEffectValue(value.Value, undefined, value.RatioHPLow || value.Target, undefined, modifier, prefix, suffix)
             }
             return ""
@@ -574,7 +574,7 @@ const parseEffectRate = (func) => {
     if (func.svals2 && func.svals2[0].Rate != func.svals[0].Rate) {
         return 'rate:OC変動'
     }
-    if (func.svals[0].Rate != func.svals[1].Rate) {
+    if (func.svals[1] && func.svals[0].Rate != func.svals[1].Rate) {
         return 'rate:LV変動'
     }
     if (func.svals[0].Rate < 1000) {
@@ -588,7 +588,7 @@ const parseEffectProc = (func) => {
     if (func.svals2 && func.svals2[0].UseRate != func.svals[0].UseRate) {
         return 'proc:OC変動'
     }
-    if (func.svals[0].UseRate != func.svals[1].UseRate) {
+    if (func.svals[1] && func.svals[0].UseRate != func.svals[1].UseRate) {
         return 'proc:LV変動'
     }
     if (func.svals[0].UseRate < 1000) {
