@@ -153,14 +153,7 @@ const npTargetType = ((functions) => {
 })
 
 const checkNPTypes = ((noblePhantasms) => {
-    return noblePhantasms.reduce((acc, np) => {
-        const type = `${cardType[np.card]} ${npTargetType(np.functions)}`
-
-        if (acc.findIndex((v) => v.match(npTargetType(np.functions))) < 0) {
-            acc.push(type)
-        }
-        return acc
-    }, [])
+    return noblePhantasms.map((np) => np.npType)
 })
 
 const individualTargetText = (target) => {
@@ -1384,6 +1377,10 @@ const parseNpsSpec = ((noblePhantasms) => {
             npType: type,
         }
 
+        if (skillSpec.effects.length == 0) {
+            return acc
+        }
+
         const index = acc.findIndex((v) => v.npType.match(npTargetType(np.functions)))
         if (index < 0) {
             acc.push(skillSpec)
@@ -1476,7 +1473,6 @@ const parseServantsJson = (json, servantId) => {
             max: servantData.atkMax,
         }
         const growthCurve = growthCurve2Str(servantData.growthCurve)
-        const npTypes = checkNPTypes(servantData.noblePhantasms)
         const items = {
             "ascension": materials(servantData.ascensionMaterials),
             "skill": materials(servantData.skillMaterials),
@@ -1492,6 +1488,7 @@ const parseServantsJson = (json, servantId) => {
             passive: parsePassiveSkillsSpec(servantData.classPassive),
             append: parseAppendSkillsSpec(servantData.appendPassive),
         }
+        const npTypes = checkNPTypes(skills.np)
 
         if (!(servantData.type != "normal" && servantData.type != "heroine")) {
             servants[id] = {
