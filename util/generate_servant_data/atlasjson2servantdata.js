@@ -41,7 +41,7 @@ const genServantCsv = (servantList, atlasjson, servantIds) => {
                 atlas.hitsDistribution.buster.length,
                 atlas.hitsDistribution.quick.length,
                 atlas.hitsDistribution.extra.length,
-                servant.npTypes.slice(-1)[0].match(/補助/) ? 0 : atlas.noblePhantasms.slice(-1)[0].npDistribution.length,
+                (servant.npTypes.length == 0 || servant.npTypes.slice(-1)[0]?.match(/補助/)) ? 0 : atlas.noblePhantasms.slice(-1)[0].npDistribution.length,
                 atlas.cards.map((cartType) => cartType.slice(0, 1).toUpperCase()).join(' '),
                 servant.gender,
                 characteristics[0],
@@ -146,7 +146,6 @@ const materialNames = atlasJsonParser.getMaterialNames()
 if (gencsv) {
     try {
         fs.writeFileSync("91_servants.csv", genServantCsv(servants, atlasjson, gencsvIds))
-        fs.writeFileSync("92_skills.csv", genSkillsCsv(servants, gencsvIds))
         fs.writeFileSync("99_materialNames.json", JSON.stringify(materialNames, null, " "))
 
     } catch(e) {
@@ -210,12 +209,12 @@ Object.entries(servants).forEach(([servantId, servant]) => {
 })
 
 try {
-    fs.writeFileSync("servantId.json", JSON.stringify(genServantIdMap(servants, atlasjson)))
-    fs.writeFileSync("servantdata.new.json", JSON.stringify(servants))
+    // fs.writeFileSync("servantId.json", JSON.stringify(genServantIdMap(servants, atlasjson)))
+    // fs.writeFileSync("servantdata.new.json", JSON.stringify(servants))
     //    fs.writeFileSync("servantdata.json.gz",  pako.deflate(JSON.stringify(servantList)))
     //    fs.writeFileSync("servantid2msid.json", JSON.stringify(servantId2msId))
-    fs.writeFileSync("servantnames.new.json", JSON.stringify(servantNames))
-    fs.writeFileSync("skills.new.json", JSON.stringify(skills))
+    // fs.writeFileSync("servantnames.new.json", JSON.stringify(servantNames))
+    // fs.writeFileSync("skills.new.json", JSON.stringify(skills))
     //    fs.writeFileSync("skills.json.gz", pako.deflate(JSON.stringify(skills)))
 } catch (e) {
     console.log(e)

@@ -4,10 +4,11 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "get-data": "sh getdata.sh",
-    "get-atlas-data": "sh getatlasdata.sh",
-    "gen-data": "sh gendata.sh",
-    "apply-data": "sh applydata.sh",
+    "get-data": "bash getdata.sh",
+    "get-atlas-data": "bash getatlasdata.sh",
+    "gen-data": "bash gendata.sh",
+    "apply-data": "bash applydata.sh",
+    "gen-csv": "bash gencsv.sh",
     "start": "sh start.sh"
   },
   "devDependencies": {
