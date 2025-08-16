@@ -1284,6 +1284,13 @@ const parseCardReset = (func) => ({
     values: [ "", "", "", "", "", "", "", "", "", "" ]
 })
 
+const parseMoveToLastSubmember = (func) => ({
+    target: "自身",
+    text: "控えに退避する<フィールドにいる味方が1騎のみの時は退避不能>",
+    grow: "",
+    values: [ "", "", "", "", "", "", "", "", "", "" ]
+})
+
 const parseNone = (func) => ({
     target: "自身",
     text: "なし",
@@ -1322,6 +1329,7 @@ const functionParser = {
     "displayBuffstring": parseDisplayBuffstring,
     "shortenSkillAfterUseSkill": parseShortenSkillAfterUse,
     "cardReset": parseCardReset,
+    "moveToLastSubmember": parseMoveToLastSubmember,
 }
 
 const parseFunction = (func) => {
@@ -1346,7 +1354,7 @@ const parseFunctions = (functions) => {
                     ) {
                         // ignore this effect
                     } else {
-                    acc.push(effect)
+                        acc.push(effect)
                     }
                 }
             })
@@ -1359,7 +1367,7 @@ const parseFunctions = (functions) => {
                 ) {
                     // ignore this effect
                 } else {
-                acc.push(effect)
+                    acc.push(effect)
                 }
             }
         }
