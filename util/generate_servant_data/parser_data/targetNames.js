@@ -17,6 +17,7 @@ const targetNames = {
         "ptOne": "味方単体",
         "ptOther": "自身を除く味方全体",
         "ptOtherFull":  "自身を除く味方全体",
+        "ptSelfAnotherFirst": "自身を除く先頭の味方単体",
         "enemy": "敵単体",
         "enemyAll": "敵全体",
         "commandTypeSelfTreasureDevice": "自身",
