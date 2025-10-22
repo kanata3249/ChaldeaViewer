@@ -191,6 +191,8 @@ const targetTraitNames =
     "2911": "ノーマル青子",
     "protectedByBBDubai": "保護対象",
     "bunnyServant": "バニー系のサーヴァント",
+    "3121": "日輪",
+    "3122": "月下",
 }
 
 module.exports = {
