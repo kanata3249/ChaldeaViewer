@@ -9,6 +9,9 @@ fs = require('fs')
 csv = require('csvtojson')
 pako = require('pako')
 ids = require('./ids')
+exids = { "EX1": 7, "EX2": 9 }
+
+const classId = (name) => ids[name] || exids[name]
 
 const parseItems = (itemsText) => {
   return itemsText.split("\n").reduce((acc, itemText) => {
@@ -42,7 +45,7 @@ Promise.all([csv2json(csvs[0])])
     }, {})
     const result_row = {
       id: row.id,
-      class: ids.className2Id[row.class],
+      class: exids[row.class] || ids.className2Id[row.class],
       nodeName: row.ex_id,
       prevNodeName: row.required_ex_id,
       effect: {
