@@ -19,6 +19,15 @@ const genServantIdMap = (servantList, atlasjson) => {
     },{})
 }
 
+const cardType = {
+    "buster": "B",
+    "arts": "A",
+    "quick": "Q",
+    "1": "A",
+    "2": "B",
+    "3": "Q"
+}
+
 const genServantCsv = (servantList, atlasjson, servantIds) => {
     return atlasjson.reduce((acc, atlas) => {
         const servant = servantList[atlas.collectionNo]
@@ -37,12 +46,12 @@ const genServantCsv = (servantList, atlasjson, servantIds) => {
                 atlas.noblePhantasms.slice(-1)[0].npGain.np[0] / 100, atlas.noblePhantasms.slice(-1)[0].npGain.defence[0] / 100,
                 atlas.starGen / 10, atlas.starAbsorb,
                 atlas.instantDeathChance / 10,
-                atlas.hitsDistribution.arts.length,
-                atlas.hitsDistribution.buster.length,
-                atlas.hitsDistribution.quick.length,
-                atlas.hitsDistribution.extra.length,
+                atlas.hitsDistribution[1].length,
+                atlas.hitsDistribution[2].length,
+                atlas.hitsDistribution[3].length,
+                atlas.hitsDistribution[4].length,
                 (servant.npTypes.length == 0 || servant.npTypes.slice(-1)[0]?.match(/補助/)) ? 0 : atlas.noblePhantasms.slice(-1)[0].npDistribution.length,
-                atlas.cards.map((cartType) => cartType.slice(0, 1).toUpperCase()).join(' '),
+                atlas.cards.map((card) => cardType[card]).join(' '),
                 servant.gender,
                 characteristics[0],
                 characteristics[1],

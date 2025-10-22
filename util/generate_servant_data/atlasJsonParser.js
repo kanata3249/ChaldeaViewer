@@ -127,7 +127,10 @@ const materials = ((materials) => {
 const cardType = {
     "buster": "B",
     "arts": "A",
-    "quick": "Q"
+    "quick": "Q",
+    "1": "A",
+    "2": "B",
+    "3": "Q"
 }
 
 const npTargetType = ((functions) => {
