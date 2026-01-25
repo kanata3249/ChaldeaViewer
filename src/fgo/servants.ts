@@ -6,6 +6,7 @@ export type ServantSkillSpec = {
   name: string
   condition?: string
   type: "np" | "active" | "passive" | "append"
+  detail: string
   npType?: string
   ct?: number
   effects: {

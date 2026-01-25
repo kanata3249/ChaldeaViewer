@@ -1384,6 +1384,7 @@ const parseNpsSpec = ((noblePhantasms) => {
         const skillSpec = {
             name: `${np.name} ${np.rank}`,
             type: "np",
+            detail: np.detail,
             effects: parseFunctions(np.functions),
             npType: type,
         }
@@ -1411,6 +1412,7 @@ const parseSkillsSpec = ((skills) => {
             name: skill.name,
             num: skill.num,
             type: "active",
+            detail: skill.detail,
             effects: parseFunctions(skill.functions),
             ct: skill.coolDown[0],
         }
@@ -1424,7 +1426,8 @@ const parsePassiveSkillsSpec = ((skills) => {
     return skills.reduce((acc, skill) => {
         const skillSpec = {
             name: skill.name,
-            type: "passive",
+            type: "passive", 
+            detail: skill.detail,
             effects: parseFunctions(skill.functions)
         }
         skillSpec.effects = skillSpec.effects.map((effect) => {

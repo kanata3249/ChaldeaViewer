@@ -14,7 +14,11 @@ const useStyles = makeStyles((theme: Theme) =>
     skillDescription: {
       paddingLeft: 8,
       fontSize: "smaller"
-    }
+    },
+    skillDetail: {
+      fontSize: "smaller",
+      paddingBottom: 8,
+    },
   })
 )
 
@@ -32,10 +36,30 @@ type ServantSkillsTableData = {
   type: string
   ct?: number
   npType?: string
+  detail: string
   targets: string[]
   effects: string[]
   grows: string[]
   values: string[][]
+}
+
+const formatSkillDetail = (detail: string) => {
+  return (
+    <>
+      { detail?.split(/(＆|＋)/).reduce((acc, token, index) => {
+          if (index % 2 == 0 && index != 0) {
+            acc.push(`${acc.pop()}${token}`)
+          } else {
+            acc.push(token)
+          }
+          return acc
+        },[]).map((line, index) =>
+          <React.Fragment key={index}>
+              {line}<br />
+          </React.Fragment>
+        )}
+    </>
+  )
 }
 
 const createServantSkillsTableData = (servant: Servant): ServantSkillsTableData[] => {
@@ -45,13 +69,13 @@ const createServantSkillsTableData = (servant: Servant): ServantSkillsTableData[
     return acc.concat(
       skills.map<ServantSkillsTableData>((skillId) => {
         const skillSpec = servantSkills[skillId]
-
         return {
           id: skillId,
           name: skillSpec.name + (skillSpec.condition ? `〔${skillSpec.condition}〕` : ''),
           type: type,
           ct: skillSpec.ct,
           npType: skillSpec.npType,
+          detail: skillSpec.detail,
           targets: skillSpec.effects.map((effect) => effect.target),
           effects: skillSpec.effects.map((effect) => effect.text),
           grows: skillSpec.effects.map((effect) => effect.grow),
@@ -79,6 +103,11 @@ export const ServantSkillsPage: FC<Prop> = (props) => {
               {row.type == "passive" && <ListItemText primary={row.name + " - " + skillTypeNames[row.type]} />}
               {row.type == "append" && <ListItemText primary={row.name + " - " + skillTypeNames[row.type]} />}
             </Grid>
+            { row.detail && 
+              <Grid item className={classes.skillDetail} >
+                {formatSkillDetail(row.detail)}
+              </Grid>
+            }
             <Grid item className={classes.skillDescription} >
               <table>
                 <tbody>

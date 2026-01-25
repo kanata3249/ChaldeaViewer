@@ -271,6 +271,7 @@ Promise.all([loadjson(process.argv[2]), csv2json(csvs[0])])
       const name = skill.name
       const condition = skill.condition
       const owner = servant_skills.id
+      const detail = skill.detail
       const effects = skill.effects
 
       skills[skillId] = {
@@ -278,6 +279,7 @@ Promise.all([loadjson(process.argv[2]), csv2json(csvs[0])])
         name: name,
         condition,
         type: skillType,
+        detail: detail,
         effects: effects,
       }
       if (skillType == "np") {
