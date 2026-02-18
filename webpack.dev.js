@@ -6,7 +6,6 @@ module.exports = merge(common, {
   devServer: {
     hot: true,
     open: true,
-    https: false,
     static: {
       directory: `${__dirname}/dist/`
     }
