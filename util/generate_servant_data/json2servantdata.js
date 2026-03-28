@@ -37,8 +37,16 @@ const toZenKata = str => {
     return str;
 };
 
-const validateCharacteristics = (text) => {
-  return toZenKata(text)
+const validateCharacteristics = (text, gender) => {
+  const characteristics = toZenKata(text).split(" ")
+  if (gender != '-') {
+    characteristics.unshift(gender)
+  }
+  const genderText = characteristics[0] 
+  characteristics[0] = characteristics[1]
+  characteristics[1] = characteristics[2]
+  characteristics[2] = genderText
+  return characteristics.join(' ')
 }
 
 const skillNoMap = {
@@ -229,14 +237,15 @@ Promise.all([loadjson(process.argv[2]), csv2json(csvs[0])])
   const servantList = {}
   const servantNames = {}
 
-  servant_array.forEach((servant) => {
-    if (servant.id != servant.msId) {
-      if (servant.msId != "") {
-        servantId2msId[Number.parseInt(servant.id)] = Number.parseInt(servant.msId)
+  servant_array.forEach((servant_extra_info) => {
+    if (servant_extra_info.id != servant_extra_info.msId) {
+      if (servant_extra_info.msId != "") {
+        servantId2msId[Number.parseInt(servant_extra_info.id)] = Number.parseInt(servant_extra_info.msId)
       } else {
-        servantId2msId[Number.parseInt(servant.id)] = -1
+        servantId2msId[Number.parseInt(servant_extra_info.id)] = -1
       }
     }
+    const servant = atlasServants[servant_extra_info.id]
     servantNames[servant.id] = servant.name
 
     servantList[servant.id] = {
@@ -244,10 +253,10 @@ Promise.all([loadjson(process.argv[2]), csv2json(csvs[0])])
       class: ids.className2Id[servant.class],
       rare: servant.rare,
       gender: servant.gender,
-      attributes: ids.power2Id[servant.power],
-      characteristics: servant.attribute + " " + validateCharacteristics(servant.characteristics),
-      hp: { min: Number.parseInt(String(servant.minHP).replace(/,/,"")), max: Number.parseInt(String(servant.maxHP).replace(/,/,"")) },
-      attack: { min: Number.parseInt(String(servant.minAtk).replace(/,/,"")), max: Number.parseInt(String(servant.maxAtk).replace(/,/,"")) },
+      attributes: ids.power2Id[servant.attributes],
+      characteristics: validateCharacteristics(servant.characteristics, servant.gender),
+      hp: { min: Number.parseInt(String(servant.hp.min).replace(/,/,"")), max: Number.parseInt(String(servant.hp.max).replace(/,/,"")) },
+      attack: { min: Number.parseInt(String(servant.attack.min).replace(/,/,"")), max: Number.parseInt(String(servant.attack.max).replace(/,/,"")) },
       npTypes: [],
       skills: {np: [], active: [-1, -1, -1], passive: [], append: []},
     }

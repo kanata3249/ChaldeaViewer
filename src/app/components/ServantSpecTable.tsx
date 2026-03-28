@@ -204,8 +204,6 @@ const getTableData = (servantTableData: ServantSpecTableData, columnIndex: numbe
     case 'npType':
         return row.servant.spec.npTypes.join(' / ')
     case 'characteristics':
-      if (row.servant.spec.gender != "-")
-        return attributeNames[row.servant.spec.attributes] + " " + row.servant.spec.gender + " " + row.servant.spec[key]
       return attributeNames[row.servant.spec.attributes] + " " + row.servant.spec[key]
     case 'leveling':
       if ((row.servant.npLevel > 0)
