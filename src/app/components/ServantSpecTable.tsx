@@ -566,7 +566,7 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 const calcServantTableData = (servants: Servants): ServantSpecTableData[] => {
-  return servants.map((servant, index) => (
+  return servants.filter((servant) => !servant.duplicated).map((servant, index) => (
     { id: servant.id, name: servantNames[servant.id], index, servant: servant,
       buffSkill: {
         attackBuff: findSkill(servant, "攻撃力アップ"),
