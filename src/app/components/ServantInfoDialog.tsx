@@ -9,6 +9,7 @@ import Tab from '@material-ui/core/Tab'
 import { Servant, servantNames, servantClassNames, servantSkills, skillTypeNames } from '../../fgo/servants'
 import { InventoryStatus, itemNames } from '../../fgo/inventory'
 
+import { ServantSpecPage } from './ServantSpecPage'
 import { ServantSkillsPage } from './ServantSkillsPage'
 import { ServantItemsPage } from './ServantItemsPage'
 import { ServantItemsForAPPage } from './ServantItemsForAPPage'
@@ -23,8 +24,8 @@ type Prop = {
 }
 
 const pageNameToPageNo = {
-  "skills": 0,
-  "items": 1
+  "skills": 1,
+  "items": 2
 }
 
 const useStyles = makeStyles((theme: Theme) => 
@@ -78,6 +79,7 @@ function a11yProps(index: any) {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
+    style: { minWidth: 80 }
   };
 }
 
@@ -98,21 +100,25 @@ export const ServantInfoDialog: FC<Prop> = (props) => {
       <Dialog open={props.open} onClose={handleClose} aria-labelledby="form-dialog-title">
         <DialogTitle className={classes.title} id="form-dialog-title">{`${props.servant ? `${servantNames[props.servant.id]} (${servantClassNames[props.servant.spec.class]})` : ""}`}</DialogTitle>
         <DialogContent>
-          <Tabs value={tabIndex} onChange={handleChangeTab} aria-label="simple tabs example">
-            <Tab label="スキル" {...a11yProps(0)} />
-            <Tab label="素材" {...a11yProps(1)} />
-            {!props.servant.duplicated && <Tab label="素材(AP)" {...a11yProps(1)} />}
+          <Tabs value={tabIndex} onChange={handleChangeTab} aria-label="select iformation" >
+            <Tab label="特性"{...a11yProps(0)} />
+            <Tab label="スキル" {...a11yProps(1)} />
+            <Tab label="素材" {...a11yProps(2)} />
+            {!props.servant.duplicated && <Tab label="素材(AP)" {...a11yProps(3)} />}
           </Tabs>
           {props.servant && (
             <>
               <TabPanel value={tabIndex} index={0} className={classes.tabPanel}>
-                <ServantSkillsPage servant={props.servant} />
+                <ServantSpecPage servant={props.servant} />
               </TabPanel>
               <TabPanel value={tabIndex} index={1} className={classes.tabPanel}>
+                <ServantSkillsPage servant={props.servant} />
+              </TabPanel>
+              <TabPanel value={tabIndex} index={2} className={classes.tabPanel}>
                 <ServantItemsPage servant={props.servant} inventoryStatus={props.inventoryStatus} />
               </TabPanel>
               {!props.servant.duplicated && (
-                <TabPanel value={tabIndex} index={2} className={classes.tabPanel}>
+                <TabPanel value={tabIndex} index={3} className={classes.tabPanel}>
                   <ServantItemsForAPPage servant={props.servant} inventoryStatus={props.inventoryStatus} />
                 </TabPanel>
               )}
