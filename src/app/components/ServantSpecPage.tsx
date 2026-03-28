@@ -1,7 +1,7 @@
 import React, { FC, useState } from 'react'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 
-import { Servant } from '../../fgo/servants'
+import { Servant, attributeNames } from '../../fgo/servants'
 
 type Prop = {
   servant: Servant
@@ -28,7 +28,7 @@ export const ServantSpecPage: FC<Prop> = (props) => {
     <div>
       {props.servant && (
         <div style={{width: tableSize[0], height: tableSize[1], overflowY: "auto"}}>
-          特性: {props.servant.spec.characteristics}<br />       
+          特性: {attributeNames[props.servant.spec.attributes]} {props.servant.spec.characteristics}<br />       
         </div>)}
     </div>
   )
