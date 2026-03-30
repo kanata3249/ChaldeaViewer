@@ -252,6 +252,7 @@ Promise.all([loadjson(process.argv[2]), csv2json(csvs[0])])
       id: servant.id,
       class: ids.className2Id[servant.class],
       rare: servant.rare,
+      summon: servant_extra_info.summon,
       gender: servant.gender,
       attributes: ids.power2Id[servant.attributes],
       characteristics: validateCharacteristics(servant.characteristics, servant.gender),

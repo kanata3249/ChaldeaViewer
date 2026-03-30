@@ -353,6 +353,17 @@ const filterDefinition: FilterDefinition[] = [
       { label: "補助", key: "補助" },
     ]
   },
+  {
+    name: "取得", key: "summon", type: "check",
+    buttons: [
+      { label: "恒常", key: "normal" },
+      { label: "ストーリー限定", key: "story" },
+      { label: "期間限定", key: "limited" },
+      { label: "フレンドポイント", key: "friendpoint" },
+      { label: "配布", key: "welfare" },
+      { label: "報酬", key: "reward" },
+    ]
+  },
 ]
 
 const defaultFilterValues: FilterValues = Object.values(filterDefinition).reduce((acc, group) => {
@@ -621,6 +632,10 @@ const filterAndSort = (servantTableData: ServantSpecTableData[], filters: Filter
         case "npLevel":
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
             return enabled && (row.servant[groupKey] == Number.parseInt(filterKey))
+          })
+        case "summon":
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (row.servant.spec.summon == filterKey)
           })
         default:
           return true

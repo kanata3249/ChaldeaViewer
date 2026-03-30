@@ -33,6 +33,7 @@ export type ServantSpec = {
   class: number
   rare: number
   gender: string
+  summon: 'normal' | 'story' |'limited' | 'friendpoint' | 'welfare' | 'reward'
   attributes: string
   characteristics: string
   hp: { min: number, max: number }

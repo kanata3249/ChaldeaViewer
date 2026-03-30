@@ -494,6 +494,17 @@ const filterDefinition: FilterDefinition[] = [
     ]
   },
   {
+    name: "取得", key: "summon", type: "check",
+    buttons: [
+      { label: "恒常", key: "normal" },
+      { label: "ストーリー限定", key: "story" },
+      { label: "期間限定", key: "limited" },
+      { label: "フレンドポイント", key: "friendpoint" },
+      { label: "配布", key: "welfare" },
+      { label: "報酬", key: "reward" },
+    ]
+  },
+  {
     name: "分裂", key: "duplicatedStatus", type: "check",
     buttons: [
       { label: "通常", key: "normal" },
@@ -751,6 +762,10 @@ const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValu
             default:
               return false
             }
+          })
+        case 'summon':
+          return Object.entries(groupValues).some(([filterKey, enabled]) => {
+            return enabled && (row.servant.spec.summon == filterKey)
           })
         case 'duplicatedStatus':
           return Object.entries(groupValues).some(([filterKey, enabled]) => {
