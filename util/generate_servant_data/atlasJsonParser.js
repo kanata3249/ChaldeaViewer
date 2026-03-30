@@ -16,7 +16,7 @@ const classNames = {
     "pretender": "詐",
     "beast": "獣",
     "beastEresh": "獣",
-    "unBeast": "反",
+    "unBeastOlgaMarie": "反",
     "atlasUnmappedClass":  "獣",
     "shielder": "盾",
 }
