@@ -1,5 +1,5 @@
 #!/bin/bash
 
-yarn get-data
-yarn gen-data
-yarn apply-data
+pnpm get-data
+pnpm gen-data
+pnpm apply-data

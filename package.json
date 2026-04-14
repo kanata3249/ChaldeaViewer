@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "webpack serve --config webpack.dev.js",
-    "dist-licenses": "cross-env NODE_ENV=production yarn licenses generate-disclaimer > dist/opensource-licenses.txt",
+    "dist-licenses": "cross-env NODE_ENV=production pnpm licenses generate-disclaimer > dist/opensource-licenses.txt",
     "dist": "webpack --config webpack.prod.js",
     "update": "bash update_data.sh"
   },
@@ -18,6 +18,7 @@
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
     "@types/material-ui": "^0.21.8",
+    "@types/node": "^25.6.0",
     "@types/react": "^16.9.55",
     "@types/react-dom": "^16.9.9",
     "@types/resize-observer-browser": "^0.1.4",
@@ -43,5 +44,6 @@
     "react-device-detect": "^1.17.0",
     "react-dom": "^17.0.1",
     "react-window": "^1.8.6"
-  }
+  },
+  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319"
 }

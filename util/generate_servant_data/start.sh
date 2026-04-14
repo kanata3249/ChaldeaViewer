@@ -1,4 +1,4 @@
 #!/bin/sh
 
 cd ../..
-yarn start
+pnpm start
