@@ -18,8 +18,8 @@
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
     "@types/node": "^25.6.0",
-    "@types/react": "^17.0.93",
-    "@types/react-dom": "^17.0.26",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "@types/resize-observer-browser": "^0.1.4",
     "arraybuffer-loader": "^1.0.8",
     "babel-loader": "^8.0.5",
@@ -41,9 +41,9 @@
     "@mui/material": "9.5.0",
     "@mui/styles": "6.4.8",
     "pako": "^2.0.2",
-    "react": "^17.0.1",
-    "react-device-detect": "^1.17.0",
-    "react-dom": "^17.0.1",
+    "react": "^19.3.1",
+    "react-device-detect": "^2.2.3",
+    "react-dom": "^19.3.1",
     "react-window": "^1.8.6"
   },
   "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319"

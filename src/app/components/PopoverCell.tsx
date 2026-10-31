@@ -6,6 +6,7 @@ import { Popover } from '@mui/material'
 
 type Prop = {
   popover: any
+  children?: React.ReactNode
 }
 
 const useStyles = makeStyles((theme: Theme) => 

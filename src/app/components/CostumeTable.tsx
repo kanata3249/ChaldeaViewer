@@ -255,9 +255,9 @@ const filterAndSort = (costumeTableData: CostumeTableData[], filters: FilterValu
 
 export const CostumeTable: FC<Prop> = (props) => {
   const classes = useStyles()
-  const myRef = useRef<HTMLDivElement>()
-  const headerRef = useRef<VariableSizeGrid>()
-  const bodyRef = useRef<VariableSizeGrid>()
+  const myRef = useRef<HTMLDivElement | null>(null)
+  const headerRef = useRef<VariableSizeGrid | null>(null)
+  const bodyRef = useRef<VariableSizeGrid | null>(null)
   const [ tableKey, setTableKey ] = useState(0)
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)

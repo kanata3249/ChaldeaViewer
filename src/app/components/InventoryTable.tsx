@@ -302,9 +302,9 @@ const filterAndSort = (inventoryTableData: InventoryTableData[], filters: Filter
 
 export const InventoryTable: FC<Prop> = (props) => {
   const classes = useStyles()
-  const myRef = useRef<HTMLDivElement>()
-  const headerRef = useRef<VariableSizeGrid>()
-  const bodyRef = useRef<VariableSizeGrid>()
+  const myRef = useRef<HTMLDivElement | null>(null)
+  const headerRef = useRef<VariableSizeGrid | null>(null)
+  const bodyRef = useRef<VariableSizeGrid | null>(null)
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("InventoryTable")))

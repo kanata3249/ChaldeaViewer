@@ -700,8 +700,8 @@ const filterAndSort = (servantTableData: ServantSpecTableData[], filters: Filter
 
 export const ServantSpecTable: FC<Prop> = (props) => {
   const classes = useStyles()
-  const myRef = useRef<HTMLDivElement>()
-  const headerRef = useRef<VariableSizeGrid>()
+  const myRef = useRef<HTMLDivElement | null>(null)
+  const headerRef = useRef<VariableSizeGrid | null>(null)
   const [ sortBy, setSortBy ] = useState(0)
   const [ sortOrder, setSortOrder ] = useState(1)
   const [ filterValues, setFilterValues ] = useState<FilterValues>(validateFilter(loadFilter("ServantSpecTable")))

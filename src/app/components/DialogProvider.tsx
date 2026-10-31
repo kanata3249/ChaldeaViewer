@@ -8,6 +8,7 @@ import { Servant } from '../../fgo/servants'
 import { InventoryStatus } from '../../fgo/inventory'
 
 type Prop = {
+  children?: React.ReactNode
 }
 
 type MSExchangeDialogState = {
