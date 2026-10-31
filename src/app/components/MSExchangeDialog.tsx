@@ -1,6 +1,4 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles } from '@mui/styles'
-import { Theme } from '@mui/material/styles'
 
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, TextField } from '@mui/material'
 import { Select, MenuItem } from '@mui/material'
@@ -14,14 +12,7 @@ type Prop = {
   onExportServants(): string
 }
 
-const useStyles = makeStyles((theme: Theme) => 
-  createStyles({
-  })
-)
-
 export const MSExchangeDialog: FC<Prop> = (props) => {
-  const classes = useStyles()
-
   const [ targetData, setTargetData ] = useState("Inventory")
   const [ direction, setDirection ] = useState("Import")
   let inputCode = ""

@@ -1,6 +1,4 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import { makeStyles, createStyles } from '@mui/styles'
-import { Theme } from '@mui/material/styles'
 import { isAndroid } from 'react-device-detect'
 
 import { Grid, Button, TextField } from '@mui/material'
@@ -13,6 +11,7 @@ import { PopoverCell } from './PopoverCell'
 import { DialogProviderContext } from './DialogProvider'
 import { FilterDefinition, FilterValues } from './FilterDialog'
 import { saveFilter, loadFilter } from '../storage'
+import { SkillDescription, TableEvenCell, TableFixedController, TableHeaderCell, TableOddCell, TableRoot, TableSummaryItem } from './TableStyles'
 
 type Prop = {
   servants: Servants
@@ -537,44 +536,6 @@ const validateCharFilter = (values: FilterValues): FilterValues => {
   },{})
 }
 
-const useStyles = makeStyles((theme: Theme) => 
-  createStyles({
-    container: {
-      height: "100%"
-    },
-    summary: {
-      flexGrow: 1
-    },
-    controller: {
-      width: "100%",
-      height: 48,
-      paddingRight: 8,
-      paddingLeft: 8
-    },
-    head: {
-      padding: 4,
-      paddingTop: 8
-    },
-    oddRowCell: {
-      backgroundColor: theme.palette.action.hover,
-      whiteSpace: "nowrap",
-      scrollbarWidth: "none",
-      overflow: "hidden",
-      padding: 4
-    },
-    evenRowCell: {
-      whiteSpace: "nowrap",
-      scrollbarWidth: "none",
-      overflow: "hidden",
-      padding: 4
-    },
-    skillDescription: {
-      paddingLeft: 8,
-      fontSize: "smaller"
-    }
-  })
-)
-
 const calcServantTableData = (servants: Servants): ServantSpecTableData[] => {
   return servants.filter((servant) => !servant.duplicated).map((servant, index) => (
     { id: servant.id, name: servantNames[servant.id], index, servant: servant,
@@ -699,7 +660,6 @@ const filterAndSort = (servantTableData: ServantSpecTableData[], filters: Filter
 }
 
 export const ServantSpecTable: FC<Prop> = (props) => {
-  const classes = useStyles()
   const myRef = useRef<HTMLDivElement | null>(null)
   const headerRef = useRef<VariableSizeGrid | null>(null)
   const [ sortBy, setSortBy ] = useState(0)
@@ -799,7 +759,7 @@ export const ServantSpecTable: FC<Prop> = (props) => {
         <Grid>
           {skill.name + " - " + skillTypeNames[skill.type]}
         </Grid>
-        <Grid className={classes.skillDescription} >
+        <SkillDescription>
           <table>
             <tbody>
               {skill.effects.map((effect, index) => {
@@ -825,7 +785,7 @@ export const ServantSpecTable: FC<Prop> = (props) => {
               ))}
             </tbody>
           </table>
-        </Grid>
+        </SkillDescription>
       </Grid>
     )
 }
@@ -834,18 +794,19 @@ export const ServantSpecTable: FC<Prop> = (props) => {
     const column = columns[columnIndex]
 
     return (
-      <div style={{...style, textAlign: column.align}} className={classes.head} onClick={() => handleClickColumn(columnIndex)}>
+      <TableHeaderCell style={{...style, textAlign: column.align}} onClick={() => handleClickColumn(columnIndex)}>
         {(sortBy == columnIndex) ? ((sortOrder == 1) ? column.label + "▲" : column.label + "▼") : column.label}
-      </div>
+      </TableHeaderCell>
     )
   }
 
   const cell = ({columnIndex, rowIndex, style }) => {
     const column = columns[columnIndex]
     const cellData = getTableData(tableData[rowIndex], columnIndex)
+    const Cell = rowIndex % 2 ? TableOddCell : TableEvenCell
 
     return (
-      <div style={{...style, textAlign: column.align}} className={rowIndex % 2 ? classes.oddRowCell : classes.evenRowCell}>
+      <Cell style={{...style, textAlign: column.align}}>
         {column.editable && (
           column.type == "number" ?
           <TextField defaultValue={cellData} size="small"
@@ -876,16 +837,16 @@ export const ServantSpecTable: FC<Prop> = (props) => {
         {!column.editable && !column.button && !column.popover && (
           <span style={{fontSize:"smaller"}}>{cellData}</span>
         )}
-      </div>
+      </Cell>
     )
   }
 
   return (
-    <div className={classes.container} ref={myRef}>
-      <Grid container className={classes.controller} sx={{ justifyContent: "flex-end", alignItems: "center" }} spacing={1} >
-        <Grid className={classes.summary} >
+    <TableRoot ref={myRef}>
+      <TableFixedController container sx={{ justifyContent: "flex-end", alignItems: "center" }} spacing={1} >
+        <TableSummaryItem>
           {`フィルタ: ${tableData.length}`}
-        </Grid>
+        </TableSummaryItem>
         <Grid>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
         </Grid>
@@ -927,7 +888,7 @@ export const ServantSpecTable: FC<Prop> = (props) => {
             }
           </DialogProviderContext.Consumer>
         </Grid>
-      </Grid>
+      </TableFixedController>
       <VariableSizeGrid width={tableSize[0]} height={30} ref={headerRef}
         columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
         rowCount={1} rowHeight={() => (30)} style={{overflowX: "hidden", overflowY: "scroll"}}>
@@ -938,6 +899,6 @@ export const ServantSpecTable: FC<Prop> = (props) => {
         rowCount={tableData.length} rowHeight={() => (30)} onScroll={({scrollLeft}) => {headerRef.current.scrollTo({scrollLeft: scrollLeft, scrollTop: 0})}} >
         {cell}
       </VariableSizeGrid>
-    </div>
+    </TableRoot>
   )
 }

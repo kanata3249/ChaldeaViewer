@@ -1,6 +1,4 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import { makeStyles, createStyles } from '@mui/styles'
-import { Theme } from '@mui/material/styles'
 import { isAndroid } from 'react-device-detect'
 
 import { Grid, Button, TextField, FormControlLabel, Checkbox } from '@mui/material'
@@ -12,6 +10,7 @@ import { InventoryStatus } from '../../fgo/inventory'
 import { DialogProviderContext } from './DialogProvider'
 import { FilterDefinition, FilterValues } from './FilterDialog'
 import { saveFilter, loadFilter, saveModifyInventory, loadModifyInventory } from '../storage'
+import { TableController, TableEvenCell, TableHeaderCell, TableOddCell, TableRoot, TableSummaryItem } from './TableStyles'
 
 type Prop = {
   servants: Servants
@@ -626,40 +625,6 @@ const validateSkillFilter = (values: FilterValues): FilterValues => {
   },{})
 }
 
-const useStyles = makeStyles((theme: Theme) => 
-  createStyles({
-    container: {
-      height: "100%"
-    },
-    summary: {
-      flexGrow: 1
-    },
-    controller: {
-      width: "100%",
-      minHeight: 48,
-      paddingRight: 8,
-      paddingLeft: 8
-    },
-    head: {
-      padding: 4,
-      paddingTop: 8
-    },
-    oddRowCell: {
-      backgroundColor: theme.palette.action.hover,
-      whiteSpace: "nowrap",
-      scrollbarWidth: "none",
-      overflow: "hidden",
-      padding: 4
-    },
-    evenRowCell: {
-      whiteSpace: "nowrap",
-      scrollbarWidth: "none",
-      overflow: "hidden",
-      padding: 4
-    },
-  })
-)
-
 const calcServantTableData = (servants: Servants): ServantTableData[] => {
   return servants.map((servant, index) => (
     { id: servant.id, name: servantNames[servant.id], index, servant: servant } 
@@ -827,7 +792,6 @@ const filterAndSort = (servantTableData: ServantTableData[], filters: FilterValu
 }
 
 export const ServantTable: FC<Prop> = (props) => {
-  const classes = useStyles()
   const myRef = useRef<HTMLDivElement | null>(null)
   const headerRef = useRef<VariableSizeGrid | null>(null)
   const bodyRef = useRef<VariableSizeGrid | null>(null)
@@ -984,9 +948,9 @@ export const ServantTable: FC<Prop> = (props) => {
     const column = columns[columnIndex]
 
     return (
-      <div style={{...style, textAlign: column.align}} className={classes.head} onClick={() => handleClickColumn(columnIndex)}>
+      <TableHeaderCell style={{...style, textAlign: column.align}} onClick={() => handleClickColumn(columnIndex)}>
         {(sortBy == columnIndex) ? ((sortOrder == 1) ? column.label + "▲" : column.label + "▼") : column.label}
-      </div>
+      </TableHeaderCell>
     )
   }
 
@@ -1028,9 +992,10 @@ export const ServantTable: FC<Prop> = (props) => {
     const column = columns[columnIndex]
     const cellData = getTableData(tableData[rowIndex], columnIndex)
     const [matchWord, charMain, charSub] = ((typeof(cellData) == 'string') && cellData.match(/^([^\s]+\s+[^\s]+)\s+(.*)$/)) || [ "", cellData, ""]
+    const Cell = rowIndex % 2 ? TableOddCell : TableEvenCell
 
     return (
-      <div style={{...style, textAlign: column.align}} className={rowIndex % 2 ? classes.oddRowCell : classes.evenRowCell}>
+      <Cell style={{...style, textAlign: column.align}}>
         {column.editable ?
           editableCell(columnIndex, rowIndex)
           : column.button ?
@@ -1046,16 +1011,16 @@ export const ServantTable: FC<Prop> = (props) => {
         : charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>
                 : cellData
         }
-      </div>
+      </Cell>
     )
   }
 
   return (
-    <div className={classes.container} ref={myRef}>
-      <Grid container className={classes.controller} sx={{ justifyContent: "flex-end", alignItems: "center" }} spacing={1} >
-        <Grid className={classes.summary} >
+    <TableRoot ref={myRef}>
+      <TableController container sx={{ justifyContent: "flex-end", alignItems: "center" }} spacing={1} >
+        <TableSummaryItem>
           {`実装: ${summary.servants} 召喚: ${summary.summoned} 最終再臨: ${summary.maxAscension} スキルマ(含偽): ${summary.maxSkill} アペンドマ(含偽): ${summary.maxAppendSkill} 分裂: ${summary.duplicated} フィルタ: ${tableData.length}`}
-        </Grid>
+        </TableSummaryItem>
         <Grid>
           <Button onClick={handleClickRecalc} variant="outlined" >再計算</Button>
         </Grid>
@@ -1094,7 +1059,7 @@ export const ServantTable: FC<Prop> = (props) => {
           }
           </DialogProviderContext.Consumer>
         </Grid>
-      </Grid>
+      </TableController>
       <VariableSizeGrid width={tableSize[0]} height={30} ref={headerRef}
         columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
         rowCount={1} rowHeight={() => (30)} style={{overflowX: "hidden", overflowY: "scroll"}}>
@@ -1105,6 +1070,6 @@ export const ServantTable: FC<Prop> = (props) => {
         rowCount={tableData.length} rowHeight={() => (30)} onScroll={({scrollLeft}) => {headerRef.current.scrollTo({scrollLeft: scrollLeft, scrollTop: 0})}} >
         {cell}
       </VariableSizeGrid>
-    </div>
+    </TableRoot>
   )
 }

@@ -1,6 +1,5 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles } from '@mui/styles'
-import { Theme, useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
 import { AppBar, Menu, MenuItem, Toolbar, IconButton, Typography, Select, Link, Divider } from '@mui/material'
@@ -22,27 +21,13 @@ import { createBackup, restoreBackup, saveSelectedInfo, loadSelectedInfo,
    saveServants, loadServants, saveClassScores, loadClassScores,
    saveCostumes, loadCostumes, saveBgms, loadBgms, saveInventory, loadInventory } from '../storage'
 
-const useStyles = makeStyles((theme: Theme) => 
-  createStyles({
-    toolbar: theme.mixins.toolbar,
-    title: {
-      flexGrow: 1
-    },
-    contents: {
-      height: "calc(100vh - 64px - 20px)"
-    },
-    notice: {
-      height: 20,
-      marginLeft: 10,
-    },
-    link: {
-      color: theme.palette.info.main
-    }
-  }))
+const ToolbarSpacer = styled('div')(({ theme }) => theme.mixins.toolbar)
+const PageTitle = styled(Typography)({ flexGrow: 1 })
+const PageContents = styled('div')({ height: 'calc(100vh - 64px - 20px)' })
+const Notice = styled('div')({ height: 20, marginLeft: 10 })
+const SourceLink = styled(Link)(({ theme }) => ({ color: theme.palette.info.main }))
 
 export const TopPage: FC = () => {
-  const classes = useStyles()
-
   const theme = useTheme();
   const isPC = () => {
     return useMediaQuery(theme.breakpoints.up('xl'));
@@ -198,7 +183,7 @@ export const TopPage: FC = () => {
   return (
     <>
       <DialogProvider>
-        <div className={classes.toolbar}>
+        <ToolbarSpacer>
           <AppBar>
             <Toolbar>
               <IconButton edge="start" aria-label="menu" aria-controls="main-menu" onClick={handleMenuClick}>
@@ -219,9 +204,9 @@ export const TopPage: FC = () => {
                 <Divider />
                 <MenuItem onClick={handleOpenSourceLicenses}>オープンソースライセンス</MenuItem>
               </Menu>
-              <Typography variant="h6" className={classes.title}>
+              <PageTitle variant="h6">
                 Chaldea Viewer
-              </Typography>
+              </PageTitle>
               <Select label="表示対象" value={selectedInfo} onChange={handleSelectedInfoChanged}>
                 <MenuItem value={"Inventory"}>所持アイテム</MenuItem>
                 <MenuItem value={"Servants"}>サーヴァント育成</MenuItem>
@@ -232,18 +217,18 @@ export const TopPage: FC = () => {
               </Select>
             </Toolbar>
           </AppBar>
-        </div>
-        <div className={classes.contents}>
+        </ToolbarSpacer>
+        <PageContents>
           {selectedInfo == "Inventory" && <InventoryTable key={`inventoryTable-${inventoryTableKey}`} onChange={handleInventoryChanged} inventory={inventory} getInventoryStatus={getInventoryStatus} />}
           {selectedInfo == "Servants" && <ServantTable key={`servantTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} setInventoryStatus={setInventoryStatus} />}
           {selectedInfo == "ServantsSpec" && <ServantSpecTable key={`servantSpecTable-${servantTableKey}`} onChange={handleServantChanged} servants={servants} getInventoryStatus={getInventoryStatus} />}
           {selectedInfo == "ClassScores" && <ClassScoreTable key={`classScoreTable-${classScoreTableKey}`} onChange={handleClassScoresChanged} classscores={classscores} getInventoryStatus={getInventoryStatus} setInventoryStatus={setInventoryStatus} />}
           {selectedInfo == "Costumes" && <CostumeTable key={`costumeTable-${costumeTableKey}`} onChange={handleCostumesChanged} costumes={costumes} getInventoryStatus={getInventoryStatus} setInventoryStatus={setInventoryStatus} />}
           {selectedInfo == "Bgms" && <BgmTable key={`bgmTable-${bgmTableKey}`} onChange={handleBgmsChanged} bgms={bgms} getInventoryStatus={getInventoryStatus} setInventoryStatus={setInventoryStatus} />}
-        </div>
-        <div className={classes.notice}>
-        サーヴァントデータなど大部分は<Link className={classes.link} href="https://w.atwiki.jp/f_go/" target="blank">Fate/Grand Order @wiki 【FGO】</Link>を参考にさせていただいています。
-        </div>
+        </PageContents>
+        <Notice>
+        サーヴァントデータなど大部分は<SourceLink href="https://w.atwiki.jp/f_go/" target="blank">Fate/Grand Order @wiki 【FGO】</SourceLink>を参考にさせていただいています。
+        </Notice>
       </DialogProvider>
     </>
   )

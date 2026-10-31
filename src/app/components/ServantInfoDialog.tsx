@@ -1,6 +1,5 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles } from '@mui/styles'
-import { Theme } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material'
 import { List, ListItem, ListItemText, Grid, Divider } from '@mui/material'
@@ -29,50 +28,36 @@ const pageNameToPageNo = {
   "items": 2
 }
 
-const useStyles = makeStyles((theme: Theme) => 
-  createStyles({
-    title: {
-      margin: 0,
-      paddingTop: 2,
-      paddingBottom: 2,
-    },
-    root: {
-      flexGrow: 1,
-      backgroundColor: theme.palette.background.paper,
-    },
-    skillDescription: {
-      paddingLeft: 8,
-      fontSize: "smaller"
-    },
-    tabPanel: {
-      overflowX: "auto"
-    }
-  })
-)
+const StyledDialogTitle = styled(DialogTitle)({
+  margin: 0,
+  paddingTop: 2,
+  paddingBottom: 2,
+})
+const TabPanelRoot = styled('div')({
+  overflowX: 'auto',
+})
 
 interface TabPanelProps {
   children?: React.ReactNode;
   index: any;
   value: any;
-  className: string;
 }
 
 function TabPanel(props: TabPanelProps) {
-  const { children, value, index, className, ...other } = props;
+  const { children, value, index, ...other } = props;
 
   return (
-    <div
+    <TabPanelRoot
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
-      className={className}
       {...other}
     >
       {value === index &&
         children
 }
-    </div>
+    </TabPanelRoot>
   );
 }
 
@@ -85,7 +70,6 @@ function a11yProps(index: any) {
 }
 
 export const ServantInfoDialog: FC<Prop> = (props) => {
-  const classes = useStyles()
   const [tabIndex, setTabIndex] = React.useState(pageNameToPageNo[props.page])
 
   const handleChangeTab = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -99,7 +83,7 @@ export const ServantInfoDialog: FC<Prop> = (props) => {
   return (
     <div>
       <Dialog open={props.open} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle className={classes.title} id="form-dialog-title">{`${props.servant ? `${servantNames[props.servant.id]} (${servantClassNames[props.servant.spec.class]})` : ""}`}</DialogTitle>
+        <StyledDialogTitle id="form-dialog-title">{`${props.servant ? `${servantNames[props.servant.id]} (${servantClassNames[props.servant.spec.class]})` : ""}`}</StyledDialogTitle>
         <DialogContent>
           <Tabs value={tabIndex} onChange={handleChangeTab} aria-label="select iformation" >
             <Tab label="特性"{...a11yProps(0)} />
@@ -109,17 +93,17 @@ export const ServantInfoDialog: FC<Prop> = (props) => {
           </Tabs>
           {props.servant && (
             <>
-              <TabPanel value={tabIndex} index={0} className={classes.tabPanel}>
+              <TabPanel value={tabIndex} index={0}>
                 <ServantSpecPage servant={props.servant} />
               </TabPanel>
-              <TabPanel value={tabIndex} index={1} className={classes.tabPanel}>
+              <TabPanel value={tabIndex} index={1}>
                 <ServantSkillsPage servant={props.servant} />
               </TabPanel>
-              <TabPanel value={tabIndex} index={2} className={classes.tabPanel}>
+              <TabPanel value={tabIndex} index={2}>
                 <ServantItemsPage servant={props.servant} inventoryStatus={props.inventoryStatus} />
               </TabPanel>
               {!props.servant.duplicated && (
-                <TabPanel value={tabIndex} index={3} className={classes.tabPanel}>
+                <TabPanel value={tabIndex} index={3}>
                   <ServantItemsForAPPage servant={props.servant} inventoryStatus={props.inventoryStatus} />
                 </TabPanel>
               )}

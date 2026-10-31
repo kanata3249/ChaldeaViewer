@@ -1,6 +1,4 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import { makeStyles, createStyles } from '@mui/styles'
-import { Theme } from '@mui/material/styles'
 import { isAndroid } from 'react-device-detect'
 
 import { TextField, Button, Grid, FormControlLabel, Checkbox } from '@mui/material'
@@ -11,6 +9,7 @@ import { Inventory, InventoryStatus, ItemStatus, itemNames } from './../../fgo/i
 import { FilterDefinition, FilterValues } from './FilterDialog'
 import { DialogProviderContext } from './DialogProvider'
 import { saveFilter, loadFilter, saveShowBGM, loadShowBGM, saveShowClassscore, loadShowClassscore, saveShowCostume, loadShowCostume, saveShowDuplicated, loadShowDuplicated } from '../storage'
+import { TableEvenCell, TableFixedController, TableMaxHeightRoot, TableOddCell, TableSummaryItem } from './TableStyles'
 
 type Prop = {
   inventory: Inventory
@@ -202,46 +201,6 @@ const validateFilter = (values: FilterValues): FilterValues => {
   },{})
 }
   
-const useStyles = makeStyles((theme: Theme) => 
-  createStyles({
-    controller: {
-      width: "100%",
-      height: 48,
-      paddingRight: 8,
-      paddingLeft: 8
-    },
-    summary: {
-      flexGrow: 1
-    },
-    container: {
-      maxHeight: "calc(100vh - 64px - 48px)"    // find another way to limit heght.
-    },
-    head: {
-
-    },
-    row: {
-      '&:nth-of-type(odd)': {
-        backgroundColor: theme.palette.action.hover,
-      },
-    },
-    cell: {
-    },
-    oddRowCell: {
-      backgroundColor: theme.palette.action.hover,
-      whiteSpace: "nowrap",
-      scrollbarWidth: "none",
-      overflow: "hidden",
-      padding: 4
-    },
-    evenRowCell: {
-      whiteSpace: "nowrap",
-      scrollbarWidth: "none",
-      overflow: "hidden",
-      padding: 4
-    },
-  })
-)
-
 const calcInventoryTableData = (inventoryStatus: InventoryStatus): InventoryTableData[] => {
   return Object.keys(inventoryStatus).map((itemId) => (
     { id: Number.parseInt(itemId), name: itemNames[itemId], item: inventoryStatus[itemId] } 
@@ -301,7 +260,6 @@ const filterAndSort = (inventoryTableData: InventoryTableData[], filters: Filter
 }
 
 export const InventoryTable: FC<Prop> = (props) => {
-  const classes = useStyles()
   const myRef = useRef<HTMLDivElement | null>(null)
   const headerRef = useRef<VariableSizeGrid | null>(null)
   const bodyRef = useRef<VariableSizeGrid | null>(null)
@@ -424,7 +382,7 @@ export const InventoryTable: FC<Prop> = (props) => {
     const labels = column.label.split(/\(/)
 
     return (
-      <div style={{...style, textAlign: column.align == "right" ? "center" : column.align }} className={classes.head} onClick={() => handleClickColumn(columnIndex)}>
+      <div style={{...style, textAlign: column.align == "right" ? "center" : column.align }} onClick={() => handleClickColumn(columnIndex)}>
         {labels.map((label, index) => {
           if (index == 0 && sortBy == columnIndex) {
             return (sortOrder == 1) ? label + "▲" : label + "▼"
@@ -442,9 +400,10 @@ export const InventoryTable: FC<Prop> = (props) => {
     const [matchWord, charMain, charSub] = ((typeof(cellData) == 'string') && cellData.match(/^([^\s]+\s+[^\s]+)\s+(.*)$/)) || [ "", cellData, ""]
     if (column.editable)
       refs[rowIndex + "-" + columnIndex] = useRef<HTMLInputElement>(null)
+    const Cell = rowIndex % 2 ? TableOddCell : TableEvenCell
 
     return (
-      <div style={{...style, textAlign: column.align}} className={rowIndex % 2 ? classes.oddRowCell : classes.evenRowCell}>
+      <Cell style={{...style, textAlign: column.align}}>
         {column.editable ?
           <TextField defaultValue={cellData} size="small" inputRef={refs[rowIndex + "-" + columnIndex]}
                     onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
@@ -460,16 +419,16 @@ export const InventoryTable: FC<Prop> = (props) => {
         : charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>
                 : cellData
         }
-      </div>
+      </Cell>
     )
   }
 
   return (
-    <div className={classes.container} ref={myRef}>
-      <Grid container className={classes.controller} sx={{ justifyContent: "flex-end", alignItems: "center" }} spacing={1} >
-        <Grid className={classes.summary} >
+    <TableMaxHeightRoot ref={myRef}>
+      <TableFixedController container sx={{ justifyContent: "flex-end", alignItems: "center" }} spacing={1} >
+        <TableSummaryItem>
           {`フィルタ: ${tableData.length}`}
-        </Grid>
+        </TableSummaryItem>
         <Grid>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={showBGM} onChange={handleModifyShowBGM} />}
                             label="BGM" />
@@ -499,7 +458,7 @@ export const InventoryTable: FC<Prop> = (props) => {
           }
           </DialogProviderContext.Consumer>
         </Grid>
-      </Grid>
+      </TableFixedController>
       <VariableSizeGrid width={tableSize[0]} height={50} ref={headerRef}
         columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
         rowCount={1} rowHeight={() => (30)} style={{overflowX: "hidden", overflowY: "scroll"}}>
@@ -510,6 +469,6 @@ export const InventoryTable: FC<Prop> = (props) => {
         rowCount={tableData.length} rowHeight={() => (30)} onScroll={({scrollLeft}) => {headerRef.current.scrollTo({scrollLeft: scrollLeft, scrollTop: 0})}} >
         {cell}
       </VariableSizeGrid>
-    </div>
+    </TableMaxHeightRoot>
   )
 }

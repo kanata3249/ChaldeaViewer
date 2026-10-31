@@ -1,27 +1,17 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles } from '@mui/styles'
-import { Theme } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 
 import { Popover } from '@mui/material'
+import { Paper } from '@mui/material'
 
 type Prop = {
   popover: any
   children?: React.ReactNode
 }
 
-const useStyles = makeStyles((theme: Theme) => 
-  createStyles({
-    popover: {
-    },
-    paper: {
-      padding: 6
-    }
-  })
-)
+const StyledPopoverPaper = styled(Paper)({ padding: 6 })
 
 export const PopoverCell: FC<Prop> = (props) => {
-  const classes = useStyles()
-
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null)
 
   const handleOpenPopover = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -39,7 +29,7 @@ export const PopoverCell: FC<Prop> = (props) => {
         <div onClick={handleOpenPopover} >
           {props.children}
         </div>
-        <Popover open={open} className={classes.popover} classes={{ paper: classes.paper }}
+        <Popover open={open} slots={{ paper: StyledPopoverPaper }}
                 anchorEl={anchorEl}
                 onClose={handleClose}
                 anchorOrigin={{

@@ -1,6 +1,4 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import { makeStyles, createStyles } from '@mui/styles'
-import { Theme } from '@mui/material/styles'
 import { isAndroid } from 'react-device-detect'
 
 import { Grid, Button, TextField, FormControlLabel, Checkbox } from '@mui/material'
@@ -13,6 +11,7 @@ import { InventoryStatus, itemNames, itemName2Id } from '../../fgo/inventory'
 import { DialogProviderContext } from './DialogProvider'
 import { FilterDefinition, FilterValues } from './FilterDialog'
 import { saveFilter, loadFilter, saveUpdatePath, loadUpdatePath, saveModifyInventory, loadModifyInventory } from '../storage'
+import { TableController, TableEvenCell, TableHeaderCell, TableOddCell, TableRoot, TableSummaryItem } from './TableStyles'
 
 type Prop = {
   classscores: ClassScores
@@ -215,40 +214,6 @@ const validateFilter = (values: FilterValues): FilterValues => {
   },{})
 }
 
-const useStyles = makeStyles((theme: Theme) => 
-  createStyles({
-    container: {
-      height: "100%"
-    },
-    summary: {
-      flexGrow: 1
-    },
-    controller: {
-      width: "100%",
-      minHeight: 48,
-      paddingRight: 8,
-      paddingLeft: 8
-    },
-    head: {
-      padding: 4,
-      paddingTop: 8
-    },
-    oddRowCell: {
-      backgroundColor: theme.palette.action.hover,
-      whiteSpace: "nowrap",
-      scrollbarWidth: "none",
-      overflow: "hidden",
-      padding: 4
-    },
-    evenRowCell: {
-      whiteSpace: "nowrap",
-      scrollbarWidth: "none",
-      overflow: "hidden",
-      padding: 4
-    },
-  })
-)
-
 const calcTableData = (classscores: ClassScores): TableData[] => {
   const sortkey = (row) => row.id
   return classscores.map((classscore, index) => {
@@ -364,7 +329,6 @@ const filterAndSort = (tableData: TableData[], filters: FilterValues, sortColumn
 }
 
 export const ClassScoreTable: FC<Prop> = (props) => {
-  const classes = useStyles()
   const myRef = useRef<HTMLDivElement | null>(null)
   const headerRef = useRef<VariableSizeGrid | null>(null)
   const bodyRef = useRef<VariableSizeGrid | null>(null)
@@ -518,9 +482,9 @@ export const ClassScoreTable: FC<Prop> = (props) => {
     const column = columns[columnIndex]
 
     return (
-      <div style={{...style, textAlign: column.align}} className={classes.head} onClick={() => handleClickColumn(columnIndex)}>
+      <TableHeaderCell style={{...style, textAlign: column.align}} onClick={() => handleClickColumn(columnIndex)}>
         {(sortBy == columnIndex) ? ((sortOrder == 1) ? column.label + "▲" : column.label + "▼") : column.label}
-      </div>
+      </TableHeaderCell>
     )
   }
 
@@ -543,15 +507,16 @@ export const ClassScoreTable: FC<Prop> = (props) => {
     const column = columns[columnIndex]
     const cellData = getTableData(tableData[rowIndex], columnIndex)
     const [matchWord, charMain, charSub] = ((typeof(cellData) == 'string') && cellData.match(/^([^\s]+\s+[^\s]+)\s+(.*)$/)) || [ "", cellData, ""]
+    const Cell = rowIndex % 2 ? TableOddCell : TableEvenCell
 
     return (
-      <div style={{...style, textAlign: column.align}} className={rowIndex % 2 ? classes.oddRowCell : classes.evenRowCell}>
+      <Cell style={{...style, textAlign: column.align}}>
         {column.editable ?
           editableCell(columnIndex, rowIndex)
         : charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>
                 : cellData
         }
-      </div>
+      </Cell>
     )
   }
   const formatEffects = (effects) => {
@@ -579,14 +544,14 @@ export const ClassScoreTable: FC<Prop> = (props) => {
   }
   
   return (
-    <div className={classes.container} ref={myRef}>
-      <Grid container className={classes.controller} sx={{ justifyContent: "flex-end", alignItems: "center" }} spacing={1} >
-        <Grid className={classes.summary} >
+    <TableRoot ref={myRef}>
+      <TableController container sx={{ justifyContent: "flex-end", alignItems: "center" }} spacing={1} >
+        <TableSummaryItem>
           { `実装: ${summary.classscores}  強化予定: ${summary.reserved} 強化済み: ${summary.acquired} フィルタ: ${tableData.length} 砂: 実装 ${summary.sands.all} 予定 ${summary.sands.reserved} 済 ${summary.sands.acquired}`}
           { Object.entries(summary.effects).map(([classId, effects]) => {
             return <div key={`summary-${classId}`}>&emsp;{classscoreServantClassNames[parseInt(classId)]}: +{effects.point} {formatEffects(effects)}</div>
           }) }
-        </Grid>
+        </TableSummaryItem>
         <Grid>
           <Button onClick={handleClickRecalc} variant="outlined" >再計算</Button>
         </Grid>
@@ -611,7 +576,7 @@ export const ClassScoreTable: FC<Prop> = (props) => {
           }
           </DialogProviderContext.Consumer>
         </Grid>
-      </Grid>
+      </TableController>
       <VariableSizeGrid width={tableSize[0]} height={30} ref={headerRef}
         columnCount={columns.length} columnWidth={(columnIndex) => columns[columnIndex].width}
         rowCount={1} rowHeight={() => (30)} style={{overflowX: "hidden", overflowY: "scroll"}}>
@@ -622,6 +587,6 @@ export const ClassScoreTable: FC<Prop> = (props) => {
         rowCount={tableData.length} rowHeight={() => (30)} onScroll={({scrollLeft}) => {headerRef.current.scrollTo({scrollLeft: scrollLeft, scrollTop: 0})}} >
         {cell}
       </VariableSizeGrid>
-    </div>
+    </TableRoot>
   )
 }

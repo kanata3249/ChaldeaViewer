@@ -1,6 +1,5 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles } from '@mui/styles'
-import { Theme } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, ToggleButton } from '@mui/material'
 import { Paper, Grid } from '@mui/material'
@@ -29,20 +28,10 @@ type Prop = {
   onClose(result: FilterValues): void
 }
 
-const useStyles = makeStyles((theme: Theme) => 
-  createStyles({
-    groupContainer: {
-      padding: 8
-    },
-    title: {
-      flexGrow: 1
-    },
-  })
-)
+const GroupContainer = styled(Paper)({ padding: 8 })
+const GroupTitle = styled(Grid)({ flexGrow: 1 })
 
 export const FilterDialog: FC<Prop> = (props) => {
-  const classes = useStyles()
-
   const [ filterValues, setFilterValues ] = useState({...props.defaultValues, ...props.values})
 
   const handleDefault = () => {
@@ -110,9 +99,9 @@ export const FilterDialog: FC<Prop> = (props) => {
         <DialogTitle id="form-dialog-title">フィルター</DialogTitle>
         <DialogContent>
           {props.filterDefinition.map((group, groupIndex) =>
-            <Paper variant="outlined" className={classes.groupContainer} key={groupIndex} >
+            <GroupContainer variant="outlined" key={groupIndex} >
               <Grid container spacing={1}>
-                <Grid className={classes.title} >{group.name}:</Grid>
+                <GroupTitle>{group.name}:</GroupTitle>
                 {group.type == "check" &&
                   <Grid>
                     <Button onClick={() => { handleGroupClearAll(groupIndex) }} variant="outlined" size="small" style={{ padding: 0 }} >全解除</Button>
@@ -133,7 +122,7 @@ export const FilterDialog: FC<Prop> = (props) => {
                   </Grid>
                 )}
               </Grid>
-            </Paper>
+            </GroupContainer>
           )}
         </DialogContent>
         <DialogActions>

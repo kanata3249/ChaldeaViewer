@@ -1,25 +1,10 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles } from '@mui/styles'
-import { Theme } from '@mui/material/styles'
 
 import { Servant, attributeNames } from '../../fgo/servants'
 
 type Prop = {
   servant: Servant
 }
-
-const useStyles = makeStyles((theme: Theme) => 
-  createStyles({
-    skillDescription: {
-      paddingLeft: 8,
-      fontSize: "smaller"
-    },
-    skillDetail: {
-      fontSize: "smaller",
-      paddingBottom: 8,
-    },
-  })
-)
 
 const summonLabels = {
   'normal': '恒常',
@@ -31,7 +16,6 @@ const summonLabels = {
 }
 
 export const ServantSpecPage: FC<Prop> = (props) => {
-  const classes = useStyles()
   const [ tableSize, setTableSize ] = useState([480, 400])
 
   return (

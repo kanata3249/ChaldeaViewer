@@ -1,39 +1,16 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles } from '@mui/styles'
-import { Theme } from '@mui/material/styles'
 
 import { VariableSizeGrid } from 'react-window'
 
 
 import { Servant, servantNames, servantClassNames } from '../../fgo/servants'
 import { InventoryStatus, itemNames } from '../../fgo/inventory'
+import { TableEvenCell, TableHeaderCell, TableOddCell } from './TableStyles'
 
 type Prop = {
   servant: Servant
   inventoryStatus: InventoryStatus
 }
-
-const useStyles = makeStyles((theme: Theme) => 
-  createStyles({
-    head: {
-      padding: 4,
-      paddingTop: 8
-    },
-    oddRowCell: {
-      backgroundColor: theme.palette.action.hover,
-      whiteSpace: "nowrap",
-      scrollbarWidth: "none",
-      overflow: "hidden",
-      padding: 4
-    },
-    evenRowCell: {
-      whiteSpace: "nowrap",
-      scrollbarWidth: "none",
-      overflow: "hidden",
-      padding: 4
-    },
-  })
-)
 
 type TableColumnInfo = {
   label: string
@@ -116,7 +93,6 @@ const createServantItemsTableData = (servant: Servant, inventoryStatus: Inventor
 }
 
 export const ServantItemsPage: FC<Prop> = (props) => {
-  const classes = useStyles()
   const [ sortBy, setSortBy ] = useState(columns.length - 1)
   const [ sortOrder, setSortOrder ] = useState(-1)
   const [ tableSize, setTableSize ] = useState([480, 400])
@@ -135,20 +111,21 @@ export const ServantItemsPage: FC<Prop> = (props) => {
     const column = columns[columnIndex]
 
     return (
-      <div style={{...style, textAlign: column.align}} className={classes.head}  onClick={() => handleClickColumn(columnIndex)} >
+      <TableHeaderCell style={{...style, textAlign: column.align}} onClick={() => handleClickColumn(columnIndex)} >
         {(sortBy == columnIndex) ? ((sortOrder == 1) ? column.label + "▲" : column.label + "▼") : column.label}
-      </div>
+      </TableHeaderCell>
     )
   }
 
   const cell = ({columnIndex, rowIndex, style }) => {
     const column = columns[columnIndex]
     const cellData = getTableData(tableData[rowIndex], columnIndex)
+    const Cell = rowIndex % 2 ? TableOddCell : TableEvenCell
 
     return (
-      <div style={{...style, textAlign: column.align}} className={rowIndex % 2 ? classes.oddRowCell : classes.evenRowCell} >
+      <Cell style={{...style, textAlign: column.align}} >
         {cellData}
-      </div>
+      </Cell>
     )
   }
 

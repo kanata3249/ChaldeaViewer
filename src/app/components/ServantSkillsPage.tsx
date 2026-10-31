@@ -1,27 +1,13 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles } from '@mui/styles'
-import { Theme } from '@mui/material/styles'
 
 import { List, ListItem, ListItemText, Grid, Divider } from '@mui/material'
 
 import { Servant, servantNames, servantClassNames, servantSkills, skillTypeNames } from '../../fgo/servants'
+import { SkillDescription, SkillDetail } from './TableStyles'
 
 type Prop = {
   servant: Servant
 }
-
-const useStyles = makeStyles((theme: Theme) => 
-  createStyles({
-    skillDescription: {
-      paddingLeft: 8,
-      fontSize: "smaller"
-    },
-    skillDetail: {
-      fontSize: "smaller",
-      paddingBottom: 8,
-    },
-  })
-)
 
 type TableColumnInfo = {
   label: string
@@ -88,7 +74,6 @@ const createServantSkillsTableData = (servant: Servant): ServantSkillsTableData[
 }
 
 export const ServantSkillsPage: FC<Prop> = (props) => {
-  const classes = useStyles()
   const [ tableSize, setTableSize ] = useState([480, 400])
   const tableData: ServantSkillsTableData[] = createServantSkillsTableData(props.servant)
 
@@ -105,11 +90,11 @@ export const ServantSkillsPage: FC<Prop> = (props) => {
               {row.type == "append" && <ListItemText primary={row.name + " - " + skillTypeNames[row.type]} />}
             </Grid>
             { row.detail && 
-              <Grid className={classes.skillDetail} >
+              <SkillDetail>
                 {formatSkillDetail(row.detail)}
-              </Grid>
+              </SkillDetail>
             }
-            <Grid className={classes.skillDescription} >
+            <SkillDescription>
               <table>
                 <tbody>
                   {row.effects.map((text, index) => {
@@ -138,7 +123,7 @@ export const ServantSkillsPage: FC<Prop> = (props) => {
                   ))}
                 </tbody>
               </table>
-            </Grid>
+            </SkillDescription>
           </Grid>
         </ListItem>
       </div>
