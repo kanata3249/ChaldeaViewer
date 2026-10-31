@@ -806,7 +806,7 @@ export const ServantTable: FC<Prop> = (props) => {
   const summary = calcServantSummary(props.servants)
   let modifyInventory = loadModifyInventory('ServantTable')
 
-  const refs = {}
+  const refs = useRef<Record<string, HTMLInputElement | null>>({})
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -846,8 +846,9 @@ export const ServantTable: FC<Prop> = (props) => {
         bodyRef.current.resetAfterColumnIndex(columnIndex)
         columns.forEach((columnInfo, index) => {
           if (columnInfo.editable) {
-            if (refs[rowIndex + '-' + index]) {
-              refs[rowIndex + '-' + index].current.value = getTableData(row, index)
+            const input = refs.current[rowIndex + '-' + index]
+            if (input) {
+              input.value = getTableData(row, index)
             }
           }
         })
@@ -861,21 +862,21 @@ export const ServantTable: FC<Prop> = (props) => {
   const focusNextTabStop = (rowIndex: number, columnIndex: number) => {
     for (let index = columnIndex + 1; index < columns.length; index++) {
       if (columns[index].editable) {
-        const nextTabRef = refs[rowIndex + "-" + index]
-        nextTabRef?.current?.focus()
+        const nextTabInput = refs.current[rowIndex + "-" + index]
+        nextTabInput?.focus()
         return
       }
     }
     for (let index = 0; index <= columnIndex; index++) {
       if (columns[index].editable) {
-        const nextTabRef = refs[(rowIndex + 1) + "-" + index]
-        nextTabRef?.current?.focus()
+        const nextTabInput = refs.current[(rowIndex + 1) + "-" + index]
+        nextTabInput?.focus()
         return
       }
     }
   }
 
-  const handleKeyPress = (rowIndex: number, columnIndex: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (rowIndex: number, columnIndex: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key == "Enter") {
       focusNextTabStop(rowIndex, columnIndex)
     }
@@ -957,35 +958,33 @@ export const ServantTable: FC<Prop> = (props) => {
   const editableCell = (columnIndex, rowIndex) => {
     const column = columns[columnIndex]
     const cellData = getTableData(tableData[rowIndex], columnIndex)
-    const ref = useRef<HTMLInputElement>(null)
+    const refKey = rowIndex + "-" + columnIndex
 
-    refs[rowIndex + "-" + columnIndex] = ref
-    if (column.type == "number") {
-      return <TextField defaultValue={cellData} size="small" inputRef={ref}
-              onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
-              onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
-              type={column.type} slotProps={{
-                input: { disableUnderline: true },
-                htmlInput: {
-                  min: column.min,
-                  max: column.max,
-                  step: column.step || 1,
-                  style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" },
-                  onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)},
-                },
-              }} />
-    } else {
-      return <TextField defaultValue={cellData} size="small" inputRef={ref}
-              onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
-              onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
-              type={column.type} slotProps={{
-                input: { disableUnderline: true },
-                htmlInput: {
-                  style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" },
-                  onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)},
-                },
-              }} />
-    }
+    return <input
+      ref={(input) => { refs.current[refKey] = input }}
+      aria-label={column.label}
+      defaultValue={cellData}
+      type={column.type == "number" ? "number" : "text"}
+      min={column.type == "number" ? column.min : undefined}
+      max={column.type == "number" ? column.max : undefined}
+      step={column.type == "number" ? column.step || 1 : undefined}
+      onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
+      onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
+      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyDown(rowIndex, columnIndex, e)}}
+      style={{
+        width: "100%",
+        boxSizing: "border-box",
+        border: 0,
+        background: "transparent",
+        color: "inherit",
+        font: "inherit",
+        lineHeight: "1.4375em",
+        textAlign: column.align,
+        paddingTop: 2,
+        paddingBottom: 0,
+        fontSize: "0.875rem",
+      }}
+    />
   }
 
   const cell = ({columnIndex, rowIndex, style }) => {
