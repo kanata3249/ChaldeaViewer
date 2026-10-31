@@ -15,23 +15,23 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.4.3",
-    "@babel/preset-env": "^7.4.3",
-    "@types/node": "^25.6.0",
+    "@babel/core": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
+    "@types/node": "^25.9.9",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@types/resize-observer-browser": "^0.1.4",
+    "@types/resize-observer-browser": "^0.1.11",
     "arraybuffer-loader": "^1.0.8",
-    "babel-loader": "^8.0.5",
+    "babel-loader": "^8.4.1",
     "cross-env": "^7.0.3",
-    "eslint": "^10.0.0",
-    "html-webpack-plugin": "^4.5.0",
-    "terser-webpack-plugin": "^5.1.2",
-    "ts-loader": "^8.0.9",
+    "eslint": "^10.14.0",
+    "html-webpack-plugin": "^5.6.8",
+    "terser-webpack-plugin": "^5.6.1",
+    "ts-loader": "^8.4.0",
     "typescript": "^5.9.3",
-    "webpack": "^5.105.2",
+    "webpack": "^5.112.2",
     "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.3",
+    "webpack-dev-server": "^5.2.7",
     "webpack-merge": "^6.0.1"
   },
   "dependencies": {
@@ -40,11 +40,17 @@
     "@mui/icons-material": "9.5.0",
     "@mui/material": "9.5.0",
     "@mui/styles": "6.4.8",
-    "pako": "^2.0.2",
+    "pako": "^2.2.0",
     "react": "^19.3.1",
     "react-device-detect": "^2.2.3",
     "react-dom": "^19.3.1",
-    "react-window": "^1.8.6"
+    "react-window": "^1.8.11"
+  },
+  "pnpm": {
+    "overrides": {
+      "minimatch": "11.0.1",
+      "uuid": "11.1.1"
+    }
   },
   "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319"
 }
