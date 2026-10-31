@@ -1,7 +1,8 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
+import { makeStyles, createStyles } from '@mui/styles'
+import { Theme } from '@mui/material/styles'
 
-import { List, ListItem, ListItemText, Grid, Divider } from '@material-ui/core'
+import { List, ListItem, ListItemText, Grid, Divider } from '@mui/material'
 
 import { Servant, servantNames, servantClassNames, servantSkills, skillTypeNames } from '../../fgo/servants'
 
@@ -96,19 +97,19 @@ export const ServantSkillsPage: FC<Prop> = (props) => {
       <div key={index}>
         {index != 0 && <Divider key={index * 100} />}
         <ListItem alignItems="flex-start" >
-          <Grid container direction="column">
-            <Grid item>
+          <Grid container sx={{ flexDirection: "column" }}>
+            <Grid>
               {row.type == "np" && <ListItemText primary={row.name + " - " + row.npType + skillTypeNames[row.type]} />}
               {row.type == "active" && <ListItemText primary={row.name + ` ct${row.ct}～${row.ct-2} - ` + skillTypeNames[row.type]} />}
               {row.type == "passive" && <ListItemText primary={row.name + " - " + skillTypeNames[row.type]} />}
               {row.type == "append" && <ListItemText primary={row.name + " - " + skillTypeNames[row.type]} />}
             </Grid>
             { row.detail && 
-              <Grid item className={classes.skillDetail} >
+              <Grid className={classes.skillDetail} >
                 {formatSkillDetail(row.detail)}
               </Grid>
             }
-            <Grid item className={classes.skillDescription} >
+            <Grid className={classes.skillDescription} >
               <table>
                 <tbody>
                   {row.effects.map((text, index) => {

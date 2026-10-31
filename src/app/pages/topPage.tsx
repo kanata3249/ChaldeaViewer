@@ -1,10 +1,10 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
-import { useTheme } from '@material-ui/core/styles'
-import useMediaQuery from '@material-ui/core/useMediaQuery'
+import { makeStyles, createStyles } from '@mui/styles'
+import { Theme, useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 
-import { AppBar, Menu, MenuItem, Toolbar, IconButton, Typography, Select, Link, Divider } from '@material-ui/core'
-import MenuIcon from '@material-ui/icons/Menu'
+import { AppBar, Menu, MenuItem, Toolbar, IconButton, Typography, Select, Link, Divider } from '@mui/material'
+import MenuIcon from '@mui/icons-material/Menu'
 
 import { InventoryTable } from './../components/InventoryTable'
 import { ServantTable } from './../components/ServantTable'

@@ -1,9 +1,9 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
+import { makeStyles, createStyles } from '@mui/styles'
+import { Theme } from '@mui/material/styles'
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core'
-import { Paper, Grid } from '@material-ui/core'
-import { ToggleButton } from '@material-ui/lab'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, ToggleButton } from '@mui/material'
+import { Paper, Grid } from '@mui/material'
 
 export type FilterDefinition = {
   key: string
@@ -112,21 +112,21 @@ export const FilterDialog: FC<Prop> = (props) => {
           {props.filterDefinition.map((group, groupIndex) =>
             <Paper variant="outlined" className={classes.groupContainer} key={groupIndex} >
               <Grid container spacing={1}>
-                <Grid item className={classes.title} >{group.name}:</Grid>
+                <Grid className={classes.title} >{group.name}:</Grid>
                 {group.type == "check" &&
-                  <Grid item>
+                  <Grid>
                     <Button onClick={() => { handleGroupClearAll(groupIndex) }} variant="outlined" size="small" style={{ padding: 0 }} >全解除</Button>
                   </Grid>
                 }
                 {group.type == "check" &&
-                  <Grid item>
+                  <Grid>
                     <Button onClick={() => { handleGroupSelectAll(groupIndex) }} variant="outlined" size="small" style={{ padding: 0 }} >全選択</Button>
                   </Grid>
                 }
                 </Grid>
               <Grid container spacing={1}>
                 {group.buttons.map((button, buttonIndex) =>
-                  <Grid item key={`${groupIndex}-${buttonIndex}`}>
+                  <Grid key={`${groupIndex}-${buttonIndex}`}>
                     <ToggleButton onClick={() => { handleClickFilterButton(group.key, button.key, group) }} value={button.label} selected={filterValues[group.key][button.key]} size="small">
                       {button.label}
                     </ToggleButton>

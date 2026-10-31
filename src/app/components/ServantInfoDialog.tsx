@@ -1,10 +1,11 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
+import { makeStyles, createStyles } from '@mui/styles'
+import { Theme } from '@mui/material/styles'
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core'
-import { List, ListItem, ListItemText, Grid, Divider } from '@material-ui/core'
-import Tabs from '@material-ui/core/Tabs'
-import Tab from '@material-ui/core/Tab'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material'
+import { List, ListItem, ListItemText, Grid, Divider } from '@mui/material'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
 
 import { Servant, servantNames, servantClassNames, servantSkills, skillTypeNames } from '../../fgo/servants'
 import { InventoryStatus, itemNames } from '../../fgo/inventory'

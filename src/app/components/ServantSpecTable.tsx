@@ -1,8 +1,9 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
+import { makeStyles, createStyles } from '@mui/styles'
+import { Theme } from '@mui/material/styles'
 import { isAndroid } from 'react-device-detect'
 
-import { Grid, Button, TextField } from '@material-ui/core'
+import { Grid, Button, TextField } from '@mui/material'
 import { VariableSizeGrid } from 'react-window'
 
 import { Servants, Servant, servantNames, servantClassNames, attributeNames, servantSkills, skillTypeNames } from '../../fgo/servants'
@@ -794,11 +795,11 @@ export const ServantSpecTable: FC<Prop> = (props) => {
     }
     const skill = servantSkills[skillId]
     return (
-      <Grid container direction="column" >
-        <Grid item>
+      <Grid container sx={{ flexDirection: "column" }} >
+        <Grid>
           {skill.name + " - " + skillTypeNames[skill.type]}
         </Grid>
-        <Grid item className={classes.skillDescription} >
+        <Grid className={classes.skillDescription} >
           <table>
             <tbody>
               {skill.effects.map((effect, index) => {
@@ -850,13 +851,17 @@ export const ServantSpecTable: FC<Prop> = (props) => {
           <TextField defaultValue={cellData} size="small"
                     onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
                     onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
-                    type={column.type} InputProps={{ disableUnderline: true }}
-                    inputProps={{min: 0, max: column.max, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
+                    type={column.type} slotProps={{
+                      input: { disableUnderline: true },
+                      htmlInput: { min: 0, max: column.max, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" } },
+                    }} />
           : <TextField defaultValue={cellData} size="small"
                     onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
                     onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
-                    type={column.type} InputProps={{ disableUnderline: true }}
-                    inputProps={{ style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
+                    type={column.type} slotProps={{
+                      input: { disableUnderline: true },
+                      htmlInput: { style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" } },
+                    }} />
         )}
         {column.button && (
           <DialogProviderContext.Consumer>
@@ -877,46 +882,46 @@ export const ServantSpecTable: FC<Prop> = (props) => {
 
   return (
     <div className={classes.container} ref={myRef}>
-      <Grid container className={classes.controller} justifyContent="flex-end" alignItems="center" spacing={1} >
-        <Grid item className={classes.summary} >
+      <Grid container className={classes.controller} sx={{ justifyContent: "flex-end", alignItems: "center" }} spacing={1} >
+        <Grid className={classes.summary} >
           {`フィルタ: ${tableData.length}`}
         </Grid>
-        <Grid item>
+        <Grid>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
         </Grid>
-        <Grid item>
+        <Grid>
           <TextField defaultValue={filterString} size="small"
             placeholder="名称/IDフィルタ"
-            inputProps={{ type: "search" }}
+            type="search"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterStringChanged(e)}
-            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => handleFilterStringKeyPress(e)}
+            slotProps={{ htmlInput: { onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => handleFilterStringKeyPress(e) } }}
             />
         </Grid>
-        <Grid item>
+        <Grid>
           <DialogProviderContext.Consumer>
             {({showFilterDialog}) =>
               <Button onClick={() => showFilterDialog(charFilterValues, defaultCharFilterValues, charFilterDefinition, handleCloseCharFilter)}
-                variant="contained"  color={Object.values(charFilterValues).some((group) => Object.values(group).some((value) => value)) ? "secondary" : "default"} >
+                variant="contained"  color={Object.values(charFilterValues).some((group) => Object.values(group).some((value) => value)) ? "secondary" : "inherit"} >
                 特性フィルタ
               </Button>
             }
           </DialogProviderContext.Consumer>
         </Grid>
-        <Grid item>
+        <Grid>
           <DialogProviderContext.Consumer>
             {({showFilterDialog}) =>
               <Button onClick={() => showFilterDialog(skillFilterValues, defaultSkillFilterValues, skillFilterDefinition, handleCloseSkillFilter)}
-                variant="contained"  color={Object.values(skillFilterValues).some((group) => Object.values(group).some((value) => value)) ? "secondary" : "default"} >
+                variant="contained"  color={Object.values(skillFilterValues).some((group) => Object.values(group).some((value) => value)) ? "secondary" : "inherit"} >
                 スキルフィルタ
               </Button>
             }
           </DialogProviderContext.Consumer>
         </Grid>
-        <Grid item>
+        <Grid>
           <DialogProviderContext.Consumer>
             {({showFilterDialog}) =>
               <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)}
-                variant="contained"  color={Object.values(filterValues).some((group) => Object.values(group).some((value) => !value)) ? "secondary" : "default"} >
+                variant="contained"  color={Object.values(filterValues).some((group) => Object.values(group).some((value) => !value)) ? "secondary" : "inherit"} >
                 フィルタ
               </Button>
             }

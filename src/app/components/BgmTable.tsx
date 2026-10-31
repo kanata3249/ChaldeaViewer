@@ -1,8 +1,9 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
+import { makeStyles, createStyles } from '@mui/styles'
+import { Theme } from '@mui/material/styles'
 import { isAndroid } from 'react-device-detect'
 
-import { Grid, Button, TextField, FormControlLabel, Checkbox } from '@material-ui/core'
+import { Grid, Button, TextField, FormControlLabel, Checkbox } from '@mui/material'
 import { VariableSizeGrid } from 'react-window'
 
 import { Bgms, Bgm  } from '../../fgo/bgms'
@@ -352,13 +353,13 @@ export const BgmTable: FC<Prop> = (props) => {
   const editableCell = (columnIndex, rowIndex) => {
     const column = columns[columnIndex]
     const cellData = getTableData(tableData[rowIndex], columnIndex)
-    const ref = useRef()
+    const ref = useRef<HTMLInputElement>(null)
 
     refs[rowIndex + "-" + columnIndex] = ref
     if (column.type == "boolean") {
       if (cellData === null) {
       } else {
-        return <Checkbox defaultChecked={cellData} size="small" inputRef={ref} color="default" disableRipple={true} style={{ padding: 0 }}
+        return <Checkbox defaultChecked={cellData} size="small" slotProps={{ input: { ref } }} color="default" disableRipple={true} style={{ padding: 0 }}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {handleCheckChanged(rowIndex, columnIndex, checked)}} />
       }
     }
@@ -382,25 +383,25 @@ export const BgmTable: FC<Prop> = (props) => {
 
   return (
     <div className={classes.container} ref={myRef}>
-      <Grid container className={classes.controller} justifyContent="flex-end" alignItems="center" spacing={1} >
-        <Grid item className={classes.summary} >
+      <Grid container className={classes.controller} sx={{ justifyContent: "flex-end", alignItems: "center" }} spacing={1} >
+        <Grid className={classes.summary} >
           { `実装: ${summary.bgms} 販売中: ${summary.onsale} 購入予定: ${summary.reserved} 購入済み: ${summary.purchased} フィルタ: ${tableData.length}`}
         </Grid>
-        <Grid item>
+        <Grid>
           <Button onClick={handleClickRecalc} variant="outlined" >再計算</Button>
         </Grid>
-        <Grid item>
+        <Grid>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={modifyInventory} onChange={handleModifyInventory} />}
                             label="所持アイテム数に反映" />
         </Grid>
-        <Grid item>
+        <Grid>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
         </Grid>
-        <Grid item>
+        <Grid>
           <DialogProviderContext.Consumer>
             {({showFilterDialog}) =>
               <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)}
-              variant="contained"  color={Object.values(filterValues).some((group) => Object.values(group).some((value) => !value)) ? "secondary" : "default"} >
+              variant="contained"  color={Object.values(filterValues).some((group) => Object.values(group).some((value) => !value)) ? "secondary" : "inherit"} >
               フィルタ
             </Button>
           }

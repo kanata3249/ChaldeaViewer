@@ -1,8 +1,9 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
+import { makeStyles, createStyles } from '@mui/styles'
+import { Theme } from '@mui/material/styles'
 import { isAndroid } from 'react-device-detect'
 
-import { Grid, Button, TextField, FormControlLabel, Checkbox } from '@material-ui/core'
+import { Grid, Button, TextField, FormControlLabel, Checkbox } from '@mui/material'
 import { VariableSizeGrid } from 'react-window'
 
 import { Servants, Servant, ServantSpec, servantNames, servantClassNames, attributeNames, estimatedLevelByAscensionAndRare, servantSkills, generateCleanServant } from '../../fgo/servants'
@@ -992,23 +993,34 @@ export const ServantTable: FC<Prop> = (props) => {
   const editableCell = (columnIndex, rowIndex) => {
     const column = columns[columnIndex]
     const cellData = getTableData(tableData[rowIndex], columnIndex)
-    const ref = useRef()
+    const ref = useRef<HTMLInputElement>(null)
 
     refs[rowIndex + "-" + columnIndex] = ref
     if (column.type == "number") {
       return <TextField defaultValue={cellData} size="small" inputRef={ref}
               onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
               onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
-              onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)}}
-              type={column.type} InputProps={{ disableUnderline: true }}
-              inputProps={{min: column.min, max: column.max, step: column.step || 1, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
+              type={column.type} slotProps={{
+                input: { disableUnderline: true },
+                htmlInput: {
+                  min: column.min,
+                  max: column.max,
+                  step: column.step || 1,
+                  style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" },
+                  onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)},
+                },
+              }} />
     } else {
       return <TextField defaultValue={cellData} size="small" inputRef={ref}
               onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
               onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
-              onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)}}
-              type={column.type} InputProps={{ disableUnderline: true }}
-              inputProps={{ style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
+              type={column.type} slotProps={{
+                input: { disableUnderline: true },
+                htmlInput: {
+                  style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" },
+                  onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)},
+                },
+              }} />
     }
   }
 
@@ -1040,43 +1052,43 @@ export const ServantTable: FC<Prop> = (props) => {
 
   return (
     <div className={classes.container} ref={myRef}>
-      <Grid container className={classes.controller} justifyContent="flex-end" alignItems="center" spacing={1} >
-        <Grid item className={classes.summary} >
+      <Grid container className={classes.controller} sx={{ justifyContent: "flex-end", alignItems: "center" }} spacing={1} >
+        <Grid className={classes.summary} >
           {`実装: ${summary.servants} 召喚: ${summary.summoned} 最終再臨: ${summary.maxAscension} スキルマ(含偽): ${summary.maxSkill} アペンドマ(含偽): ${summary.maxAppendSkill} 分裂: ${summary.duplicated} フィルタ: ${tableData.length}`}
         </Grid>
-        <Grid item>
+        <Grid>
           <Button onClick={handleClickRecalc} variant="outlined" >再計算</Button>
         </Grid>
-        <Grid item>
+        <Grid>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={modifyInventory} onChange={handleModifyInventory} />}
                             label="所持アイテム数に反映" />
         </Grid>
-        <Grid item>
+        <Grid>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
         </Grid>
-        <Grid item>
+        <Grid>
           <TextField defaultValue={filterString} size="small"
             placeholder="名称/IDフィルタ"
-            inputProps={{ type: "search" }}
+            type="search"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterStringChanged(e)}
-            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => handleFilterStringKeyPress(e)}
+            slotProps={{ htmlInput: { onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => handleFilterStringKeyPress(e) } }}
             />
         </Grid>
-        <Grid item>
+        <Grid>
           <DialogProviderContext.Consumer>
             {({showFilterDialog}) =>
               <Button onClick={() => showFilterDialog(skillFilterValues, defaultSkillFilterValues, skillFilterDefinition, handleCloseSkillFilter)}
-                variant="contained"  color={Object.values(skillFilterValues).some((group) => Object.values(group).some((value) => value)) ? "secondary" : "default"} >
+                variant="contained"  color={Object.values(skillFilterValues).some((group) => Object.values(group).some((value) => value)) ? "secondary" : "inherit"} >
                 スキルフィルタ
               </Button>
             }
           </DialogProviderContext.Consumer>
         </Grid>
-        <Grid item>
+        <Grid>
           <DialogProviderContext.Consumer>
             {({showFilterDialog}) =>
               <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)}
-              variant="contained"  color={Object.values(filterValues).some((group) => Object.values(group).some((value) => !value)) ? "secondary" : "default"} >
+              variant="contained"  color={Object.values(filterValues).some((group) => Object.values(group).some((value) => !value)) ? "secondary" : "inherit"} >
               フィルタ
             </Button>
           }

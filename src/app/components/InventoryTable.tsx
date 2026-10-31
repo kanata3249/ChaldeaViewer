@@ -1,8 +1,9 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
+import { makeStyles, createStyles } from '@mui/styles'
+import { Theme } from '@mui/material/styles'
 import { isAndroid } from 'react-device-detect'
 
-import { TextField, Button, Grid, FormControlLabel, Checkbox } from '@material-ui/core'
+import { TextField, Button, Grid, FormControlLabel, Checkbox } from '@mui/material'
 import { VariableSizeGrid } from 'react-window'
 
 import { Inventory, InventoryStatus, ItemStatus, itemNames } from './../../fgo/inventory'
@@ -440,7 +441,7 @@ export const InventoryTable: FC<Prop> = (props) => {
     const cellData = getTableData(tableData[rowIndex], columnIndex, columns)
     const [matchWord, charMain, charSub] = ((typeof(cellData) == 'string') && cellData.match(/^([^\s]+\s+[^\s]+)\s+(.*)$/)) || [ "", cellData, ""]
     if (column.editable)
-      refs[rowIndex + "-" + columnIndex] = useRef()
+      refs[rowIndex + "-" + columnIndex] = useRef<HTMLInputElement>(null)
 
     return (
       <div style={{...style, textAlign: column.align}} className={rowIndex % 2 ? classes.oddRowCell : classes.evenRowCell}>
@@ -448,9 +449,14 @@ export const InventoryTable: FC<Prop> = (props) => {
           <TextField defaultValue={cellData} size="small" inputRef={refs[rowIndex + "-" + columnIndex]}
                     onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
                     onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
-                    onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)}}
-                    type="number" InputProps={{ disableUnderline: true }}
-                    inputProps={{min: 0, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" }}} />
+                    type="number" slotProps={{
+                      input: { disableUnderline: true },
+                      htmlInput: {
+                        min: 0,
+                        style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" },
+                        onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)},
+                      },
+                    }} />
         : charSub ? <div>{charMain}<span style={{fontSize:"smaller"}}>&nbsp;{charSub}</span></div>
                 : cellData
         }
@@ -460,34 +466,34 @@ export const InventoryTable: FC<Prop> = (props) => {
 
   return (
     <div className={classes.container} ref={myRef}>
-      <Grid container className={classes.controller} justifyContent="flex-end" alignItems="center" spacing={1} >
-        <Grid item className={classes.summary} >
+      <Grid container className={classes.controller} sx={{ justifyContent: "flex-end", alignItems: "center" }} spacing={1} >
+        <Grid className={classes.summary} >
           {`フィルタ: ${tableData.length}`}
         </Grid>
-        <Grid item>
+        <Grid>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={showBGM} onChange={handleModifyShowBGM} />}
                             label="BGM" />
         </Grid>
-        <Grid item>
+        <Grid>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={showCS} onChange={handleModifyShowClassscore} />}
                             label="クラススコア" />
         </Grid>
-        <Grid item>
+        <Grid>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={showCostume} onChange={handleModifyShowCostume} />}
                             label="霊衣" />
         </Grid>
-        <Grid item>
+        <Grid>
           <FormControlLabel control={<Checkbox name="checkedC" defaultChecked={showDuplicated} onChange={handleModifyShowDuplicated} />}
                             label="分裂" />
         </Grid>
-        <Grid item>
+        <Grid>
           <Button onClick={handleClickClipboard} variant="outlined" >CSVコピー</Button>
         </Grid>
-        <Grid item>
+        <Grid>
           <DialogProviderContext.Consumer>
             {({showFilterDialog}) =>
               <Button onClick={() => showFilterDialog(filterValues, defaultFilterValues, filterDefinition, handleCloseFilter)}
-              variant="contained"  color={Object.values(filterValues).some((group) => Object.values(group).some((value) => !value)) ? "secondary" : "default"} >
+              variant="contained"  color={Object.values(filterValues).some((group) => Object.values(group).some((value) => !value)) ? "secondary" : "inherit"} >
               フィルタ
             </Button>
           }

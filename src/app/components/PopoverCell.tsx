@@ -1,7 +1,8 @@
 import React, { FC, useState } from 'react'
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
+import { makeStyles, createStyles } from '@mui/styles'
+import { Theme } from '@mui/material/styles'
 
-import { Popover } from '@material-ui/core'
+import { Popover } from '@mui/material'
 
 type Prop = {
   popover: any
