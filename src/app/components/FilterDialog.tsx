@@ -28,8 +28,14 @@ type Prop = {
   onClose(result: FilterValues): void
 }
 
-const GroupContainer = styled(Paper)({ padding: 8 })
-const GroupTitle = styled(Grid)({ flexGrow: 1 })
+const GroupContainer = styled(Paper)({
+  padding: 8,
+  backgroundColor: 'transparent',
+})
+const GroupTitle = styled(Grid)({
+  flexGrow: 1,
+  backgroundColor: 'transparent',
+})
 
 export const FilterDialog: FC<Prop> = (props) => {
   const [ filterValues, setFilterValues ] = useState({...props.defaultValues, ...props.values})
