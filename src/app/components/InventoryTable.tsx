@@ -405,14 +405,14 @@ export const InventoryTable: FC<Prop> = (props) => {
     return (
       <Cell style={{...style, textAlign: column.align}}>
         {column.editable ?
-          <TextField defaultValue={cellData} size="small" inputRef={refs[rowIndex + "-" + columnIndex]}
+          <TextField defaultValue={cellData} size="small" fullWidth inputRef={refs[rowIndex + "-" + columnIndex]}
                     onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
                     onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
                     type="number" slotProps={{
                       input: { disableUnderline: true },
                       htmlInput: {
                         min: 0,
-                        style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" },
+                        style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, paddingLeft: 0, paddingRight: 0, fontSize: "0.875rem" },
                         onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => {handleKeyPress(rowIndex, columnIndex, e)},
                       },
                     }} />
