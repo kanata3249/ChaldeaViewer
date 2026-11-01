@@ -184,7 +184,7 @@ export const TopPage: FC = () => {
     <>
       <DialogProvider>
         <ToolbarSpacer>
-          <AppBar>
+          <AppBar color="primary" enableColorOnDark>
             <Toolbar>
               <IconButton edge="start" aria-label="menu" aria-controls="main-menu" onClick={handleMenuClick}>
                 <MenuIcon />
