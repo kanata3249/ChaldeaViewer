@@ -1,9 +1,10 @@
-import { createTheme } from "@mui/material/styles"
+import { createTheme, alpha } from "@mui/material/styles"
 import * as colors from '@mui/material/colors'
 
 const isDarkMode = () => matchMedia('(prefers-color-scheme: dark)').matches
 
 export const appTheme = () => {
+  const mode = isDarkMode() ? "dark" : "light"
   const theme = createTheme({
     palette: {
       primary: {
@@ -12,7 +13,10 @@ export const appTheme = () => {
       secondary: {
         main: "#ffb74d"
       },
-      mode: isDarkMode() ? "dark" : "light",
+      mode,
+      background: {
+        default: mode === "dark" ? "#303030" : "#fff",
+      },
     },
     components: {
       MuiButton: {
