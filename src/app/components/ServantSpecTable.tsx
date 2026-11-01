@@ -809,14 +809,14 @@ export const ServantSpecTable: FC<Prop> = (props) => {
       <Cell style={{...style, textAlign: column.align}}>
         {column.editable && (
           column.type == "number" ?
-          <TextField defaultValue={cellData} size="small"
+          <TextField defaultValue={cellData} size="small" variant="standard"
                     onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
                     onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
                     type={column.type} slotProps={{
                       input: { disableUnderline: true },
                       htmlInput: { min: 0, max: column.max, style: { textAlign: column.align, paddingTop: 2, paddingBottom: 0, fontSize: "0.875rem" } },
                     }} />
-          : <TextField defaultValue={cellData} size="small"
+          : <TextField defaultValue={cellData} size="small" variant="standard"
                     onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
                     onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
                     type={column.type} slotProps={{
@@ -854,6 +854,7 @@ export const ServantSpecTable: FC<Prop> = (props) => {
           <TextField defaultValue={filterString} size="small"
             placeholder="名称/IDフィルタ"
             type="search"
+            variant="standard"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterStringChanged(e)}
             slotProps={{ htmlInput: { onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => handleFilterStringKeyPress(e) } }}
             />

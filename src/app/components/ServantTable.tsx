@@ -1034,6 +1034,7 @@ export const ServantTable: FC<Prop> = (props) => {
           <TextField defaultValue={filterString} size="small"
             placeholder="名称/IDフィルタ"
             type="search"
+            variant="standard"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterStringChanged(e)}
             slotProps={{ htmlInput: { onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => handleFilterStringKeyPress(e) } }}
             />

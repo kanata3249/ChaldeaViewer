@@ -408,6 +408,7 @@ export const InventoryTable: FC<Prop> = (props) => {
           <TextField defaultValue={cellData} size="small" fullWidth inputRef={refs[rowIndex + "-" + columnIndex]}
                     onBlur={(e: React.FocusEvent<HTMLInputElement>) => {handleLostFocus(rowIndex, columnIndex, e)}}
                     onFocus={(e: React.FocusEvent<HTMLInputElement>) => {e.target.select()}}
+                    variant="standard"
                     type="number" slotProps={{
                       input: { disableUnderline: true },
                       htmlInput: {
